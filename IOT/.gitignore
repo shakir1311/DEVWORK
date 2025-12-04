@@ -1,0 +1,14 @@
+# Arduino IDE
+*.hex
+*.elf
+*.bin
+build/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# User-specific configuration (if you create a config file)
+config.h
+

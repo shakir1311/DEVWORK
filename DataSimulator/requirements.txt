@@ -1,0 +1,12 @@
+# GUI Framework
+PyQt6>=6.7.0
+pyqtgraph>=0.13.3   # High-performance plotting for real-time ECG visualization
+
+# Scientific Computing
+scipy>=1.11.0
+numpy>=1.24.0
+
+# MQTT (Client and Embedded Broker)
+paho-mqtt>=1.6.0    # MQTT client for publishing data
+amqtt>=0.11.0       # Embedded MQTT broker (Python 3.13 compatible)
+
