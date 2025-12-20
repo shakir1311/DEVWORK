@@ -79,8 +79,8 @@ class MQTTClient:
             return False
         
         try:
-            # Create MQTT client
-            self.client = mqtt.Client(client_id=MQTT_CLIENT_ID)
+            # Create MQTT client (paho-mqtt 2.x API)
+            self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=MQTT_CLIENT_ID)
             self.client.on_connect = self._on_connect
             self.client.on_disconnect = self._on_disconnect
             self.client.on_message = self._on_message
@@ -112,9 +112,9 @@ class MQTTClient:
                 self.client.loop_stop()
             return False
     
-    def _on_connect(self, client, userdata, flags, rc):
-        """Callback when MQTT client connects."""
-        if rc == 0:
+    def _on_connect(self, client, userdata, flags, reason_code, properties):
+        """Callback when MQTT client connects (paho-mqtt 2.x VERSION2 API)."""
+        if reason_code == 0 or reason_code.is_failure == False:
             self.connected = True
             logger.info("MQTT client connected")
             
@@ -124,25 +124,49 @@ class MQTTClient:
                 logger.info(f"✓ Subscribed to topic: {MQTT_CHUNK_TOPIC} (QoS 1)")
             else:
                 logger.error(f"Failed to subscribe to {MQTT_CHUNK_TOPIC}, error code: {result}")
+            
+            # Also subscribe to wildcard to debug what topics are actually arriving
+            result2, mid2 = client.subscribe("ecg/#", qos=1)
+            if result2 == mqtt.MQTT_ERR_SUCCESS:
+                logger.info(f"✓ Also subscribed to wildcard: ecg/# (for debugging)")
+            
+            # Register topic-specific callback (sometimes more reliable than generic on_message)
+            client.message_callback_add(MQTT_CHUNK_TOPIC, self._on_chunk_message)
+            client.message_callback_add("ecg/#", self._on_any_ecg_message)
         else:
             self.connected = False
-            logger.error(f"MQTT connection failed with code {rc}")
+            logger.error(f"MQTT connection failed with code {reason_code}")
     
-    def _on_disconnect(self, client, userdata, rc):
-        """Callback when MQTT client disconnects."""
+    def _on_disconnect(self, client, userdata, disconnect_flags, reason_code, properties):
+        """Callback when MQTT client disconnects (paho-mqtt 2.x VERSION2 API)."""
         self.connected = False
-        if rc != 0:
-            logger.warning(f"MQTT disconnected unexpectedly (code {rc})")
+        if reason_code != 0:
+            logger.warning(f"MQTT disconnected unexpectedly (code {reason_code})")
         else:
             logger.info("MQTT disconnected")
     
     def _on_message(self, client, userdata, msg):
         """Callback when MQTT message is received."""
+        # DEBUG: Verify paho-mqtt is calling this callback
+        logger.info(f"[PAHO DEBUG] _on_message triggered! Topic: {msg.topic}")
+        
         if self.on_message_callback:
             try:
                 self.on_message_callback(msg.topic, msg.payload)
             except Exception as e:
                 logger.error(f"Error in message callback: {e}", exc_info=True)
+        else:
+            logger.warning("[PAHO DEBUG] on_message_callback is None!")
+    
+    def _on_chunk_message(self, client, userdata, msg):
+        """Topic-specific callback for chunk messages."""
+        logger.info(f"[CHUNK CALLBACK] Received on {msg.topic}, payload size: {len(msg.payload)}")
+        if self.on_message_callback:
+            self.on_message_callback(msg.topic, msg.payload)
+    
+    def _on_any_ecg_message(self, client, userdata, msg):
+        """Wildcard callback for any ecg/# message - for debugging."""
+        logger.info(f"[WILDCARD DEBUG] Message on topic: {msg.topic}, size: {len(msg.payload)}")
     
     def send_ack(self, chunk_num: int) -> bool:
         """

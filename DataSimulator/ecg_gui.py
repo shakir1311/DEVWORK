@@ -603,29 +603,32 @@ class ECGSimulatorApp(QMainWindow):
             if "0.0.0.0" not in ip_addresses:
                 ip_addresses.insert(0, "0.0.0.0")
             
-            # Remove duplicates and sort (localhost first, then 0.0.0.0, then others)
+            # Remove duplicates and sort (0.0.0.0 first, then local network IP, then localhost)
             seen = set()
             unique_ips = []
-            priority_ips = ["127.0.0.1", "0.0.0.0"]
             
-            # Add priority IPs first
-            for ip in priority_ips:
-                if ip in ip_addresses:
-                    unique_ips.append(ip)
-                    seen.add(ip)
+            # 1. 0.0.0.0 is best for discovery (listens on all interfaces)
+            if "0.0.0.0" in ip_addresses:
+                unique_ips.append("0.0.0.0")
+                seen.add("0.0.0.0")
             
-            # Add remaining IPs
+            # 2. Add other non-localhost IPs
             for ip in ip_addresses:
-                if ip not in seen:
+                if ip not in seen and not ip.startswith("127."):
                     unique_ips.append(ip)
                     seen.add(ip)
+            
+            # 3. Add localhost last
+            if "127.0.0.1" in ip_addresses and "127.0.0.1" not in seen:
+                unique_ips.append("127.0.0.1")
+                seen.add("127.0.0.1")
             
             return unique_ips
             
         except Exception as e:
             logger.error(f"Error getting IP addresses: {str(e)}")
-            # Fallback to localhost
-            return ["127.0.0.1", "0.0.0.0"]
+            # Fallback
+            return ["0.0.0.0", "127.0.0.1"]
     
     def create_mqtt_panel(self) -> QGroupBox:
         """Create MQTT connection panel."""
@@ -814,7 +817,7 @@ class ECGSimulatorApp(QMainWindow):
         # The effective upper bound in practice is the total number of samples
         # in the record (e.g., 9,000 for a 30s record @ 300 Hz).
         self.chunk_size_spinbox.setRange(1, 10000)
-        self.chunk_size_spinbox.setValue(30)
+        self.chunk_size_spinbox.setValue(600)  # Default to 600 samples (2 seconds @ 300Hz)
         self.chunk_size_spinbox.setSuffix(" samples")
         self.chunk_size_spinbox.setToolTip(
             "Number of samples per MQTT message (>=1).\n"
@@ -1099,6 +1102,9 @@ class ECGSimulatorApp(QMainWindow):
                 
                 # Load patient list
                 self.on_refresh_patients()
+                
+                # Sync chunk size from GUI to controller
+                self.controller.set_chunk_size(self.chunk_size_spinbox.value())
                 
                 # Update button states
                 self.update_button_states("connected")

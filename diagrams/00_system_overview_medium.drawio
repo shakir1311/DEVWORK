@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-12T13:00:00.000Z" agent="Claude" version="22.1.0" type="device">
+  <diagram name="System Overview - Medium Detail" id="system-overview-medium">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="BIEIF-RPM: System Architecture Overview" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontColor=#1a1a2e" vertex="1" parent="1">
+          <mxGeometry x="550" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Blockchain-Integrated Edge Intelligence Framework for Remote Patient Monitoring" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="500" y="55" width="600" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- ===================== LAYER 1: DATA SOURCE ===================== -->
+        <mxCell id="layer1_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#d1d5db;dashed=1;dashPattern=8 8" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="200" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="layer1_title" value="DATA SOURCE" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#6b7280" vertex="1" parent="1">
+          <mxGeometry x="40" y="105" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="physionet" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#667eea;strokeColor=#5a67d8;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="60" y="140" width="160" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="physionet_icon" value="🗄️" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28" vertex="1" parent="1">
+          <mxGeometry x="100" y="145" width="80" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="physionet_title" value="PhysioNet Archive" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="60" y="180" width="160" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="physionet_desc" value="CinC 2017 Dataset&#xa;8,528 ECG Records&#xa;300 Hz Sampling" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#e0e0ff" vertex="1" parent="1">
+          <mxGeometry x="60" y="200" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="dataset_files" value=".mat + .hea files&#xa;REFERENCE.csv" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#818cf8;fontSize=9;fontColor=#4338ca" vertex="1" parent="1">
+          <mxGeometry x="80" y="260" width="120" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- ===================== LAYER 2: SIMULATION ===================== -->
+        <mxCell id="layer2_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#93c5fd;dashed=1;dashPattern=8 8" vertex="1" parent="1">
+          <mxGeometry x="280" y="100" width="240" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="layer2_title" value="SIMULATION LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#3b82f6" vertex="1" parent="1">
+          <mxGeometry x="280" y="105" width="240" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="datasim_app" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b82f6;strokeColor=#2563eb;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="300" y="135" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="datasim_title" value="DataSimulator" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontStyle=1;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="300" y="145" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="datasim_desc" value="PyQt6 GUI Application&#xa;MVC Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#bfdbfe" vertex="1" parent="1">
+          <mxGeometry x="300" y="170" width="200" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sim_mqtt" value="MQTT Broker&#xa;Port: 1883" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a5fa;strokeColor=#3b82f6;fontSize=10;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="305" y="220" width="90" height="45" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sim_udp" value="UDP Discovery&#xa;Port: 1884" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a5fa;strokeColor=#3b82f6;fontSize=10;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="405" y="220" width="90" height="45" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sim_worker" value="Worker Thread&#xa;Background Publishing" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#93c5fd;fontSize=9;fontColor=#1e40af" vertex="1" parent="1">
+          <mxGeometry x="305" y="280" width="190" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sim_topic" value="Topic: ecg/full_record&#xa;Binary ~36KB" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontStyle=2;fontColor=#6b7280" vertex="1" parent="1">
+          <mxGeometry x="305" y="320" width="190" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- ===================== LAYER 3: IoT ===================== -->
+        <mxCell id="layer3_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#fca5a5;dashed=1;dashPattern=8 8" vertex="1" parent="1">
+          <mxGeometry x="560" y="100" width="200" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="layer3_title" value="IoT DEVICE LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#ef4444" vertex="1" parent="1">
+          <mxGeometry x="560" y="105" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="esp32_1" value="ESP32&#xa;Device 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ef4444;strokeColor=#dc2626;fontSize=10;fontColor=#ffffff;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="580" y="135" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="esp32_2" value="ESP32&#xa;Device 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f87171;strokeColor=#ef4444;fontSize=10;fontColor=#ffffff;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="660" y="135" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="esp32_n" value="ESP32&#xa;Device N" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fca5a5;strokeColor=#f87171;fontSize=10;fontColor=#7f1d1d;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="620" y="195" width="70" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="esp_features" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#fca5a5" vertex="1" parent="1">
+          <mxGeometry x="580" y="260" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="esp_f1" value="📡 WiFi Auto-Connect" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#7f1d1d" vertex="1" parent="1">
+          <mxGeometry x="585" y="265" width="150" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="esp_f2" value="🔍 UDP Broker Discovery" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#7f1d1d" vertex="1" parent="1">
+          <mxGeometry x="585" y="283" width="150" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="esp_f3" value="📦 Binary Parser" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#7f1d1d" vertex="1" parent="1">
+          <mxGeometry x="585" y="301" width="150" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="esp_f4" value="✂️ Data Chunker" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#7f1d1d" vertex="1" parent="1">
+          <mxGeometry x="585" y="319" width="150" height="18" as="geometry" />
+        </mxCell>
+        
+        <!-- ===================== LAYER 4: EDGE ===================== -->
+        <mxCell id="layer4_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#6ee7b7;dashed=1;dashPattern=8 8" vertex="1" parent="1">
+          <mxGeometry x="800" y="100" width="340" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="layer4_title" value="EDGE PROCESSING LAYER (Raspberry Pi 4)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#10b981" vertex="1" parent="1">
+          <mxGeometry x="800" y="105" width="340" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="edge_mqtt" value="MQTT Broker&#xa;Port: 1885" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10b981;strokeColor=#059669;fontSize=10;fontColor=#ffffff;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="820" y="135" width="90" height="45" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="edge_udp" value="UDP Discovery&#xa;Port: 1886" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10b981;strokeColor=#059669;fontSize=10;fontColor=#ffffff;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="920" y="135" width="90" height="45" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="edge_gui" value="PyQt6 GUI&#xa;Real-time" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#34d399;strokeColor=#10b981;fontSize=10;fontColor=#ffffff;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="1020" y="135" width="90" height="45" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="edge_processor" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#059669;strokeColor=#047857;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="820" y="195" width="290" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_proc_title" value="🧠 Processing Pipeline" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="820" y="200" width="290" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_proc_hr" value="Heart Rate&#xa;Detection" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#6ee7b7;strokeColor=#34d399;fontSize=9;fontColor=#064e3b" vertex="1" parent="1">
+          <mxGeometry x="830" y="225" width="80" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_proc_ml" value="ML Inference&#xa;ECG-DualNet" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#6ee7b7;strokeColor=#34d399;fontSize=9;fontColor=#064e3b" vertex="1" parent="1">
+          <mxGeometry x="920" y="225" width="85" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_proc_xai" value="XAI&#xa;Explanations" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#6ee7b7;strokeColor=#34d399;fontSize=9;fontColor=#064e3b" vertex="1" parent="1">
+          <mxGeometry x="1015" y="225" width="85" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="edge_storage" value="📁 Local Storage&#xa;NPZ + JSON" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#a7f3d0;strokeColor=#6ee7b7;fontSize=9;fontColor=#064e3b" vertex="1" parent="1">
+          <mxGeometry x="820" y="285" width="90" height="55" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="edge_api" value="HTTP Client&#xa;API → Web Portal" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#6ee7b7;fontSize=9;fontColor=#064e3b" vertex="1" parent="1">
+          <mxGeometry x="920" y="290" width="190" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- ===================== LAYER 5: WEB PORTAL ===================== -->
+        <mxCell id="layer5_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#fcd34d;dashed=1;dashPattern=8 8" vertex="1" parent="1">
+          <mxGeometry x="1180" y="100" width="300" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="layer5_title" value="WEB PORTAL (Cloud/Server)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#f59e0b" vertex="1" parent="1">
+          <mxGeometry x="1180" y="105" width="300" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web_backend" value="FastAPI Backend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f59e0b;strokeColor=#d97706;fontSize=11;fontStyle=1;fontColor=#ffffff;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="1200" y="135" width="130" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web_frontend" value="Jinja2 + JS&#xa;Frontend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fbbf24;strokeColor=#f59e0b;fontSize=10;fontColor=#78350f;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="1340" y="135" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web_auth" value="🔐 JWT Auth&#xa;Bcrypt Passwords" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#fcd34d;fontSize=9;fontColor=#92400e" vertex="1" parent="1">
+          <mxGeometry x="1200" y="190" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web_audit" value="🔗 Cryptographic&#xa;Audit Ledger" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#10b981;fontSize=9;fontColor=#064e3b;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1310" y="190" width="110" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web_db" value="SQLite Database" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#fef3c7;strokeColor=#fcd34d;fontSize=10;fontStyle=1;fontColor=#92400e" vertex="1" parent="1">
+          <mxGeometry x="1200" y="245" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web_tables" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#fcd34d" vertex="1" parent="1">
+          <mxGeometry x="1310" y="245" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="web_t1" value="👥 users" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontColor=#78350f" vertex="1" parent="1">
+          <mxGeometry x="1315" y="248" width="50" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="web_t2" value="🏥 patients" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontColor=#78350f" vertex="1" parent="1">
+          <mxGeometry x="1365" y="248" width="55" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="web_t3" value="💓 ecg_records" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontColor=#78350f" vertex="1" parent="1">
+          <mxGeometry x="1315" y="266" width="70" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="web_t4" value="📋 audit_log" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontColor=#78350f" vertex="1" parent="1">
+          <mxGeometry x="1315" y="280" width="65" height="14" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web_pages" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fef9c3;strokeColor=#fcd34d" vertex="1" parent="1">
+          <mxGeometry x="1200" y="305" width="220" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="web_pages_title" value="Pages: Dashboard | ECG View | Patient Timeline | Audit Ledger" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontColor=#78350f" vertex="1" parent="1">
+          <mxGeometry x="1200" y="310" width="220" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- ===================== LAYER 6: USER ===================== -->
+        <mxCell id="layer6_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#d1d5db;dashed=1;dashPattern=8 8" vertex="1" parent="1">
+          <mxGeometry x="1520" y="100" width="140" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="layer6_title" value="USER LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#6b7280" vertex="1" parent="1">
+          <mxGeometry x="1520" y="105" width="140" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="doctor" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#374151;strokeColor=#1f2937;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="1540" y="140" width="100" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="doctor_icon" value="👨‍⚕️" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=36" vertex="1" parent="1">
+          <mxGeometry x="1550" y="150" width="80" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="doctor_title" value="Clinician" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="1540" y="195" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="doctor_desc" value="Web Browser&#xa;JWT Auth" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#9ca3af" vertex="1" parent="1">
+          <mxGeometry x="1540" y="215" width="100" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="doctor_actions" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e5e7eb;strokeColor=#d1d5db" vertex="1" parent="1">
+          <mxGeometry x="1540" y="275" width="100" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="action1" value="📊 View ECG" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="1545" y="280" width="90" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="action2" value="📈 Patient History" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="1545" y="295" width="90" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="action3" value="🔍 Audit Trail" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="1545" y="310" width="90" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="action4" value="🤖 XAI Analysis" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="1545" y="325" width="90" height="15" as="geometry" />
+        </mxCell>
+        
+        <!-- ===================== CONNECTION ARROWS ===================== -->
+        
+        <!-- Data Source → Simulator -->
+        <mxCell id="conn1" value="" style="endArrow=classic;html=1;strokeColor=#667eea;strokeWidth=3;endSize=10" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="190" as="sourcePoint" />
+            <mxPoint x="300" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="conn1_label" value="Download" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontStyle=2;fontColor=#667eea" vertex="1" parent="1">
+          <mxGeometry x="230" y="170" width="60" height="15" as="geometry" />
+        </mxCell>
+        
+        <!-- Simulator → IoT -->
+        <mxCell id="conn2" value="" style="endArrow=classic;html=1;strokeColor=#3b82f6;strokeWidth=3;endSize=10" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="243" as="sourcePoint" />
+            <mxPoint x="580" y="160" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="540" y="243" />
+              <mxPoint x="540" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="conn2_label" value="MQTT&#xa;ecg/full_record&#xa;~36KB Binary" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=7;fontStyle=2;fontColor=#3b82f6" vertex="1" parent="1">
+          <mxGeometry x="500" y="175" width="70" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- IoT → EDGE -->
+        <mxCell id="conn3" value="" style="endArrow=classic;html=1;strokeColor=#ef4444;strokeWidth=3;endSize=10" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="740" y="220" as="sourcePoint" />
+            <mxPoint x="820" y="157" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="780" y="220" />
+              <mxPoint x="780" y="157" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="conn3_label" value="MQTT&#xa;ecg/edge/chunk&#xa;Chunked" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=7;fontStyle=2;fontColor=#ef4444" vertex="1" parent="1">
+          <mxGeometry x="745" y="160" width="65" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- EDGE → Web Portal -->
+        <mxCell id="conn4" value="" style="endArrow=classic;html=1;strokeColor=#10b981;strokeWidth=3;endSize=10" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1110" y="312" as="sourcePoint" />
+            <mxPoint x="1200" y="155" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1150" y="312" />
+              <mxPoint x="1150" y="155" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="conn4_label" value="HTTP POST&#xa;/api/ingest&#xa;JSON" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=7;fontStyle=2;fontColor=#10b981" vertex="1" parent="1">
+          <mxGeometry x="1125" y="200" width="55" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Web Portal ↔ Doctor -->
+        <mxCell id="conn5" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#f59e0b;strokeWidth=3;endSize=10;startSize=10" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1420" y="200" as="sourcePoint" />
+            <mxPoint x="1540" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="conn5_label" value="HTTPS&#xa;JWT Auth" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;fontStyle=2;fontColor=#f59e0b" vertex="1" parent="1">
+          <mxGeometry x="1450" y="175" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- ===================== LEGEND ===================== -->
+        <mxCell id="legend_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9fafb;strokeColor=#e5e7eb" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="600" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_title" value="LEGEND" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="50" y="425" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b82f6;strokeColor=#2563eb" vertex="1" parent="1">
+          <mxGeometry x="50" y="450" width="20" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1t" value="Simulation" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="75" y="448" width="60" height="18" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ef4444;strokeColor=#dc2626" vertex="1" parent="1">
+          <mxGeometry x="145" y="450" width="20" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2t" value="IoT Devices" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="170" y="448" width="65" height="18" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10b981;strokeColor=#059669" vertex="1" parent="1">
+          <mxGeometry x="245" y="450" width="20" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3t" value="Edge Processing" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="270" y="448" width="85" height="18" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg4" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f59e0b;strokeColor=#d97706" vertex="1" parent="1">
+          <mxGeometry x="365" y="450" width="20" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4t" value="Web Portal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="390" y="448" width="60" height="18" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg5" value="" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=5;fillColor=#fef3c7;strokeColor=#fcd34d" vertex="1" parent="1">
+          <mxGeometry x="460" y="448" width="20" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5t" value="Database/Storage" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="485" y="448" width="90" height="18" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg6" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#10b981" vertex="1" parent="1">
+          <mxGeometry x="580" y="450" width="20" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6t" value="Security" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="605" y="448" width="50" height="18" as="geometry" />
+        </mxCell>
+        
+        <!-- Technologies Box -->
+        <mxCell id="tech_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9fafb;strokeColor=#e5e7eb" vertex="1" parent="1">
+          <mxGeometry x="680" y="420" width="600" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_title" value="TECHNOLOGIES" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="690" y="425" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tech1" value="🐍 Python 3.x | PyQt6 | FastAPI | SQLAlchemy" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="690" y="448" width="250" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="tech2" value="📡 MQTT | HTTP/REST | UDP Discovery" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="690" y="466" width="220" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="tech3" value="🔧 ESP32 (C++) | Raspberry Pi 4" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="950" y="448" width="180" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="tech4" value="🧠 TensorFlow/PyTorch | XAI" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="950" y="466" width="180" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="tech5" value="🔐 JWT | Bcrypt | Hash-Chain Ledger" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="1130" y="448" width="200" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="tech6" value="🗄️ SQLite | NPZ | JSON" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#374151" vertex="1" parent="1">
+          <mxGeometry x="1130" y="466" width="150" height="18" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

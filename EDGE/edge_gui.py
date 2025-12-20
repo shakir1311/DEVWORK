@@ -9,7 +9,7 @@ from typing import Optional
 import numpy as np
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QTextEdit, QGroupBox, QStatusBar, QDoubleSpinBox
+    QLabel, QPushButton, QTextEdit, QGroupBox, QStatusBar, QDoubleSpinBox, QComboBox
 )
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QObject
 from PyQt6.QtGui import QPalette, QColor
@@ -25,6 +25,7 @@ class ECGDataSignal(QObject):
     connection_status_changed = pyqtSignal(bool)  # connected
     log_message_signal = pyqtSignal(str, str)  # message, level
     request_ecg_data = pyqtSignal()  # Request ECG data from ESP32
+    model_changed = pyqtSignal(str)  # path to selected model
 
 
 class EDGEGUI(QMainWindow):
@@ -210,6 +211,33 @@ class EDGEGUI(QMainWindow):
         
         info_layout.addSpacing(10)
         
+        # ============= ML Model Selector =============
+        model_label = QLabel("ML Classification Model:")
+        model_label.setStyleSheet("font-weight: bold;")
+        info_layout.addWidget(model_label)
+        
+        model_controls = QHBoxLayout()
+        
+        self.model_combo = QComboBox()
+        self.model_combo.setToolTip("Select a trained model for ECG classification")
+        self.model_combo.addItem("(No models found)")
+        self.model_combo.setEnabled(False)  # Will be enabled when models are loaded
+        self.model_combo.currentIndexChanged.connect(self._on_model_changed)
+        model_controls.addWidget(self.model_combo, stretch=1)
+        
+        self.refresh_models_btn = QPushButton("🔄")
+        self.refresh_models_btn.setFixedWidth(40)
+        self.refresh_models_btn.setToolTip("Refresh model list")
+        self.refresh_models_btn.clicked.connect(self._on_refresh_models_clicked)
+        model_controls.addWidget(self.refresh_models_btn)
+        
+        info_layout.addLayout(model_controls)
+        
+        # Model paths storage for combo data
+        self._model_paths = []
+        
+        info_layout.addSpacing(10)
+        
         # Fetch ECG Data button
         self.fetch_btn = QPushButton("📥 Fetch ECG Data")
         self.fetch_btn.setStyleSheet("""
@@ -238,20 +266,7 @@ class EDGEGUI(QMainWindow):
         
         info_layout.addSpacing(10)
         
-        # ECG data info
-        data_label = QLabel("ECG Data Info:")
-        data_label.setStyleSheet("font-weight: bold;")
-        info_layout.addWidget(data_label)
-        
-        self.data_info = QTextEdit()
-        self.data_info.setReadOnly(True)
-        self.data_info.setMaximumHeight(200)
-        self.data_info.setPlainText("No data received")
-        info_layout.addWidget(self.data_info)
-        
-        info_layout.addSpacing(10)
-        
-        # Processing results
+        # Processing results (taller now that ECG Data Info is removed)
         results_label = QLabel("Processing Results:")
         results_label.setStyleSheet("font-weight: bold;")
         info_layout.addWidget(results_label)
@@ -320,31 +335,9 @@ class EDGEGUI(QMainWindow):
                 f"ECG Data: {samples} samples, {duration_str}s @ {self.sampling_rate}Hz"
             )
             
-            # Update data info
-            info_text = f"""Samples: {samples}
-Duration: {duration_str} seconds
-Sampling Rate: {self.sampling_rate} Hz
-Min Value: {np.min(ecg_data):.3f} mV
-Max Value: {np.max(ecg_data):.3f} mV
-Mean Value: {np.mean(ecg_data):.3f} mV
-Received: {metadata.get('total_chunks', 0)} chunks"""
-            
-            # Add patient info if available
-            patient_info = metadata.get('patient_info', {})
-            if patient_info:
-                info_text += "\n\n--- Patient Information ---\n"
-                if 'patient_id' in patient_info:
-                    info_text += f"Patient ID: {patient_info['patient_id']}\n"
-                if 'duration_seconds' in patient_info:
-                    info_text += f"Record Duration: {patient_info['duration_seconds']:.2f} s\n"
-                if 'total_samples' in patient_info:
-                    info_text += f"Total Samples: {patient_info['total_samples']}\n"
-                if 'record_date' in patient_info and patient_info['record_date']:
-                    info_text += f"Record Date: {patient_info['record_date']}\n"
-                if 'record_time' in patient_info and patient_info['record_time']:
-                    info_text += f"Record Time: {patient_info['record_time']}\n"
-            
-            self.data_info.setPlainText(info_text)
+            # Clear processing results to prevent showing stale inference
+            self.results_text.setHtml("<p style='color: gray;'>Processing...</p>")
+            self.results_text.setStyleSheet("")  # Reset background
             
             # Update status
             self.status_bar.showMessage(f"ECG data received: {samples} samples, {duration_str}s")
@@ -356,39 +349,112 @@ Received: {metadata.get('total_chunks', 0)} chunks"""
     
     def update_processing_results(self, results: dict):
         """
-        Update processing results display.
+        Update processing results display with enhanced formatting.
         
         Args:
             results: Processing results dictionary
         """
         try:
             if not results or 'results' not in results:
-                self.results_text.setPlainText("No processing results yet")
+                self.results_text.setHtml("<p style='color: gray;'>No processing results yet</p>")
+                self.results_text.setStyleSheet("")  # Reset background
                 return
             
-            results_text = "Processing Results:\n\n"
+            # Check if Atrial Fibrillation is detected
+            is_afib = False
+            if 'results' in results and 'ml_inference' in results['results']:
+                classification = results['results']['ml_inference'].get('classification', '')
+                is_afib = (classification == 'A')
+            
+            # Set background color based on classification
+            if is_afib:
+                self.results_text.setStyleSheet("background-color: #fff3cd; border: 2px solid #ff9800;")
+            else:
+                self.results_text.setStyleSheet("")
+            
+            # Build HTML formatted results
+            html = "<div style='font-family: Arial, sans-serif;'>"
+            
+            # Patient ID at the top (from metadata)
+            if 'metadata' in results and 'patient_info' in results['metadata']:
+                patient_id = results['metadata']['patient_info'].get('patient_id', 'Unknown')
+                html += f"<h3 style='color: #0064c8; margin-top: 5px; margin-bottom: 10px;'>Patient: {patient_id}</h3>"
+                html += "<hr style='border: none; border-top: 2px solid #0064c8; margin: 10px 0;'>"
             
             for processor_name, processor_results in results['results'].items():
-                results_text += f"{processor_name.upper()}:\n"
                 
                 if 'error' in processor_results:
-                    results_text += f"  Error: {processor_results['error']}\n"
-                else:
-                    for key, value in processor_results.items():
-                        if key != 'peak_indices':  # Skip large arrays
-                            if isinstance(value, (int, float)):
-                                results_text += f"  {key}: {value:.2f}\n" if isinstance(value, float) else f"  {key}: {value}\n"
-                            elif isinstance(value, list) and len(value) > 0:
-                                results_text += f"  {key}: [{len(value)} items]\n"
-                            else:
-                                results_text += f"  {key}: {value}\n"
+                    html += f"<h3 style='color: #0064c8; margin-top: 10px; margin-bottom: 5px;'>{processor_name.upper().replace('_', ' ')}</h3>"
+                    html += f"<p style='color: red;'>❌ Error: {processor_results['error']}</p>"
+                    html += "<hr style='border: none; border-top: 1px solid #ddd; margin: 10px 0;'>"
+                    continue
                 
-                results_text += "\n"
+                # HEART RATE - Show only BPM
+                if processor_name == 'heart_rate':
+                    heart_rate_bpm = processor_results.get('heart_rate_bpm', 0)
+                    html += f"""
+                    <div style='background-color: #f0f8ff; padding: 15px; margin: 10px 0; border-left: 4px solid #0064c8; border-radius: 4px;'>
+                        <p style='margin: 0; font-size: 14pt;'><b>Heart Rate:</b> 
+                            <span style='font-size: 18pt; color: #0064c8; font-weight: bold;'>{heart_rate_bpm:.1f} BPM</span>
+                        </p>
+                    </div>
+                    """
+                
+                # ML INFERENCE - Show classification and confidence prominently
+                elif processor_name == 'ml_inference':
+                    model_loaded = processor_results.get('model_loaded', False)
+                    
+                    if not model_loaded:
+                        html += "<h3 style='color: #0064c8; margin-top: 10px; margin-bottom: 5px;'>ML CLASSIFICATION</h3>"
+                        html += "<p style='color: orange;'>⚠️ No model loaded</p>"
+                    else:
+                        # Classification result - BIG and prominent
+                        classification = processor_results.get('classification', 'Unknown')
+                        description = processor_results.get('classification_description', '')
+                        confidence = processor_results.get('confidence', 0.0)
+                        
+                        html += f"""
+                        <div style='background-color: #f0f8ff; padding: 15px; margin: 10px 0; border-left: 4px solid #0064c8; border-radius: 4px;'>
+                            <p style='margin: 0; font-size: 14pt;'><b>Classification:</b> 
+                                <span style='font-size: 18pt; color: #0064c8; font-weight: bold;'>{classification}</span>
+                            </p>
+                            {f"<p style='margin: 5px 0 0 0; color: #666;'>{description}</p>" if description else ""}
+                        </div>
+                        """
+                        
+                        # Probabilities table
+                        probabilities = processor_results.get('probabilities', None)
+                        if probabilities is not None and len(probabilities) > 0:
+                            html += "<p style='margin-top: 10px; margin-bottom: 5px;'><b>Class Probabilities:</b></p>"
+                            html += "<table style='width: 100%; border-collapse: collapse; font-size: 10pt;'>"
+                            html += "<tr style='background-color: #e8e8e8;'><th style='text-align: left; padding: 5px;'>Class</th><th style='text-align: right; padding: 5px;'>Probability</th><th style='padding: 5px;'>Bar</th></tr>"
+                            
+                            class_names = ['N', 'A', 'O', '~']
+                            for i, prob in enumerate(probabilities):
+                                class_name = class_names[i] if i < len(class_names) else f"Class {i}"
+                                bar_width = int(prob * 100)
+                                # Highlight the predicted class
+                                bar_color = '#0064c8' if class_name == classification else '#ccc'
+                                
+                                html += f"""
+                                <tr>
+                                    <td style='padding: 5px;'><b>{class_name}</b></td>
+                                    <td style='text-align: right; padding: 5px;'>{prob*100:.1f}%</td>
+                                    <td style='padding: 5px;'>
+                                        <div style='background-color: #eee; width: 100%; height: 12px; border-radius: 3px;'>
+                                            <div style='background-color: {bar_color}; width: {bar_width}%; height: 100%; border-radius: 3px;'></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                """
+                            html += "</table>"
             
-            self.results_text.setPlainText(results_text)
+            html += "</div>"
+            self.results_text.setHtml(html)
             
         except Exception as e:
             logger.error(f"Error updating processing results: {e}", exc_info=True)
+            self.results_text.setHtml(f"<p style='color: red;'>Error displaying results: {str(e)}</p>")
     
     def apply_time_window(self):
         """Apply the current time window setting to the view (horizontal only, preserves vertical scale)."""
@@ -491,7 +557,6 @@ Received: {metadata.get('total_chunks', 0)} chunks"""
         self.current_time_position = 0.0
         self.plot_line.setData([], [])
         self.info_label.setText("No ECG data received yet")
-        self.data_info.setPlainText("No data received")
         self.status_bar.showMessage("Plot cleared")
         self.log_message("Plot cleared", "info")
     
@@ -566,6 +631,62 @@ Received: {metadata.get('total_chunks', 0)} chunks"""
             self.status_bar.showMessage(
                 f"ECG data: {len(self.ecg_data)} samples, {duration:.2f}s @ {self.sampling_rate}Hz"
             )
+    
+    def update_models_list(self, models: list):
+        """
+        Update the model dropdown with available models.
+        
+        Args:
+            models: List of model dicts from MLInferenceProcessor.get_available_models()
+        """
+        self.model_combo.blockSignals(True)  # Prevent signal during update
+        self.model_combo.clear()
+        self._model_paths = []
+        
+        if models:
+            for model in models:
+                filename = model.get('filename', 'Unknown')
+                model_type = model.get('type', 'unknown')
+                display_name = f"{filename} [{model_type}]"
+                self.model_combo.addItem(display_name)
+                self._model_paths.append(model.get('path', ''))
+            
+            self.model_combo.setEnabled(True)
+            self.log_message(f"Found {len(models)} model(s)", "success")
+            
+            # Auto-select ECG-DualNet as default (look for it in the list)
+            dualnet_idx = -1
+            for i, model in enumerate(models):
+                filename = model.get('filename', '')
+                if 'ECG-DualNet' in filename or 'dualnet' in filename.lower():
+                    dualnet_idx = i
+                    break
+            
+            if dualnet_idx >= 0:
+                self.model_combo.setCurrentIndex(dualnet_idx)
+                self.log_message("ECG-DualNet auto-selected as default", "info")
+        else:
+            self.model_combo.addItem("(No models found - copy to EDGE/models/)")
+            self._model_paths = []
+            self.model_combo.setEnabled(False)
+            self.log_message("No models found in models directory", "warning")
+        
+        self.model_combo.blockSignals(False)
+    
+    def _on_model_changed(self, index: int):
+        """Handle model selection change."""
+        if index >= 0 and index < len(self._model_paths):
+            model_path = self._model_paths[index]
+            if model_path:
+                self.signal_emitter.model_changed.emit(model_path)
+                self.log_message(f"Model selected: {self.model_combo.currentText()}", "info")
+    
+    def _on_refresh_models_clicked(self):
+        """Handle refresh models button click."""
+        self.log_message("Refreshing model list...", "info")
+        # Emit a special signal or just log - actual refresh done by main.py
+        # For now we'll just log, main.py will need to call update_models_list
+        self.signal_emitter.model_changed.emit("__REFRESH__")
     
     def get_signal_emitter(self) -> ECGDataSignal:
         """Get the signal emitter for thread-safe updates."""

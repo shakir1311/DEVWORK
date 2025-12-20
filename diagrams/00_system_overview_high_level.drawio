@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-12T13:00:00.000Z" agent="Claude" version="22.1.0" type="device">
+  <diagram name="System Overview - High Level" id="system-overview-high">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="BIEIF-RPM: Blockchain-Integrated Edge Intelligence Framework&#xa;for Remote Patient Monitoring" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#1a1a2e" vertex="1" parent="1">
+          <mxGeometry x="400" y="30" width="800" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Subtitle -->
+        <mxCell id="subtitle" value="High-Level System Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=2;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="600" y="90" width="400" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- Main Flow Arrow Background -->
+        <mxCell id="flowbg" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;flipH=1;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;size=0.5;rotation=-90;fillColor=none;strokeColor=#e0e0e0;strokeWidth=3" vertex="1" parent="1">
+          <mxGeometry x="250" y="350" width="1100" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Component 1: Data Source -->
+        <mxCell id="datasource" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#667eea;strokeColor=#5a67d8;shadow=1;glass=0" vertex="1" parent="1">
+          <mxGeometry x="100" y="200" width="180" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="datasource_icon" value="📊" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=40" vertex="1" parent="1">
+          <mxGeometry x="150" y="210" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="datasource_title" value="DATA SOURCE" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="100" y="260" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="datasource_desc" value="PhysioNet CinC 2017&#xa;ECG Dataset&#xa;(8,528 Recordings)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#e0e0ff" vertex="1" parent="1">
+          <mxGeometry x="100" y="285" width="180" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Component 2: Data Simulator -->
+        <mxCell id="simulator" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4facfe;strokeColor=#00b4db;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="350" y="200" width="180" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="simulator_icon" value="🖥️" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=40" vertex="1" parent="1">
+          <mxGeometry x="400" y="210" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="simulator_title" value="DATA SIMULATOR" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="350" y="260" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="simulator_desc" value="PyQt6 Application&#xa;MQTT Broker&#xa;(Simulates ECG Devices)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#e0e0ff" vertex="1" parent="1">
+          <mxGeometry x="350" y="285" width="180" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Component 3: IoT Layer -->
+        <mxCell id="iot" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f093fb;strokeColor=#f5576c;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="600" y="200" width="180" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="iot_icon" value="📡" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=40" vertex="1" parent="1">
+          <mxGeometry x="650" y="210" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="iot_title" value="IoT LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="600" y="260" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="iot_desc" value="ESP32 Devices&#xa;WiFi + MQTT&#xa;(Data Acquisition)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="600" y="285" width="180" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Component 4: Edge Layer -->
+        <mxCell id="edge" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#11998e;strokeColor=#38ef7d;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="850" y="200" width="180" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_icon" value="🧠" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=40" vertex="1" parent="1">
+          <mxGeometry x="900" y="210" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_title" value="EDGE LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="850" y="260" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_desc" value="Raspberry Pi 4&#xa;ML Inference&#xa;(Rhythm Classification)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#e0fff0" vertex="1" parent="1">
+          <mxGeometry x="850" y="285" width="180" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Component 5: Web Portal -->
+        <mxCell id="webportal" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fc4a1a;strokeColor=#f7b733;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="1100" y="200" width="180" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="webportal_icon" value="🏥" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=40" vertex="1" parent="1">
+          <mxGeometry x="1150" y="210" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="webportal_title" value="WEB PORTAL" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="1100" y="260" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="webportal_desc" value="FastAPI Backend&#xa;Audit Ledger&#xa;(Clinical Dashboard)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#fff0e0" vertex="1" parent="1">
+          <mxGeometry x="1100" y="285" width="180" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Component 6: Doctor/User -->
+        <mxCell id="doctor" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#434343;strokeColor=#666666;shadow=1" vertex="1" parent="1">
+          <mxGeometry x="1350" y="200" width="140" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="doctor_icon" value="👨‍⚕️" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=40" vertex="1" parent="1">
+          <mxGeometry x="1380" y="210" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="doctor_title" value="CLINICIAN" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#ffffff" vertex="1" parent="1">
+          <mxGeometry x="1350" y="260" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="doctor_desc" value="Web Browser&#xa;Authenticated&#xa;Access" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#cccccc" vertex="1" parent="1">
+          <mxGeometry x="1350" y="285" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Connection Arrows -->
+        <mxCell id="arrow1" value="" style="endArrow=classic;html=1;strokeColor=#667eea;strokeWidth=4;endSize=12;startSize=8;curved=0" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="280" y="270" as="sourcePoint" />
+            <mxPoint x="350" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow2" value="" style="endArrow=classic;html=1;strokeColor=#4facfe;strokeWidth=4;endSize=12;curved=0" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="530" y="270" as="sourcePoint" />
+            <mxPoint x="600" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow3" value="" style="endArrow=classic;html=1;strokeColor=#f093fb;strokeWidth=4;endSize=12;curved=0" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="780" y="270" as="sourcePoint" />
+            <mxPoint x="850" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow4" value="" style="endArrow=classic;html=1;strokeColor=#11998e;strokeWidth=4;endSize=12;curved=0" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1030" y="270" as="sourcePoint" />
+            <mxPoint x="1100" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow5" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#fc4a1a;strokeWidth=4;endSize=12;startSize=12;curved=0" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1280" y="270" as="sourcePoint" />
+            <mxPoint x="1350" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Protocol Labels -->
+        <mxCell id="proto1" value="Dataset&#xa;Download" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#667eea;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="280" y="235" width="70" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="proto2" value="MQTT&#xa;Full Record" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#4facfe;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="530" y="235" width="70" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="proto3" value="MQTT&#xa;Chunks" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#f093fb;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="780" y="235" width="70" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="proto4" value="HTTP&#xa;API" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#11998e;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="1030" y="235" width="70" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="proto5" value="HTTPS&#xa;JWT" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#fc4a1a;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="1280" y="235" width="70" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Key Features Summary Box -->
+        <mxCell id="featuresbox" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8f9fa;strokeColor=#dee2e6;shadow=0" vertex="1" parent="1">
+          <mxGeometry x="100" y="420" width="1390" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat_title" value="KEY CAPABILITIES:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#1a1a2e" vertex="1" parent="1">
+          <mxGeometry x="120" y="430" width="150" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat1" value="✓ Real ECG Data (PhysioNet)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#434343" vertex="1" parent="1">
+          <mxGeometry x="120" y="455" width="180" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat2" value="✓ ESP32 IoT Integration" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#434343" vertex="1" parent="1">
+          <mxGeometry x="120" y="475" width="180" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat3" value="✓ Edge AI (Raspberry Pi 4)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#434343" vertex="1" parent="1">
+          <mxGeometry x="340" y="455" width="180" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat4" value="✓ ML Rhythm Classification" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#434343" vertex="1" parent="1">
+          <mxGeometry x="340" y="475" width="180" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat5" value="✓ Cryptographic Audit Ledger" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#434343" vertex="1" parent="1">
+          <mxGeometry x="560" y="455" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat6" value="✓ Explainable AI (XAI)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#434343" vertex="1" parent="1">
+          <mxGeometry x="560" y="475" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat7" value="✓ Secure JWT Authentication" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#434343" vertex="1" parent="1">
+          <mxGeometry x="800" y="455" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat8" value="✓ Clinical Dashboard" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#434343" vertex="1" parent="1">
+          <mxGeometry x="800" y="475" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat9" value="✓ MQTT Lightweight Protocol" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#434343" vertex="1" parent="1">
+          <mxGeometry x="1040" y="455" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat10" value="✓ Auto-Discovery (UDP)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#434343" vertex="1" parent="1">
+          <mxGeometry x="1040" y="475" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat11" value="✓ Real-time Visualization" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#434343" vertex="1" parent="1">
+          <mxGeometry x="1260" y="455" width="180" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="feat12" value="✓ Patient Timeline" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#434343" vertex="1" parent="1">
+          <mxGeometry x="1260" y="475" width="180" height="20" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

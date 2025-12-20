@@ -85,68 +85,23 @@ echo ""
 # ============================================================================
 echo "🔍 Step 4: Checking dependencies..."
 
-# Check if requirements.txt exists
-if [ ! -f "requirements.txt" ]; then
-    echo "❌ Error: requirements.txt not found"
-    exit 1
-fi
-
-# Function to check if a package is installed
-check_package() {
-    python3 -c "import $1" 2>/dev/null
-    return $?
-}
-
-# Check key packages
-NEED_INSTALL=false
-
-echo "  Checking PyQt6..."
-if ! check_package "PyQt6"; then
-    echo "  ❌ PyQt6 not installed"
-    NEED_INSTALL=true
-else
-    echo "  ✅ PyQt6 installed"
-fi
-
-echo "  Checking scipy..."
-if ! check_package "scipy"; then
-    echo "  ❌ scipy not installed"
-    NEED_INSTALL=true
-else
-    echo "  ✅ scipy installed"
-fi
-
-echo "  Checking numpy..."
-if ! check_package "numpy"; then
-    echo "  ❌ numpy not installed"
-    NEED_INSTALL=true
-else
-    echo "  ✅ numpy installed"
-fi
-
-echo "  Checking paho-mqtt..."
-if ! check_package "paho.mqtt" "paho"; then
-    echo "  ❌ paho-mqtt not installed"
-    NEED_INSTALL=true
-else
-    echo "  ✅ paho-mqtt installed"
-fi
-
-# Install dependencies if needed
-if [ "$NEED_INSTALL" = true ]; then
+# Use the dynamic dependency checker
+if ! "$SCRIPT_DIR/venv/bin/python3" check_dependencies.py --check; then
     echo ""
-    echo "📦 Installing missing dependencies..."
-    pip install --upgrade pip -q
-    pip install -r requirements.txt
+    echo "📦 Dependencies missing. Attempting to install dynamically..."
     
-    if [ $? -eq 0 ]; then
-        echo "✅ Dependencies installed successfully"
+    # Upgrade pip using the venv python
+    "$SCRIPT_DIR/venv/bin/python3" -m pip install --upgrade pip -q
+    
+    # Run the installer
+    if "$SCRIPT_DIR/venv/bin/python3" check_dependencies.py --install; then
+         echo "✅ Dependencies installed successfully"
     else
-        echo "❌ Failed to install dependencies"
-        exit 1
+         echo "❌ Failed to install dependencies"
+         exit 1
     fi
 else
-    echo "✅ All dependencies already installed"
+    echo "✅ all dependencies satisfied"
 fi
 
 echo ""
@@ -207,7 +162,8 @@ echo "🎯 Application starting..."
 echo ""
 
 # Run the application
-python3 main.py
+# Run the application
+"$SCRIPT_DIR/venv/bin/python3" main.py
 
 # Capture exit code
 EXIT_CODE=$?

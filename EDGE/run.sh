@@ -18,96 +18,111 @@ echo "📁 Working directory: $SCRIPT_DIR"
 echo ""
 
 # ============================================================================
-# 1. Check Python Installation
+# 1. Check Python & Virtual Environment
 # ============================================================================
-echo "🔍 Step 1: Checking Python installation..."
+echo "🔍 Step 1: Checking Python environment..."
 
-if ! command -v python3 &> /dev/null; then
-    echo "❌ Error: Python 3 is not installed"
-    echo ""
-    echo "Please install Python 3.8 or higher:"
-    echo "  macOS:   brew install python3"
-    echo "  Ubuntu:  sudo apt-get install python3 python3-pip python3-venv"
-    echo "  Pi4:     sudo apt-get install python3 python3-pip python3-venv"
-    exit 1
-fi
+get_py_ver() {
+    "$1" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null
+}
 
-PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}')
-echo "✅ Python found: $PYTHON_VERSION"
+SKIP_CREATION=false
 
-# Check Python version (minimum 3.8)
-PYTHON_MAJOR=$(python3 -c 'import sys; print(sys.version_info.major)')
-PYTHON_MINOR=$(python3 -c 'import sys; print(sys.version_info.minor)')
-
-if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 8 ]); then
-    echo "❌ Error: Python 3.8+ required, found $PYTHON_VERSION"
-    exit 1
-fi
-
-echo ""
-
-# ============================================================================
-# 2. Check/Create Virtual Environment
-# ============================================================================
-echo "🔍 Step 2: Checking virtual environment..."
-
-# Set paths to venv Python and pip
-PYTHON="${SCRIPT_DIR}/venv/bin/python"
-PIP="${SCRIPT_DIR}/venv/bin/pip"
-
-# Check if venv exists and is valid
-if [ ! -d "venv" ]; then
-    echo "📦 Virtual environment not found. Creating..."
-    python3 -m venv venv
-    if [ $? -eq 0 ]; then
-        echo "✅ Virtual environment created successfully"
+# 1a. Check for existing valid venv
+if [ -d "venv" ] && [ -x "venv/bin/python3" ]; then
+    VENV_VER=$(get_py_ver "venv/bin/python3")
+    
+    # Check if version is valid (3.10-3.12 for amqtt + PyTorch)
+    MAJOR=$(echo "$VENV_VER" | cut -d. -f1)
+    MINOR=$(echo "$VENV_VER" | cut -d. -f2)
+    
+    if [ "$MAJOR" -eq 3 ] && [ "$MINOR" -ge 10 ] && [ "$MINOR" -le 12 ]; then
+        echo "✅ Using existing virtual environment (Python $VENV_VER)"
+        SKIP_CREATION=true
     else
+        echo "♻️  Existing venv (Python $VENV_VER) needs 3.10-3.12. Recreating..."
+        rm -rf venv
+    fi
+fi
+
+# 1b. If no valid venv, find system python to create one
+if [ "$SKIP_CREATION" = false ]; then
+    echo "🔍 Searching for compatible system Python..."
+    
+    # Function to check if python version is valid (3.10-3.12 for amqtt + PyTorch)
+    check_python_candidate() {
+        local cmd=$1
+        if ! command -v "$cmd" &> /dev/null && [ ! -x "$cmd" ]; then return 1; fi
+        
+        ver=$(get_py_ver "$cmd")
+        major=$(echo "$ver" | cut -d. -f1)
+        minor=$(echo "$ver" | cut -d. -f2)
+        
+        # 3.10, 3.11, or 3.12 only (PyTorch doesn't support 3.13 yet)
+        if [ "$major" -eq 3 ] && [ "$minor" -ge 10 ] && [ "$minor" -le 12 ]; then
+            return 0
+        fi
+        return 1
+    }
+
+    # Search order: prefer 3.12 for best compatibility
+    if check_python_candidate "python3.12"; then PYTHON_CMD="python3.12"
+    elif check_python_candidate "python3.11"; then PYTHON_CMD="python3.11"
+    elif check_python_candidate "python3.10"; then PYTHON_CMD="python3.10"
+    elif check_python_candidate "/opt/homebrew/bin/python3.12"; then PYTHON_CMD="/opt/homebrew/bin/python3.12"
+    elif check_python_candidate "/usr/local/bin/python3.12"; then PYTHON_CMD="/usr/local/bin/python3.12"
+    elif check_python_candidate "python3"; then PYTHON_CMD="python3"
+    else
+        # No compatible Python found - auto-install Python 3.12 via Homebrew
+        echo "⚠️  No compatible Python 3.10-3.12 found."
+        echo "   - amqtt 0.11+ requires Python 3.10+"
+        echo "   - PyTorch requires Python ≤3.12"
+        echo ""
+        
+        if command -v brew &> /dev/null; then
+            echo "🍺 Installing Python 3.12 via Homebrew..."
+            brew install python@3.12
+            
+            # Find the installed python
+            if [ -x "/opt/homebrew/bin/python3.12" ]; then
+                PYTHON_CMD="/opt/homebrew/bin/python3.12"
+            elif [ -x "/usr/local/bin/python3.12" ]; then
+                PYTHON_CMD="/usr/local/bin/python3.12"
+            else
+                echo "❌ Error: Python 3.12 installed but not found in expected paths"
+                exit 1
+            fi
+            echo "✅ Python 3.12 installed successfully"
+        else
+            echo "❌ Error: Homebrew not found. Cannot auto-install Python 3.12."
+            echo "   Please install Homebrew first: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+            echo "   Or manually install Python 3.12"
+            exit 1
+        fi
+    fi
+    
+    FOUND_VER=$("$PYTHON_CMD" --version 2>&1 | awk '{print $2}')
+    echo "📦 Creating virtual environment with $PYTHON_CMD ($FOUND_VER)..."
+    "$PYTHON_CMD" -m venv venv
+    
+    if [ $? -ne 0 ]; then
         echo "❌ Failed to create virtual environment"
         exit 1
     fi
-elif [ ! -f "$PYTHON" ] || [ ! -f "$PIP" ]; then
-    echo "⚠️  Virtual environment exists but appears incomplete or broken"
-    echo "📦 Recreating virtual environment..."
-    rm -rf venv
-    python3 -m venv venv
-    if [ $? -eq 0 ]; then
-        echo "✅ Virtual environment recreated successfully"
-    else
-        echo "❌ Failed to recreate virtual environment"
-        exit 1
-    fi
-else
-    echo "✅ Virtual environment exists and is valid"
+    echo "✅ Virtual environment created successfully"
 fi
 
-echo ""
-
-# ============================================================================
-# 3. Activate Virtual Environment
-# ============================================================================
-echo "🔍 Step 3: Activating virtual environment..."
-
+# 2. Activate
+echo "🔍 Step 2: Activating virtual environment..."
 source venv/bin/activate
-
-if [ $? -eq 0 ]; then
-    echo "✅ Virtual environment activated"
-else
+if [ $? -ne 0 ]; then
     echo "❌ Failed to activate virtual environment"
     exit 1
 fi
 
-# Verify venv Python and pip exist (double-check after activation)
-if [ ! -f "$PYTHON" ]; then
-    echo "❌ Error: Virtual environment Python not found at $PYTHON"
-    echo "   The virtual environment may be corrupted. Try deleting it and running again."
-    exit 1
-fi
-
-if [ ! -f "$PIP" ]; then
-    echo "❌ Error: Virtual environment pip not found at $PIP"
-    echo "   The virtual environment may be corrupted. Try deleting it and running again."
-    exit 1
-fi
+# Set paths for subsequent use
+PYTHON="python3"
+PIP="pip"
 
 echo ""
 
@@ -123,8 +138,9 @@ if [ ! -f "requirements.txt" ]; then
 fi
 
 # Function to check if a package is installed (using venv Python)
+# Uses importlib.util.find_spec to check existence without loading the module (much faster)
 check_package() {
-    "$PYTHON" -c "import $1" 2>/dev/null
+    "$PYTHON" -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('$1') else 1)" 2>/dev/null
     return $?
 }
 
@@ -177,6 +193,47 @@ if ! check_package "pyqtgraph"; then
     NEED_INSTALL=true
 else
     echo "  ✅ pyqtgraph installed"
+fi
+
+# ML Inference Dependencies
+echo "  Checking torch (ML)..."
+if ! check_package "torch"; then
+    echo "  ❌ torch not installed"
+    NEED_INSTALL=true
+else
+    echo "  ✅ torch installed"
+fi
+
+echo "  Checking sklearn (ML)..."
+if ! check_package "sklearn"; then
+    echo "  ❌ sklearn not installed"
+    NEED_INSTALL=true
+else
+    echo "  ✅ sklearn installed"
+fi
+
+echo "  Checking joblib (ML)..."
+if ! check_package "joblib"; then
+    echo "  ❌ joblib not installed"
+    NEED_INSTALL=true
+else
+    echo "  ✅ joblib installed"
+fi
+
+echo "  Checking scipy (ML)..."
+if ! check_package "scipy"; then
+    echo "  ❌ scipy not installed"
+    NEED_INSTALL=true
+else
+    echo "  ✅ scipy installed"
+fi
+
+echo "  Checking requests..."
+if ! check_package "requests"; then
+    echo "  ❌ requests not installed"
+    NEED_INSTALL=true
+else
+    echo "  ✅ requests installed"
 fi
 
 # Install dependencies if needed
@@ -232,13 +289,27 @@ fi
 echo ""
 
 # ============================================================================
-# 6. Parse Command Line Arguments
+# 6. Setup ECG-DualNet (for standalone deployment)
+# ============================================================================
+echo "🔍 Step 6: Checking ECG-DualNet setup..."
+
+"$PYTHON" setup_ecg_dualnet.py
+if [ $? -ne 0 ]; then
+    echo "⚠️  ECG-DualNet setup incomplete - classification may be limited"
+else
+    echo "✅ ECG-DualNet ready"
+fi
+
+echo ""
+
+# ============================================================================
+# 7. Parse Command Line Arguments
 # ============================================================================
 # Pass all arguments to the Python script
 ARGS="$@"
 
 # ============================================================================
-# 7. Run Application
+# 8. Run Application
 # ============================================================================
 echo "╔════════════════════════════════════════════════════════════╗"
 echo "║              🚀 Starting EDGE Layer                        ║"

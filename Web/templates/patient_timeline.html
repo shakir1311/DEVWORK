@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --medical-blue: #0066cc;
+        --medical-green: #00a651;
+        --medical-red: #d32f2f;
+    }
+
+    .patient-header {
+        background: white;
+        border-left: 4px solid var(--medical-blue);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .patient-mrn {
+        font-family: 'Courier New', monospace;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--medical-blue);
+    }
+
+    .clinical-summary {
+        background: #f8f9fa;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .summary-stat {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.5rem;
+    }
+
+    .timeline {
+        position: relative;
+        padding: 1rem 0;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 30px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+    }
+
+    .timeline-entry {
+        position: relative;
+        padding-left: 80px;
+        margin-bottom: 1.5rem;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: 22px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 0 0 2px;
+        z-index: 1;
+    }
+
+    .marker-normal {
+        background: var(--medical-green);
+        box-shadow: 0 0 0 2px var(--medical-green);
+    }
+
+    .marker-afib {
+        background: var(--medical-red);
+        box-shadow: 0 0 0 2px var(--medical-red);
+    }
+
+    .marker-other {
+        background: #f57c00;
+        box-shadow: 0 0 0 2px #f57c00;
+    }
+
+    .study-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 0.375rem;
+        padding: 1.25rem;
+        transition: box-shadow 0.2s;
+    }
+
+    .study-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .study-timestamp {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    .diagnosis-label {
+        font-weight: 600;
+        font-size: 1.05rem;
+    }
+
+    .clinical-finding {
+        background: #f8f9fa;
+        padding: 0.75rem;
+        border-radius: 0.25rem;
+        margin-top: 0.75rem;
+        font-size: 0.875rem;
+    }
+</style>
+
+<div class="container mt-4 mb-5">
+    <!-- Patient Header + Clinical Summary (Single Row) -->
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background-color: white; border-left: 4px solid var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 2rem;">
+        <h3 class="mb-0" style="margin-right: 2rem;">{{ patient.name }}</h3>
+
+        <div style="display: flex; align-items: center; gap: 1.5rem; flex-grow: 1;">
+            <div style="text-align: center;">
+                <div style="font-size: 1.1rem; font-weight: bold; color: var(--primary); line-height: 1;">{{
+                    records|length }}</div>
+                <div style="font-size: 0.7rem; color: #6c757d;">Total</div>
+            </div>
+
+            <div style="border-left: 1px solid #dee2e6; height: 20px;"></div>
+
+            <div style="text-align: center;">
+                <div style="font-size: 1.1rem; font-weight: bold; color: var(--success); line-height: 1;">{{
+                    records|selectattr('classification', 'equalto', 'N')|list|length }}</div>
+                <div style="font-size: 0.7rem; color: #6c757d;">Normal</div>
+            </div>
+
+            <div style="border-left: 1px solid #dee2e6; height: 20px;"></div>
+
+            <div style="text-align: center;">
+                <div style="font-size: 1.1rem; font-weight: bold; color: var(--danger); line-height: 1;">{{
+                    records|selectattr('classification', 'equalto', 'A')|list|length }}</div>
+                <div style="font-size: 0.7rem; color: #6c757d;">AFib</div>
+            </div>
+
+            <div style="border-left: 1px solid #dee2e6; height: 20px;"></div>
+
+            <div style="text-align: center;">
+                <div style="font-size: 1.1rem; font-weight: bold; color: #f57c00; line-height: 1;">{{
+                    records|selectattr('classification', 'in', ['O', '~'])|list|length }}</div>
+                <div style="font-size: 0.7rem; color: #6c757d;">Other</div>
+            </div>
+        </div>
+
+        <a href="/dashboard" class="btn btn-outline-secondary" style="margin-left: 2rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
+            </svg>
+            Return to Dashboard
+        </a>
+    </div>
+
+    <!-- Study Timeline -->
+    <h5 class="mb-3" style="color: #2c3e50; font-weight: 600;">ECG Study History</h5>
+
+    {% if records %}
+    <div class="timeline">
+        {% for record in records %}
+        <div class="timeline-entry">
+            <!-- Timeline Marker -->
+            <div
+                class="timeline-marker {% if record.classification == 'N' %}marker-normal{% elif record.classification == 'A' %}marker-afib{% else %}marker-other{% endif %}">
+            </div>
+
+            <!-- Study Card -->
+            <div class="study-card">
+                <!-- First Row: Date + Button -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <div class="study-timestamp">
+                        <strong>Study Date:</strong> {{ record.timestamp.strftime('%B %d, %Y at %I:%M %p') }}
+                    </div>
+                    <a href="/ecg/{{ record.id }}" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-file-earmark-medical me-1" viewBox="0 0 16 16">
+                            <path
+                                d="M7.5 5.5a.5.5 0 0 0-1 0v.634l-.549-.317a.5.5 0 1 0-.5.866L6 7l-.549.317a.5.5 0 1 0 .5.866l.549-.317V8.5a.5.5 0 1 0 1 0v-.634l.549.317a.5.5 0 1 0 .5-.866L8 7l.549-.317a.5.5 0 1 0-.5-.866l-.549.317V5.5zm-2 4.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zm0 2a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z" />
+                            <path
+                                d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z" />
+                        </svg>
+                        View Full Study
+                    </a>
+                </div>
+
+                <!-- Second Row: Diagnosis + Details -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="diagnosis-label mb-1">
+                            {% if record.classification == 'N' %}
+                            <span style="color: var(--medical-green);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                    class="bi bi-check-circle-fill me-1" viewBox="0 0 16 16">
+                                    <path
+                                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                                </svg>
+                                Normal Sinus Rhythm
+                            </span>
+                            {% elif record.classification == 'A' %}
+                            <span style="color: var(--medical-red);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                    class="bi bi-exclamation-triangle-fill me-1" viewBox="0 0 16 16">
+                                    <path
+                                        d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                                </svg>
+                                Atrial Fibrillation Detected
+                            </span>
+                            {% else %}
+                            <span style="color: #f57c00;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                    class="bi bi-info-circle-fill me-1" viewBox="0 0 16 16">
+                                    <path
+                                        d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+                                </svg>
+                                Other Cardiac Arrhythmia
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="clinical-finding"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="font-size: 1.1rem; font-weight: bold; color: var(--primary);">❤️ {{
+                                    record.heart_rate|round(0)|int }} bpm</span>
+                            </div>
+                            <div style="text-align: right;">
+                                {% if record.processing_results and record.processing_results.results and
+                                record.processing_results.results.ml_inference and
+                                record.processing_results.results.ml_inference.class_probabilities %}
+                                <span style="font-size: 0.8rem; color: #6c757d;">
+                                    {% for cls, prob in
+                                    record.processing_results.results.ml_inference.class_probabilities.items() %}
+                                    <span style="margin-left: 0.5rem;"><b>{{ cls }}:</b> {{ (prob * 100)|round|int
+                                        }}%</span>
+                                    {% endfor %}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#adb5bd" class="mb-3" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+            <path
+                d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+        </svg>
+        <p class="text-muted">No ECG studies on record for this patient.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% for record in records %}
+<tr>
+    <td><span style="font-family: 'Courier New', monospace; color: #495057;">ECG-{{ "%05d"|format(record.id) }}</span>
+    </td>
+    <td><span style="font-family: 'Courier New', monospace; font-weight: 600;">{{ record.patient.patient_id_external
+            }}</span></td>
+    <td>{{ record.patient.name }}</td>
+    <td>
+        <div style="font-size: 0.875rem;">{{ record.timestamp.strftime('%Y-%m-%d') }}</div>
+        <div style="font-size: 0.75rem; color: #6c757d;">{{ record.timestamp.strftime('%H:%M:%S') }}</div>
+    </td>
+    <td><strong>{{ "%.0f"|format(record.heart_rate) }}</strong> <span
+            style="color: #6c757d; font-size: 0.85rem;">bpm</span></td>
+    <td>
+        {% if record.classification == 'N' %}
+        <span class="diagnosis-normal">Normal Sinus Rhythm</span>
+        {% elif record.classification == 'A' %}
+        <span class="diagnosis-afib">Atrial Fibrillation</span>
+        {% elif record.classification == 'O' %}
+        <span class="diagnosis-other">Other Arrhythmia</span>
+        {% else %}
+        <span class="diagnosis-other">{{ record.classification }}</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if record.processing_results and record.processing_results.results and
+        record.processing_results.results.ml_inference and
+        record.processing_results.results.ml_inference.class_probabilities %}
+        <div style="font-size: 0.75rem; line-height: 1.1;">
+            {% for cls, prob in record.processing_results.results.ml_inference.class_probabilities.items() %}
+            <div><b>{{ cls }}:</b> {{ (prob * 100)|round|int }}%</div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <span style="color: #ccc;">-</span>
+        {% endif %}
+    </td>
+    <td>
+        <a href="/ecg/{{ record.id }}" class="btn btn-sm btn-outline-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                class="bi bi-file-earmark-medical me-1" viewBox="0 0 16 16">
+                <path
+                    d="M7.5 5.5a.5.5 0 0 0-1 0v.634l-.549-.317a.5.5 0 1 0-.5.866L6 7l-.549.317a.5.5 0 1 0 .5.866l.549-.317V8.5a.5.5 0 1 0 1 0v-.634l.549.317a.5.5 0 1 0 .5-.866L8 7l.549-.317a.5.5 0 1 0-.5-.866l-.549.317V5.5zm-2 4.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zm0 2a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z" />
+                <path
+                    d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z" />
+            </svg>
+            View Study
+        </a>
+        <a href="/patient/{{ record.patient.id }}" class="btn btn-sm btn-outline-secondary ms-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                class="bi bi-person-lines-fill me-1" viewBox="0 0 16 16">
+                <path
+                    d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2z" />
+            </svg>
+            Chart
+        </a>
+    </td>
+</tr>
+{% endfor %}

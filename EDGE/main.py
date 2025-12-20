@@ -9,19 +9,25 @@ import sys
 import time
 import threading
 from typing import Optional
+import requests
+import json
 
 from config import (
     LOG_LEVEL,
     LOG_FORMAT,
     ENABLE_AUTO_PROCESSING,
-    PROCESSING_MODULES
+    PROCESSING_MODULES,
+    MODELS_DIR
 )
+
 from mqtt_client import MQTTClient
+
+PORTAL_API_URL = "http://localhost:8000/api/ingest"
 from mqtt_broker import EDGEMQTTBroker
 from chunk_receiver import ChunkReceiver
 from ecg_processor import ProcessorPipeline
 from data_storage import DataStorage
-from processors import HeartRateProcessor
+from processors import HeartRateProcessor, MLInferenceProcessor
 
 # GUI imports (optional)
 try:
@@ -84,6 +90,27 @@ class EDGELayer:
         if 'heart_rate' in PROCESSING_MODULES:
             self.processor_pipeline.add_processor(HeartRateProcessor())
         
+        if 'ml_inference' in PROCESSING_MODULES:
+            self.ml_processor = MLInferenceProcessor(models_dir=MODELS_DIR)
+            self.processor_pipeline.add_processor(self.ml_processor)
+            
+            # Auto-load preferred model (ECG-DualNet preferred, fallback to first)
+            available = self.ml_processor.get_available_models()
+            if available:
+                # Prefer ECG-DualNet if available (check for 'ECG-DualNet' in name)
+                selected_model = available[0]  # Default to first
+                for model in available:
+                    fname = model.get('filename', '').lower()
+                    mtype = model.get('type', '')
+                    if 'ecg-dualnet' in fname or 'dualnet' in fname or mtype == 'ecg_dualnet':
+                        selected_model = model
+                        break
+                
+                self.ml_processor.load_model(selected_model['path'])
+                logger.info(f"Auto-loaded model: {selected_model['filename']}")
+            else:
+                logger.info("No models found in models directory - copy trained models to use inference")
+        
         # Initialize chunk receiver with callback
         self.chunk_receiver = ChunkReceiver(on_complete_callback=self._on_ecg_complete)
         
@@ -93,6 +120,11 @@ class EDGELayer:
         # Connect GUI signals if available
         if self.gui:
             self.gui.get_signal_emitter().request_ecg_data.connect(self._on_request_ecg_data)
+            self.gui.get_signal_emitter().model_changed.connect(self._on_model_changed)
+            
+            # Populate model dropdown
+            if hasattr(self, 'ml_processor'):
+                self.gui.update_models_list(self.ml_processor.get_available_models())
         
         logger.info("✓ Components initialized")
     
@@ -104,6 +136,9 @@ class EDGELayer:
             topic: MQTT topic
             payload: Message payload bytes
         """
+        # DEBUG: Confirm callback is being triggered
+        logger.info(f"[DEBUG] Received MQTT message on topic: {topic}, payload size: {len(payload)} bytes")
+        
         from config import MQTT_CHUNK_TOPIC
         if topic == MQTT_CHUNK_TOPIC:
             # Process chunk
@@ -138,7 +173,60 @@ class EDGELayer:
             if self.gui:
                 self.gui.get_signal_emitter().log_message_signal.emit("Cannot request ECG data: not connected to MQTT broker", "error")
     
-    def _on_ecg_complete(self, ecg_data, metadata):
+    def _on_model_changed(self, model_path: str):
+        """Handle model selection change from GUI."""
+        if not hasattr(self, 'ml_processor'):
+            return
+        
+        # Handle refresh request
+        if model_path == "__REFRESH__":
+            self.ml_processor.refresh_models()
+            if self.gui:
+                self.gui.update_models_list(self.ml_processor.get_available_models())
+            return
+        
+        # Load the selected model
+        if self.ml_processor.load_model(model_path):
+            logger.info(f"Model loaded successfully: {model_path}")
+            if self.gui:
+                self.gui.get_signal_emitter().log_message_signal.emit(
+                    f"Model loaded: {self.ml_processor.current_model_type}", "success"
+                )
+        else:
+            logger.error(f"Failed to load model: {model_path}")
+            if self.gui:
+                self.gui.get_signal_emitter().log_message_signal.emit(
+                    f"Failed to load model", "error"
+                )
+    
+    
+    def _send_to_portal(self, ecg_data, metadata, results):
+        """Send data to the Doctor's Portal API."""
+        try:
+            # Convert NumPy array to list for JSON serialization
+            ecg_list = ecg_data.tolist() if hasattr(ecg_data, 'tolist') else list(ecg_data)
+            
+            payload = {
+                "ecg_values": ecg_list,
+                "metadata": metadata,
+                "results": results
+            }
+            
+            headers = {'Content-Type': 'application/json'}
+            # Use short timeout to avoid blocking main thread too long
+            response = requests.post(PORTAL_API_URL, json=payload, headers=headers, timeout=2)
+            
+            if response.status_code == 200:
+                logger.info(f"✓ Data sent to Portal (ID: {response.json().get('record_id')})")
+            else:
+                logger.warning(f"Failed to send to Portal: {response.status_code} {response.text}")
+                
+        except requests.exceptions.ConnectionError:
+            logger.warning("Portal unreachable (Connection refused). Is the web server running?")
+        except Exception as e:
+            logger.error(f"Error sending to Portal: {e}")
+
+    def _on_ecg_complete(self, ecg_data, metadata: dict):
         """
         Handle complete ECG record received.
         
@@ -167,13 +255,18 @@ class EDGELayer:
                 signal_emitter = self.gui.get_signal_emitter()
                 signal_emitter.ecg_data_received.emit(ecg_data, metadata)
                 
-                # Update processing results via signal
+                # Update processing results via signal (include metadata for Patient ID)
                 if processing_results:
+                    processing_results['metadata'] = metadata
                     signal_emitter.processing_results_updated.emit(processing_results)
                 
                 logger.info("GUI updated with new ECG data")
             except Exception as e:
                 logger.error(f"Error updating GUI: {e}", exc_info=True)
+        
+        # Send to Doctor's Portal
+        if processing_results:
+            self._send_to_portal(ecg_data, metadata, processing_results)
         
         # Save data if enabled
         if self.data_storage:

@@ -1,0 +1,1151 @@
+<!DOCTYPE html><html><head>
+      <title>SYSTEM_ARCHITECTURE</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:////Users/shakirzareen/.antigravity/extensions/shd101wyy.markdown-preview-enhanced-0.8.20-universal/crossnote/dependencies/katex/katex.min.css">
+      
+      
+      <script type="text/javascript" src="file:////Users/shakirzareen/.antigravity/extensions/shd101wyy.markdown-preview-enhanced-0.8.20-universal/crossnote/dependencies/mermaid/mermaid.min.js" charset="UTF-8"></script>
+      
+      
+      <style>
+      code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}.token.blockquote,.token.comment{color:#969896}.token.cdata{color:#183691}.token.doctype,.token.macro.property,.token.punctuation,.token.variable{color:#333}.token.builtin,.token.important,.token.keyword,.token.operator,.token.rule{color:#a71d5d}.token.attr-value,.token.regex,.token.string,.token.url{color:#183691}.token.atrule,.token.boolean,.token.code,.token.command,.token.constant,.token.entity,.token.number,.token.property,.token.symbol{color:#0086b3}.token.prolog,.token.selector,.token.tag{color:#63a35c}.token.attr-name,.token.class,.token.class-name,.token.function,.token.id,.token.namespace,.token.pseudo-class,.token.pseudo-element,.token.url-reference .token.variable{color:#795da3}.token.entity{cursor:help}.token.title,.token.title .token.punctuation{font-weight:700;color:#1d3e81}.token.list{color:#ed6a43}.token.inserted{background-color:#eaffea;color:#55a532}.token.deleted{background-color:#ffecec;color:#bd2c00}.token.bold{font-weight:700}.token.italic{font-style:italic}.language-json .token.property{color:#183691}.language-markup .token.tag .token.punctuation{color:#333}.language-css .token.function,code.language-css{color:#0086b3}.language-yaml .token.atrule{color:#63a35c}code.language-yaml{color:#183691}.language-ruby .token.function{color:#333}.language-markdown .token.url{color:#795da3}.language-makefile .token.symbol{color:#795da3}.language-makefile .token.variable{color:#183691}.language-makefile .token.builtin{color:#0086b3}.language-bash .token.keyword{color:#0086b3}pre[data-line]{position:relative;padding:1em 0 1em 3em}pre[data-line] .line-highlight-wrapper{position:absolute;top:0;left:0;background-color:transparent;display:block;width:100%}pre[data-line] .line-highlight{position:absolute;left:0;right:0;padding:inherit 0;margin-top:1em;background:hsla(24,20%,50%,.08);background:linear-gradient(to right,hsla(24,20%,50%,.1) 70%,hsla(24,20%,50%,0));pointer-events:none;line-height:inherit;white-space:pre}pre[data-line] .line-highlight:before,pre[data-line] .line-highlight[data-end]:after{content:attr(data-start);position:absolute;top:.4em;left:.6em;min-width:1em;padding:0 .5em;background-color:hsla(24,20%,50%,.4);color:#f4f1ef;font:bold 65%/1.5 sans-serif;text-align:center;vertical-align:.3em;border-radius:999px;text-shadow:none;box-shadow:0 1px #fff}pre[data-line] .line-highlight[data-end]:after{content:attr(data-end);top:auto;bottom:.4em}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body ol.no-list,html body ul.no-list{padding:0;list-style-type:none}html body ol ol,html body ol ul,html body ul ol,html body ul ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::after,html body code::before{letter-spacing:-.2em;content:'\00a0'}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:after,html body pre code:before,html body pre tt:after,html body pre tt:before{content:normal}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body code,html body pre{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ul ul ul{list-style:square}.markdown-preview ol{list-style:decimal}.markdown-preview ol ol,.markdown-preview ul ol{list-style-type:lower-roman}.markdown-preview ol ol ol,.markdown-preview ol ul ol,.markdown-preview ul ol ol,.markdown-preview ul ul ol{list-style-type:lower-alpha}.markdown-preview .newpage,.markdown-preview .pagebreak{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center!important}.markdown-preview:not([data-for=preview]) .code-chunk .code-chunk-btn-group{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .status{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .output-div{margin-bottom:16px}.markdown-preview .md-toc{padding:0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link div,.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}.markdown-preview .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}@media print{html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc{padding:0 16px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link div,html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% - 300px);padding:2em calc(50% - 457px - 300px / 2);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+      <!-- The content below will be included at the end of the <head> element. --><script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    // your code here
+  });
+</script></head><body for="html-export">
+    
+    
+      <div class="crossnote markdown-preview  ">
+      
+<h1 id="system-architecture-documentation">System Architecture Documentation </h1>
+<p>This document provides comprehensive architecture diagrams for the ECG Remote Patient Monitoring system, including individual component architectures and a high-level system integration view.</p>
+<hr>
+<h2 id="1-datasimulator-architecture">1. DataSimulator Architecture </h2>
+<p>The DataSimulator is a PyQt6-based application that simulates ECG data from the PhysioNet CinC 2017 dataset and publishes it via MQTT for embedded device consumption.</p>
+<h3 id="component-diagram">Component Diagram </h3>
+<div class="mermaid">graph TB
+    subgraph "DataSimulator Application"
+        subgraph "Presentation Layer"
+            GUI[ecg_gui.py&lt;br/&gt;PyQt6 GUI]
+        end
+        
+        subgraph "Control Layer"
+            Controller[app_controller.py&lt;br/&gt;Application Controller]
+            Worker[simulator_worker.py&lt;br/&gt;Background Worker Thread]
+        end
+        
+        subgraph "Model Layer"
+            Simulator[ecg_simulator.py&lt;br/&gt;ECG Dataset Manager]
+            HEAParser[hea_parser.py&lt;br/&gt;Metadata Parser]
+            Downloader[dataset_downloader.py&lt;br/&gt;PhysioNet Downloader]
+        end
+        
+        subgraph "Communication Layer"
+            Broker[mqtt_broker.py&lt;br/&gt;Embedded MQTT Broker&lt;br/&gt;Port: 1883]
+            Discovery[UDP Discovery Responder&lt;br/&gt;Port: 1884]
+        end
+        
+        subgraph "Data Storage"
+            Dataset[(PhysioNet CinC 2017&lt;br/&gt;8,528 ECG Recordings&lt;br/&gt;300 Hz Sampling)]
+            RefCSV[REFERENCE.csv&lt;br/&gt;Rhythm Classifications]
+        end
+        
+        Config[config.py&lt;br/&gt;Configuration]
+    end
+    
+    subgraph "External Systems"
+        PhysioNet[PhysioNet Archive&lt;br/&gt;archive.physionet.org]
+        ESP32[ESP32 Devices&lt;br/&gt;MQTT Clients]
+    end
+    
+    GUI --&gt; Controller
+    Controller --&gt; Simulator
+    Controller --&gt; Worker
+    Worker --&gt; Simulator
+    Worker --&gt; Broker
+    
+    Simulator --&gt; HEAParser
+    Simulator --&gt; Dataset
+    Simulator --&gt; RefCSV
+    
+    Downloader --&gt; PhysioNet
+    Downloader --&gt; Dataset
+    Downloader --&gt; RefCSV
+    
+    Broker --&gt; ESP32
+    Discovery -.-&gt; ESP32
+    
+    Config -.-&gt; GUI
+    Config -.-&gt; Controller
+    Config -.-&gt; Broker
+    
+    style Broker fill:#e1f5ff
+    style Discovery fill:#e1f5ff
+    style Dataset fill:#fff4e1
+    style PhysioNet fill:#f0f0f0
+</div><h3 id="data-flow-diagram">Data Flow Diagram </h3>
+<div class="mermaid">sequenceDiagram
+    participant User
+    participant GUI
+    participant Controller
+    participant Simulator
+    participant Downloader
+    participant Worker
+    participant Broker
+    participant ESP32
+    
+    User-&gt;&gt;GUI: Select Patient &amp; Start
+    GUI-&gt;&gt;Controller: Start Simulation Request
+    Controller-&gt;&gt;Simulator: Load Patient Data
+    
+    alt Patient Not Downloaded
+        Simulator-&gt;&gt;Downloader: Download Patient Files
+        Downloader-&gt;&gt;Downloader: Fetch .mat &amp; .hea
+        Downloader--&gt;&gt;Simulator: Files Ready
+    end
+    
+    Simulator-&gt;&gt;Simulator: Parse .hea Metadata
+    Simulator-&gt;&gt;Simulator: Load ECG Values (300 Hz)
+    Simulator--&gt;&gt;Controller: Data Ready
+    
+    Controller-&gt;&gt;Worker: Start Publishing Thread
+    Worker-&gt;&gt;Worker: Package Full Record&lt;br/&gt;(Binary Payload)
+    Worker-&gt;&gt;Broker: Publish to ecg/full_record
+    Broker-&gt;&gt;ESP32: MQTT Message (QoS 0)
+    
+    Worker--&gt;&gt;GUI: Update Status
+    GUI--&gt;&gt;User: Show Completion
+</div><h3 id="key-features">Key Features </h3>
+<p><strong>Architecture Pattern</strong>: Model-View-Controller (MVC) with threading</p>
+<p><strong>Components</strong>:</p>
+<ul>
+<li><strong>ecg_gui.py</strong>: PyQt6-based user interface with live ECG preview</li>
+<li><strong>app_controller.py</strong>: Orchestrates application state and coordinates components</li>
+<li><strong>simulator_worker.py</strong>: Background thread for non-blocking MQTT publishing</li>
+<li><strong>ecg_simulator.py</strong>: Manages dataset, patient selection, and data loading</li>
+<li><strong>hea_parser.py</strong>: Parses PhysioNet .hea header files for metadata</li>
+<li><strong>dataset_downloader.py</strong>: Handles on-demand and bulk dataset downloads</li>
+<li><strong>mqtt_broker.py</strong>: Embedded pure-Python MQTT broker (no external dependencies)</li>
+<li><strong><a href="http://config.py">config.py</a></strong>: Centralized configuration constants</li>
+</ul>
+<p><strong>MQTT Protocol</strong>:</p>
+<ul>
+<li><strong>Topic</strong>: <code>ecg/full_record</code></li>
+<li><strong>QoS</strong>: 0 (fire-and-forget)</li>
+<li><strong>Payload</strong>: Binary format with header + float array
+<ul>
+<li>Header: format_version, sampling_rate (300 Hz), sample_count, start_timestamp, end_timestamp</li>
+<li>Body: IEEE-754 float32 array representing ECG voltage in mV</li>
+</ul>
+</li>
+<li><strong>Typical Size</strong>: 36 KB for 30s recording (9,000 samples)</li>
+</ul>
+<p><strong>Discovery Protocol</strong>:</p>
+<ul>
+<li><strong>UDP Broadcast</strong>: Port 1884</li>
+<li><strong>Response</strong>: Broker IP and port information</li>
+</ul>
+<hr>
+<h2 id="2-iot-esp32-architecture">2. IOT (ESP32) Architecture </h2>
+<p>The IOT layer consists of ESP32 firmware that discovers MQTT brokers, receives full ECG records, and forwards chunked data to the EDGE layer for processing.</p>
+<h3 id="component-diagram-1">Component Diagram </h3>
+<div class="mermaid">graph TB
+    subgraph "ESP32 Firmware"
+        subgraph "Network Layer"
+            WiFi[WiFi Manager&lt;br/&gt;Auto-Reconnect]
+            Discovery[UDP Discovery Client&lt;br/&gt;Broker Discovery]
+        end
+        
+        subgraph "Communication Layer"
+            SimMQTT[MQTT Client 1&lt;br/&gt;DataSimulator Connection&lt;br/&gt;Port: 1883]
+            EdgeMQTT[MQTT Client 2&lt;br/&gt;EDGE Connection&lt;br/&gt;Port: 1885]
+        end
+        
+        subgraph "Processing Layer"
+            Parser[Binary Parser&lt;br/&gt;Full Record Decoder]
+            Chunker[Data Chunker&lt;br/&gt;Splits into Chunks]
+            Buffer[RAM Buffer&lt;br/&gt;~72 KB max]
+        end
+        
+        subgraph "Hardware Layer"
+            RAM[ESP32 RAM&lt;br/&gt;520 KB total]
+            Flash[ESP32 Flash&lt;br/&gt;4 MB]
+            Timer[Hardware Timer&lt;br/&gt;300 Hz Replay]
+        end
+        
+        Config[Configuration&lt;br/&gt;WiFi Credentials&lt;br/&gt;Broker Settings]
+    end
+    
+    subgraph "External Systems"
+        SimBroker[DataSimulator Broker&lt;br/&gt;Port: 1883]
+        EdgeBroker[EDGE Broker&lt;br/&gt;Port: 1885]
+    end
+    
+    WiFi --&gt; Discovery
+    Discovery -.-&gt; SimBroker
+    Discovery -.-&gt; EdgeBroker
+    
+    WiFi --&gt; SimMQTT
+    WiFi --&gt; EdgeMQTT
+    
+    SimMQTT --&gt; SimBroker
+    EdgeMQTT --&gt; EdgeBroker
+    
+    SimMQTT --&gt; Parser
+    Parser --&gt; Buffer
+    Buffer --&gt; Chunker
+    Chunker --&gt; EdgeMQTT
+    
+    Buffer --&gt; RAM
+    Timer --&gt; Buffer
+    
+    Config -.-&gt; WiFi
+    Config -.-&gt; SimMQTT
+    Config -.-&gt; EdgeMQTT
+    
+    style SimMQTT fill:#e1f5ff
+    style EdgeMQTT fill:#e1f5ff
+    style Buffer fill:#fff4e1
+    style RAM fill:#ffe1e1
+</div><h3 id="data-flow-diagram-1">Data Flow Diagram </h3>
+<div class="mermaid">sequenceDiagram
+    participant DataSim as DataSimulator Broker
+    participant ESP32
+    participant EdgeBroker as EDGE Broker
+    
+    Note over ESP32: Power On / Reset
+    ESP32-&gt;&gt;ESP32: Connect to WiFi
+    ESP32-&gt;&gt;ESP32: UDP Broadcast Discovery
+    
+    DataSim--&gt;&gt;ESP32: Broker Info (IP:1883)
+    EdgeBroker--&gt;&gt;ESP32: Broker Info (IP:1885)
+    
+    ESP32-&gt;&gt;DataSim: MQTT Connect (Port 1883)
+    ESP32-&gt;&gt;EdgeBroker: MQTT Connect (Port 1885)
+    
+    ESP32-&gt;&gt;DataSim: Subscribe to ecg/full_record
+    
+    DataSim-&gt;&gt;ESP32: Full ECG Record (Binary)&lt;br/&gt;~36 KB payload
+    
+    ESP32-&gt;&gt;ESP32: Parse Binary Header&lt;br/&gt;(format, rate, timestamps)
+    ESP32-&gt;&gt;ESP32: Buffer Float Array&lt;br/&gt;(9,000 samples in RAM)
+    
+    loop For Each Chunk (e.g., 500 samples)
+        ESP32-&gt;&gt;ESP32: Extract Chunk from Buffer
+        ESP32-&gt;&gt;ESP32: Create Binary Chunk&lt;br/&gt;(header + CSV values)
+        ESP32-&gt;&gt;EdgeBroker: Publish to ecg/edge/chunk
+        EdgeBroker--&gt;&gt;ESP32: ACK (optional)
+    end
+    
+    Note over ESP32: Buffer cleared, ready for next record
+</div><h3 id="key-features-1">Key Features </h3>
+<p><strong>Hardware Platform</strong>: ESP32 (any variant)</p>
+<ul>
+<li><strong>RAM</strong>: 520 KB (sufficient for 60s ECG records)</li>
+<li><strong>Flash</strong>: 4 MB</li>
+<li><strong>WiFi</strong>: 802.11 b/g/n</li>
+</ul>
+<p><strong>Firmware Components</strong>:</p>
+<ul>
+<li><strong>WiFi Manager</strong>: Automatic connection and reconnection</li>
+<li><strong>UDP Discovery</strong>: Finds DataSimulator and EDGE brokers automatically</li>
+<li><strong>Dual MQTT Clients</strong>: Separate connections to DataSimulator (1883) and EDGE (1885)</li>
+<li><strong>Binary Parser</strong>: Decodes full-record binary payload</li>
+<li><strong>Data Chunker</strong>: Splits large records into manageable chunks for EDGE</li>
+<li><strong>Error Handling</strong>: Comprehensive exception handling and recovery</li>
+</ul>
+<p><strong>Communication Protocols</strong>:</p>
+<ol>
+<li>
+<p><strong>Receive from DataSimulator</strong>:</p>
+<ul>
+<li>Topic: <code>ecg/full_record</code></li>
+<li>Format: Binary (header + float32 array)</li>
+<li>Size: ~36 KB typical</li>
+</ul>
+</li>
+<li>
+<p><strong>Send to EDGE</strong>:</p>
+<ul>
+<li>Topic: <code>ecg/edge/chunk</code></li>
+<li>Format: Binary header + CSV body</li>
+<li>Chunk Size: Configurable (e.g., 500 samples)</li>
+</ul>
+</li>
+</ol>
+<p><strong>Memory Management</strong>:</p>
+<ul>
+<li>Full record buffered in RAM</li>
+<li>Chunked transmission to minimize EDGE memory requirements</li>
+<li>Automatic buffer cleanup after transmission</li>
+</ul>
+<hr>
+<h2 id="3-edge-architecture">3. EDGE Architecture </h2>
+<p>The EDGE layer runs on a Raspberry Pi 4 and serves as the intelligent processing gateway between ESP32 devices and the Web Portal.</p>
+<h3 id="component-diagram-2">Component Diagram </h3>
+<div class="mermaid">graph TB
+    subgraph "EDGE Application (Raspberry Pi 4)"
+        subgraph "Presentation Layer"
+            GUI[edge_gui.py&lt;br/&gt;PyQt6 Real-time Visualization]
+        end
+        
+        subgraph "Communication Layer"
+            Broker[mqtt_broker.py&lt;br/&gt;Embedded MQTT Broker&lt;br/&gt;Port: 1885]
+            Discovery[mqtt_discovery.py&lt;br/&gt;UDP Discovery Responder&lt;br/&gt;Port: 1886]
+            Client[mqtt_client.py&lt;br/&gt;MQTT Client Wrapper]
+        end
+        
+        subgraph "Processing Layer"
+            Receiver[chunk_receiver.py&lt;br/&gt;ECG Chunk Assembler]
+            BaseProcessor[ecg_processor.py&lt;br/&gt;Base Processor Class]
+            
+            subgraph "Processing Modules"
+                HRProc[heart_rate_processor.py&lt;br/&gt;Heart Rate Calculation]
+                MLProc[ml_inference_processor.py&lt;br/&gt;Rhythm Classification]
+                OtherProc[... Other Processors&lt;br/&gt;Extensible Pipeline]
+            end
+        end
+        
+        subgraph "Storage Layer"
+            Storage[data_storage.py&lt;br/&gt;NPZ + JSON Storage]
+            DataDir[(data/received_ecg/&lt;br/&gt;ECG Records)]
+        end
+        
+        subgraph "API Layer"
+            WebAPI[HTTP Client&lt;br/&gt;Web Portal API]
+        end
+        
+        Config[config.py&lt;br/&gt;Configuration&lt;br/&gt;Processing Modules]
+        Main[main.py&lt;br/&gt;Application Entry Point]
+    end
+    
+    subgraph "External Systems"
+        ESP32[ESP32 Devices]
+        WebPortal[Web Portal&lt;br/&gt;FastAPI Backend]
+    end
+    
+    ESP32 --&gt; Broker
+    Discovery -.-&gt; ESP32
+    
+    Broker --&gt; Client
+    Client --&gt; Receiver
+    
+    Receiver --&gt; BaseProcessor
+    BaseProcessor --&gt; HRProc
+    BaseProcessor --&gt; MLProc
+    BaseProcessor --&gt; OtherProc
+    
+    HRProc --&gt; Storage
+    MLProc --&gt; Storage
+    OtherProc --&gt; Storage
+    
+    Storage --&gt; DataDir
+    Storage --&gt; WebAPI
+    WebAPI --&gt; WebPortal
+    
+    Receiver --&gt; GUI
+    HRProc --&gt; GUI
+    MLProc --&gt; GUI
+    
+    Main --&gt; Broker
+    Main --&gt; Client
+    Main --&gt; Receiver
+    Main --&gt; GUI
+    
+    Config -.-&gt; Main
+    Config -.-&gt; Broker
+    Config -.-&gt; BaseProcessor
+    
+    style Broker fill:#e1f5ff
+    style Discovery fill:#e1f5ff
+    style DataDir fill:#fff4e1
+    style MLProc fill:#e1ffe1
+</div><h3 id="data-flow-diagram-2">Data Flow Diagram </h3>
+<div class="mermaid">sequenceDiagram
+    participant ESP32
+    participant Broker as EDGE Broker
+    participant Receiver as Chunk Receiver
+    participant Processors as Processing Pipeline
+    participant Storage
+    participant WebPortal as Web Portal API
+    participant GUI
+    
+    ESP32-&gt;&gt;Broker: Connect via UDP Discovery
+    ESP32-&gt;&gt;Broker: Subscribe to ecg/edge/ack
+    
+    loop For Each Chunk
+        ESP32-&gt;&gt;Broker: Publish ecg/edge/chunk&lt;br/&gt;(Binary: header + CSV)
+        Broker-&gt;&gt;Receiver: Forward Chunk
+        
+        Receiver-&gt;&gt;Receiver: Parse Binary Header
+        Receiver-&gt;&gt;Receiver: Parse CSV Body
+        Receiver-&gt;&gt;Receiver: Assemble Chunks
+        
+        alt All Chunks Received
+            Receiver-&gt;&gt;Processors: Full ECG Record Ready
+            
+            par Parallel Processing
+                Processors-&gt;&gt;Processors: Heart Rate Calculation
+                Processors-&gt;&gt;Processors: ML Inference (Rhythm)
+                Processors-&gt;&gt;Processors: Other Analyses
+            end
+            
+            Processors-&gt;&gt;Storage: Save Results + ECG Data
+            Storage-&gt;&gt;Storage: Write NPZ (compressed)
+            Storage-&gt;&gt;Storage: Write JSON (metadata)
+            
+            Storage-&gt;&gt;WebPortal: POST /api/ingest&lt;br/&gt;(ECG + Results + Metadata)
+            WebPortal--&gt;&gt;Storage: ACK (record_id)
+            
+            Processors-&gt;&gt;GUI: Update Visualization
+            GUI-&gt;&gt;GUI: Plot ECG Waveform
+            GUI-&gt;&gt;GUI: Display Results
+        end
+        
+        Broker-&gt;&gt;ESP32: Publish ecg/edge/ack
+    end
+</div><h3 id="key-features-2">Key Features </h3>
+<p><strong>Platform</strong>: Raspberry Pi 4 (or similar Linux SBC)</p>
+<p><strong>Architecture Pattern</strong>: Modular Processing Pipeline</p>
+<p><strong>Core Components</strong>:</p>
+<ul>
+<li><strong>mqtt_broker.py</strong>: Embedded MQTT broker for receiving from ESP32 (Port 1885)</li>
+<li><strong>mqtt_discovery.py</strong>: UDP responder for broker discovery (Port 1886)</li>
+<li><strong>mqtt_client.py</strong>: MQTT client wrapper for internal communication</li>
+<li><strong>chunk_receiver.py</strong>: Assembles chunked ECG data from ESP32</li>
+<li><strong>ecg_processor.py</strong>: Base class for extensible processing modules</li>
+<li><strong>data_storage.py</strong>: Saves ECG data and results to disk</li>
+<li><strong>edge_gui.py</strong>: Real-time ECG visualization with PyQt6</li>
+<li><strong><a href="http://main.py">main.py</a></strong>: Application orchestration and lifecycle management</li>
+</ul>
+<p><strong>Processing Modules</strong> (Extensible):</p>
+<ul>
+<li><strong>heart_rate_processor.py</strong>: R-peak detection and heart rate calculation</li>
+<li><strong>ml_inference_processor.py</strong>: Trained ML model for rhythm classification</li>
+<li><strong>Custom processors</strong>: Easily add new processing modules</li>
+</ul>
+<p><strong>MQTT Protocol</strong>:</p>
+<ul>
+<li><strong>Receive Topic</strong>: <code>ecg/edge/chunk</code></li>
+<li><strong>ACK Topic</strong>: <code>ecg/edge/ack</code></li>
+<li><strong>Chunk Format</strong>: Binary header (12 bytes) + CSV body
+<ul>
+<li>Header: format_version, sampling_rate, chunk_num, total_chunks, sample_count</li>
+<li>Body: Comma-separated float values</li>
+</ul>
+</li>
+</ul>
+<p><strong>Data Storage</strong>:</p>
+<ul>
+<li><strong>Format</strong>: NPZ (compressed numpy) + JSON (metadata)</li>
+<li><strong>Location</strong>: <code>./data/received_ecg/</code></li>
+<li><strong>Naming</strong>: <code>ecg_TIMESTAMP.npz</code> and <code>ecg_TIMESTAMP_metadata.json</code></li>
+</ul>
+<p><strong>Web Portal Integration</strong>:</p>
+<ul>
+<li><strong>Endpoint</strong>: <code>POST /api/ingest</code></li>
+<li><strong>Payload</strong>: ECG values, processing results, metadata</li>
+<li><strong>Response</strong>: Record ID for tracking</li>
+</ul>
+<p><strong>Discovery Protocol</strong>:</p>
+<ul>
+<li><strong>UDP Port</strong>: 1886 (different from DataSimulator's 1884)</li>
+<li><strong>Response</strong>: EDGE broker IP and port (1885)</li>
+</ul>
+<hr>
+<h2 id="4-web-portal-architecture">4. Web Portal Architecture </h2>
+<p>The Web Portal is a FastAPI-based secure web application for doctors to view ECG data, patient timelines, and audit trails.</p>
+<h3 id="component-diagram-3">Component Diagram </h3>
+<div class="mermaid">graph TB
+    subgraph "Web Portal Application"
+        subgraph "Frontend (Templates)"
+            Login[login.html&lt;br/&gt;Authentication Page]
+            Dashboard[dashboard.html&lt;br/&gt;ECG Records Dashboard]
+            ECGView[ecg_view.html&lt;br/&gt;Detailed ECG Visualization]
+            PatientTimeline[patient_timeline.html&lt;br/&gt;Patient History]
+            AuditLedger[audit_ledger.html&lt;br/&gt;Cryptographic Audit Trail]
+        end
+        
+        subgraph "Backend (FastAPI)"
+            Main[main.py&lt;br/&gt;API Routes &amp; Web Routes]
+            Auth[auth.py&lt;br/&gt;JWT Authentication]
+            Ledger[ledger.py&lt;br/&gt;Cryptographic Audit Ledger]
+            Models[models.py&lt;br/&gt;SQLAlchemy ORM Models]
+            Schemas[schemas.py&lt;br/&gt;Pydantic Schemas]
+        end
+        
+        subgraph "Database Layer"
+            DB[(portal.db&lt;br/&gt;SQLite Database)]
+            
+            subgraph "Tables"
+                Users[users&lt;br/&gt;Doctor Accounts]
+                Patients[patients&lt;br/&gt;Patient Records]
+                ECGRecords[ecg_records&lt;br/&gt;ECG Data &amp; Results]
+                AuditLog[audit_log&lt;br/&gt;Hash-Chained Ledger]
+            end
+        end
+        
+        subgraph "Static Assets"
+            CSS[CSS Stylesheets&lt;br/&gt;Modern UI Design]
+            JS[JavaScript&lt;br/&gt;AJAX Polling &amp; Interactivity]
+        end
+    end
+    
+    subgraph "External Systems"
+        EdgeDevice[EDGE Device&lt;br/&gt;Data Ingestion]
+        Doctor[Doctor&lt;br/&gt;Web Browser]
+    end
+    
+    Doctor --&gt; Login
+    Login --&gt; Auth
+    Auth --&gt; Dashboard
+    Dashboard --&gt; ECGView
+    Dashboard --&gt; PatientTimeline
+    Dashboard --&gt; AuditLedger
+    
+    Main --&gt; Auth
+    Main --&gt; Ledger
+    Main --&gt; Models
+    Main --&gt; Schemas
+    
+    Models --&gt; DB
+    DB --&gt; Users
+    DB --&gt; Patients
+    DB --&gt; ECGRecords
+    DB --&gt; AuditLog
+    
+    Ledger --&gt; AuditLog
+    
+    EdgeDevice --&gt; Main
+    Main --&gt; ECGRecords
+    Main --&gt; Patients
+    Main --&gt; Ledger
+    
+    Dashboard --&gt; CSS
+    Dashboard --&gt; JS
+    ECGView --&gt; CSS
+    ECGView --&gt; JS
+    
+    style Auth fill:#ffe1e1
+    style Ledger fill:#e1ffe1
+    style DB fill:#fff4e1
+    style AuditLog fill:#e1ffe1
+</div><h3 id="data-flow-diagram-3">Data Flow Diagram </h3>
+<div class="mermaid">sequenceDiagram
+    participant Doctor
+    participant Frontend
+    participant FastAPI
+    participant Auth
+    participant Ledger
+    participant Database
+    participant EDGE
+    
+    Note over Doctor,Database: Authentication Flow
+    Doctor-&gt;&gt;Frontend: Enter Credentials
+    Frontend-&gt;&gt;FastAPI: POST /token
+    FastAPI-&gt;&gt;Auth: Verify Credentials
+    Auth-&gt;&gt;Database: Query users table
+    Database--&gt;&gt;Auth: User Record
+    Auth-&gt;&gt;Auth: Generate JWT Token
+    Auth-&gt;&gt;Ledger: Log LOGIN_SUCCESS
+    Ledger-&gt;&gt;Database: Add Audit Entry (hash-chained)
+    Auth--&gt;&gt;Frontend: JWT Token
+    Frontend-&gt;&gt;Frontend: Store Token (localStorage)
+    
+    Note over Doctor,Database: Data Ingestion Flow (from EDGE)
+    EDGE-&gt;&gt;FastAPI: POST /api/ingest&lt;br/&gt;(ECG + Results + Metadata)
+    FastAPI-&gt;&gt;Database: Find/Create Patient
+    FastAPI-&gt;&gt;Database: Create ECG Record
+    FastAPI-&gt;&gt;Ledger: Log INGEST_ECG
+    Ledger-&gt;&gt;Ledger: Calculate Hash Chain
+    Ledger-&gt;&gt;Database: Add Audit Entry
+    FastAPI--&gt;&gt;EDGE: Success (record_id)
+    
+    Note over Doctor,Database: Dashboard View Flow
+    Doctor-&gt;&gt;Frontend: Access Dashboard
+    Frontend-&gt;&gt;FastAPI: GET /dashboard (with JWT)
+    FastAPI-&gt;&gt;Database: Query Recent ECG Records
+    Database--&gt;&gt;FastAPI: Records (limit 20)
+    FastAPI--&gt;&gt;Frontend: Render dashboard.html
+    Frontend-&gt;&gt;Frontend: Auto-refresh (AJAX polling)
+    
+    Note over Doctor,Database: ECG Detail View Flow
+    Doctor-&gt;&gt;Frontend: Click ECG Record
+    Frontend-&gt;&gt;FastAPI: GET /ecg/{record_id}
+    FastAPI-&gt;&gt;Database: Query ECG Record + Patient
+    Database--&gt;&gt;FastAPI: Full Record Data
+    FastAPI--&gt;&gt;Frontend: Render ecg_view.html&lt;br/&gt;(with Chart.js visualization)
+    
+    Note over Doctor,Database: Audit Ledger Verification
+    Doctor-&gt;&gt;Frontend: Access Audit Ledger
+    Frontend-&gt;&gt;FastAPI: GET /audit-ledger
+    FastAPI-&gt;&gt;Ledger: Verify Chain Integrity
+    Ledger-&gt;&gt;Database: Query All Audit Entries
+    Ledger-&gt;&gt;Ledger: Validate Hash Chain
+    Ledger--&gt;&gt;FastAPI: Integrity Status
+    FastAPI-&gt;&gt;Database: Query Recent Entries
+    FastAPI--&gt;&gt;Frontend: Render audit_ledger.html&lt;br/&gt;(with integrity badge)
+</div><h3 id="key-features-3">Key Features </h3>
+<p><strong>Framework</strong>: FastAPI (Python)</p>
+<ul>
+<li><strong>Async Support</strong>: High-performance async request handling</li>
+<li><strong>Auto Documentation</strong>: OpenAPI/Swagger UI</li>
+<li><strong>Type Safety</strong>: Pydantic schema validation</li>
+</ul>
+<p><strong>Frontend</strong>:</p>
+<ul>
+<li><strong>Template Engine</strong>: Jinja2</li>
+<li><strong>Styling</strong>: Modern CSS with responsive design</li>
+<li><strong>Interactivity</strong>: Vanilla JavaScript with AJAX polling</li>
+<li><strong>Visualization</strong>: Chart.js for ECG waveform rendering</li>
+</ul>
+<p><strong>Authentication</strong>:</p>
+<ul>
+<li><strong>Method</strong>: JWT (JSON Web Tokens)</li>
+<li><strong>Storage</strong>: localStorage (client-side)</li>
+<li><strong>Expiration</strong>: Configurable token lifetime</li>
+<li><strong>Security</strong>: Bcrypt password hashing</li>
+</ul>
+<p><strong>Database</strong> (SQLite):</p>
+<ul>
+<li><strong>users</strong>: Doctor accounts (username, hashed_password, role)</li>
+<li><strong>patients</strong>: Patient information (patient_id_external, name, dob)</li>
+<li><strong>ecg_records</strong>: ECG data, processing results, metadata</li>
+<li><strong>audit_log</strong>: Hash-chained cryptographic audit trail</li>
+</ul>
+<p><strong>Cryptographic Audit Ledger</strong>:</p>
+<ul>
+<li><strong>Hash Chain</strong>: Each entry contains hash of previous entry</li>
+<li><strong>Immutability</strong>: Any tampering breaks the chain</li>
+<li><strong>Verification</strong>: <code>/api/audit/verify</code> endpoint checks integrity</li>
+<li><strong>Logged Actions</strong>: LOGIN_SUCCESS, INGEST_ECG, VIEW_RECORD, etc.</li>
+</ul>
+<p><strong>API Endpoints</strong>:</p>
+<ul>
+<li><strong>POST /token</strong>: Authentication (returns JWT)</li>
+<li><strong>GET /dashboard</strong>: Main dashboard view</li>
+<li><strong>GET /ecg/{record_id}</strong>: Detailed ECG view</li>
+<li><strong>GET /patient/{patient_id}</strong>: Patient timeline</li>
+<li><strong>GET /audit-ledger</strong>: Cryptographic audit trail view</li>
+<li><strong>POST /api/ingest</strong>: Data ingestion from EDGE (public)</li>
+<li><strong>GET /api/audit/verify</strong>: Verify audit chain integrity</li>
+<li><strong>GET /api/patients/search</strong>: Patient search</li>
+</ul>
+<p><strong>Security Features</strong>:</p>
+<ul>
+<li>JWT-based authentication</li>
+<li>Password hashing (Bcrypt)</li>
+<li>Cryptographic audit trail (hash-chained)</li>
+<li>HTTPS ready (production deployment)</li>
+<li>Role-based access control (extensible)</li>
+</ul>
+<hr>
+<h2 id="5-high-level-system-integration-architecture">5. High-Level System Integration Architecture </h2>
+<p>This diagram shows how all components interact to form the complete Remote Patient Monitoring system.</p>
+<div class="mermaid">graph TB
+    subgraph "Data Source Layer"
+        PhysioNet[PhysioNet Archive&lt;br/&gt;CinC 2017 Dataset&lt;br/&gt;8,528 ECG Recordings]
+    end
+    
+    subgraph "Simulation Layer"
+        DataSim[DataSimulator&lt;br/&gt;PyQt6 Application&lt;br/&gt;macOS/Linux/Windows]
+        SimBroker[MQTT Broker&lt;br/&gt;Port: 1883]
+        SimDiscovery[UDP Discovery&lt;br/&gt;Port: 1884]
+        
+        DataSim --&gt; SimBroker
+        DataSim --&gt; SimDiscovery
+    end
+    
+    subgraph "IoT Device Layer"
+        ESP32_1[ESP32 Device 1&lt;br/&gt;WiFi Connected]
+        ESP32_2[ESP32 Device 2&lt;br/&gt;WiFi Connected]
+        ESP32_N[ESP32 Device N&lt;br/&gt;WiFi Connected]
+        
+        ESP32_1 -.-&gt; SimDiscovery
+        ESP32_2 -.-&gt; SimDiscovery
+        ESP32_N -.-&gt; SimDiscovery
+    end
+    
+    subgraph "Edge Processing Layer (Raspberry Pi 4)"
+        EdgeBroker[MQTT Broker&lt;br/&gt;Port: 1885]
+        EdgeDiscovery[UDP Discovery&lt;br/&gt;Port: 1886]
+        EdgeProcessor[Processing Pipeline&lt;br/&gt;Heart Rate + ML Inference]
+        EdgeStorage[(Local Storage&lt;br/&gt;NPZ + JSON)]
+        EdgeGUI[Real-time GUI&lt;br/&gt;PyQt6 Visualization]
+        
+        EdgeBroker --&gt; EdgeProcessor
+        EdgeProcessor --&gt; EdgeStorage
+        EdgeProcessor --&gt; EdgeGUI
+    end
+    
+    subgraph "Cloud/Server Layer"
+        WebPortal[Web Portal&lt;br/&gt;FastAPI Backend]
+        WebDB[(SQLite Database&lt;br/&gt;Patients + ECG + Audit)]
+        WebFrontend[Web Frontend&lt;br/&gt;Jinja2 Templates + JS]
+        AuditLedger[Cryptographic Audit Ledger&lt;br/&gt;Hash-Chained Immutable Log]
+        
+        WebPortal --&gt; WebDB
+        WebPortal --&gt; AuditLedger
+        WebPortal --&gt; WebFrontend
+        AuditLedger --&gt; WebDB
+    end
+    
+    subgraph "User Layer"
+        Doctor[Doctor&lt;br/&gt;Web Browser&lt;br/&gt;Authenticated Access]
+    end
+    
+    PhysioNet -.-&gt;|Download Dataset| DataSim
+    
+    SimBroker --&gt;|MQTT: ecg/full_record&lt;br/&gt;Binary Payload ~36KB| ESP32_1
+    SimBroker --&gt;|MQTT: ecg/full_record&lt;br/&gt;Binary Payload ~36KB| ESP32_2
+    SimBroker --&gt;|MQTT: ecg/full_record&lt;br/&gt;Binary Payload ~36KB| ESP32_N
+    
+    ESP32_1 -.-&gt;|UDP Discovery| EdgeDiscovery
+    ESP32_2 -.-&gt;|UDP Discovery| EdgeDiscovery
+    ESP32_N -.-&gt;|UDP Discovery| EdgeDiscovery
+    
+    ESP32_1 --&gt;|MQTT: ecg/edge/chunk&lt;br/&gt;Chunked Binary| EdgeBroker
+    ESP32_2 --&gt;|MQTT: ecg/edge/chunk&lt;br/&gt;Chunked Binary| EdgeBroker
+    ESP32_N --&gt;|MQTT: ecg/edge/chunk&lt;br/&gt;Chunked Binary| EdgeBroker
+    
+    EdgeStorage --&gt;|HTTP POST /api/ingest&lt;br/&gt;JSON: ECG + Results| WebPortal
+    
+    Doctor --&gt;|HTTPS&lt;br/&gt;JWT Authentication| WebFrontend
+    WebFrontend &lt;--&gt;|REST API| WebPortal
+    
+    style PhysioNet fill:#f0f0f0
+    style SimBroker fill:#e1f5ff
+    style EdgeBroker fill:#e1f5ff
+    style ESP32_1 fill:#ffe1e1
+    style ESP32_2 fill:#ffe1e1
+    style ESP32_N fill:#ffe1e1
+    style EdgeProcessor fill:#e1ffe1
+    style WebPortal fill:#fff4e1
+    style AuditLedger fill:#e1ffe1
+    style Doctor fill:#f0f0f0
+</div><h3 id="system-wide-data-flow">System-Wide Data Flow </h3>
+<div class="mermaid">sequenceDiagram
+    participant PhysioNet
+    participant DataSim as DataSimulator
+    participant ESP32
+    participant EDGE
+    participant WebPortal
+    participant Doctor
+    
+    Note over PhysioNet,Doctor: System Initialization
+    DataSim-&gt;&gt;PhysioNet: Download Dataset (First Run)
+    PhysioNet--&gt;&gt;DataSim: CinC 2017 Dataset (~167 MB)
+    DataSim-&gt;&gt;DataSim: Start MQTT Broker (Port 1883)
+    DataSim-&gt;&gt;DataSim: Start UDP Discovery (Port 1884)
+    
+    EDGE-&gt;&gt;EDGE: Start MQTT Broker (Port 1885)
+    EDGE-&gt;&gt;EDGE: Start UDP Discovery (Port 1886)
+    EDGE-&gt;&gt;EDGE: Start Processing Pipeline
+    
+    WebPortal-&gt;&gt;WebPortal: Start FastAPI Server
+    WebPortal-&gt;&gt;WebPortal: Initialize Database
+    WebPortal-&gt;&gt;WebPortal: Initialize Audit Ledger
+    
+    Note over PhysioNet,Doctor: Device Discovery &amp; Connection
+    ESP32-&gt;&gt;ESP32: Power On, Connect WiFi
+    ESP32-&gt;&gt;DataSim: UDP Discovery Request
+    DataSim--&gt;&gt;ESP32: Broker Info (IP:1883)
+    ESP32-&gt;&gt;EDGE: UDP Discovery Request
+    EDGE--&gt;&gt;ESP32: Broker Info (IP:1885)
+    
+    ESP32-&gt;&gt;DataSim: MQTT Connect (Port 1883)
+    ESP32-&gt;&gt;EDGE: MQTT Connect (Port 1885)
+    ESP32-&gt;&gt;DataSim: Subscribe: ecg/full_record
+    ESP32-&gt;&gt;EDGE: Subscribe: ecg/edge/ack
+    
+    Note over PhysioNet,Doctor: ECG Data Simulation &amp; Transmission
+    DataSim-&gt;&gt;DataSim: User Selects Patient A00001
+    DataSim-&gt;&gt;DataSim: Load ECG (9,000 samples @ 300 Hz)
+    DataSim-&gt;&gt;DataSim: Package Binary Payload (~36 KB)
+    DataSim-&gt;&gt;ESP32: Publish ecg/full_record (Binary)
+    
+    ESP32-&gt;&gt;ESP32: Receive &amp; Buffer Full Record
+    ESP32-&gt;&gt;ESP32: Parse Header (rate, timestamps)
+    
+    loop For Each Chunk (e.g., 18 chunks of 500 samples)
+        ESP32-&gt;&gt;ESP32: Extract Chunk from Buffer
+        ESP32-&gt;&gt;EDGE: Publish ecg/edge/chunk (Binary)
+        EDGE--&gt;&gt;ESP32: Publish ecg/edge/ack
+    end
+    
+    Note over PhysioNet,Doctor: Edge Processing
+    EDGE-&gt;&gt;EDGE: Assemble All Chunks
+    EDGE-&gt;&gt;EDGE: Full ECG Record Reconstructed
+    
+    par Parallel Processing
+        EDGE-&gt;&gt;EDGE: Heart Rate Calculation&lt;br/&gt;(R-peak detection)
+        EDGE-&gt;&gt;EDGE: ML Inference&lt;br/&gt;(Rhythm Classification)
+        EDGE-&gt;&gt;EDGE: Other Analyses
+    end
+    
+    EDGE-&gt;&gt;EDGE: Save to Local Storage (NPZ + JSON)
+    EDGE-&gt;&gt;EDGE: Update Real-time GUI
+    
+    Note over PhysioNet,Doctor: Cloud Ingestion
+    EDGE-&gt;&gt;WebPortal: POST /api/ingest&lt;br/&gt;(ECG values + Results + Metadata)
+    WebPortal-&gt;&gt;WebPortal: Find/Create Patient
+    WebPortal-&gt;&gt;WebPortal: Create ECG Record
+    WebPortal-&gt;&gt;WebPortal: Log to Audit Ledger&lt;br/&gt;(hash-chained)
+    WebPortal--&gt;&gt;EDGE: Success (record_id)
+    
+    Note over PhysioNet,Doctor: Doctor Access
+    Doctor-&gt;&gt;WebPortal: Login (username/password)
+    WebPortal-&gt;&gt;WebPortal: Verify Credentials
+    WebPortal-&gt;&gt;WebPortal: Generate JWT Token
+    WebPortal-&gt;&gt;WebPortal: Log LOGIN_SUCCESS to Audit
+    WebPortal--&gt;&gt;Doctor: JWT Token
+    
+    Doctor-&gt;&gt;WebPortal: GET /dashboard (with JWT)
+    WebPortal-&gt;&gt;WebPortal: Query Recent ECG Records
+    WebPortal--&gt;&gt;Doctor: Dashboard (20 recent records)
+    
+    Doctor-&gt;&gt;WebPortal: GET /ecg/{record_id}
+    WebPortal-&gt;&gt;WebPortal: Query ECG Record + Patient
+    WebPortal--&gt;&gt;Doctor: ECG Visualization Page&lt;br/&gt;(Chart.js waveform + results)
+    
+    Doctor-&gt;&gt;WebPortal: GET /audit-ledger
+    WebPortal-&gt;&gt;WebPortal: Verify Hash Chain Integrity
+    WebPortal-&gt;&gt;WebPortal: Query Audit Entries
+    WebPortal--&gt;&gt;Doctor: Audit Ledger View&lt;br/&gt;(with integrity status)
+</div><h3 id="communication-protocols-summary">Communication Protocols Summary </h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Destination</th>
+<th>Protocol</th>
+<th>Port</th>
+<th>Topic/Endpoint</th>
+<th>Format</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DataSimulator</td>
+<td>ESP32</td>
+<td>MQTT</td>
+<td>1883</td>
+<td><code>ecg/full_record</code></td>
+<td>Binary (header + float32[])</td>
+<td>Full ECG record transmission</td>
+</tr>
+<tr>
+<td>DataSimulator</td>
+<td>ESP32</td>
+<td>UDP</td>
+<td>1884</td>
+<td>Broadcast</td>
+<td>JSON</td>
+<td>Broker discovery</td>
+</tr>
+<tr>
+<td>ESP32</td>
+<td>EDGE</td>
+<td>MQTT</td>
+<td>1885</td>
+<td><code>ecg/edge/chunk</code></td>
+<td>Binary (header + CSV)</td>
+<td>Chunked ECG data</td>
+</tr>
+<tr>
+<td>ESP32</td>
+<td>EDGE</td>
+<td>UDP</td>
+<td>1886</td>
+<td>Broadcast</td>
+<td>JSON</td>
+<td>Broker discovery</td>
+</tr>
+<tr>
+<td>EDGE</td>
+<td>ESP32</td>
+<td>MQTT</td>
+<td>1885</td>
+<td><code>ecg/edge/ack</code></td>
+<td>JSON</td>
+<td>Chunk acknowledgment</td>
+</tr>
+<tr>
+<td>EDGE</td>
+<td>Web Portal</td>
+<td>HTTP</td>
+<td>8000</td>
+<td><code>POST /api/ingest</code></td>
+<td>JSON</td>
+<td>ECG data + results ingestion</td>
+</tr>
+<tr>
+<td>Doctor</td>
+<td>Web Portal</td>
+<td>HTTPS</td>
+<td>8000</td>
+<td>Various REST endpoints</td>
+<td>JSON/HTML</td>
+<td>Web interface access</td>
+</tr>
+</tbody>
+</table>
+<h3 id="technology-stack-summary">Technology Stack Summary </h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Platform</th>
+<th>Language</th>
+<th>Framework</th>
+<th>Database</th>
+<th>Key Libraries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DataSimulator</strong></td>
+<td>macOS/Linux/Windows</td>
+<td>Python 3.8+</td>
+<td>PyQt6</td>
+<td>File-based (PhysioNet dataset)</td>
+<td>scipy, numpy, paho-mqtt</td>
+</tr>
+<tr>
+<td><strong>IOT</strong></td>
+<td>ESP32</td>
+<td>C++</td>
+<td>Arduino/PlatformIO</td>
+<td>N/A (RAM-based)</td>
+<td>PubSubClient, ArduinoJson, WiFi</td>
+</tr>
+<tr>
+<td><strong>EDGE</strong></td>
+<td>Raspberry Pi 4</td>
+<td>Python 3.8+</td>
+<td>PyQt6</td>
+<td>File-based (NPZ + JSON)</td>
+<td>numpy, scipy, paho-mqtt, scikit-learn</td>
+</tr>
+<tr>
+<td><strong>Web Portal</strong></td>
+<td>Linux/Cloud</td>
+<td>Python 3.8+</td>
+<td>FastAPI</td>
+<td>SQLite</td>
+<td>SQLAlchemy, Jinja2, Pydantic, JWT</td>
+</tr>
+</tbody>
+</table>
+<h3 id="system-characteristics">System Characteristics </h3>
+<p><strong>Scalability</strong>:</p>
+<ul>
+<li>Multiple ESP32 devices can connect to single EDGE instance</li>
+<li>Multiple EDGE instances can send data to single Web Portal</li>
+<li>Web Portal can be scaled horizontally with load balancer</li>
+</ul>
+<p><strong>Reliability</strong>:</p>
+<ul>
+<li>Automatic reconnection at all layers (WiFi, MQTT)</li>
+<li>Comprehensive error handling and logging</li>
+<li>Data persistence at EDGE and Web Portal layers</li>
+<li>Cryptographic audit trail for data integrity</li>
+</ul>
+<p><strong>Security</strong>:</p>
+<ul>
+<li>JWT authentication for Web Portal</li>
+<li>Bcrypt password hashing</li>
+<li>Hash-chained audit ledger (immutable)</li>
+<li>HTTPS ready for production deployment</li>
+<li>Network segmentation (separate MQTT brokers)</li>
+</ul>
+<p><strong>Performance</strong>:</p>
+<ul>
+<li>Real-time ECG transmission (300 Hz sampling rate)</li>
+<li>Efficient binary protocols (minimal overhead)</li>
+<li>Parallel processing at EDGE layer</li>
+<li>Async request handling at Web Portal</li>
+<li>AJAX polling for live dashboard updates</li>
+</ul>
+<p><strong>Extensibility</strong>:</p>
+<ul>
+<li>Modular processing pipeline (EDGE)</li>
+<li>Pluggable processors (easy to add new analyses)</li>
+<li>RESTful API (Web Portal)</li>
+<li>Configurable via config files</li>
+<li>Open architecture for integration</li>
+</ul>
+<hr>
+<h2 id="deployment-architecture">Deployment Architecture </h2>
+<div class="mermaid">graph TB
+    subgraph "Development Environment"
+        DevMachine[Developer Laptop&lt;br/&gt;macOS/Linux/Windows]
+        DataSimDev[DataSimulator&lt;br/&gt;Development &amp; Testing]
+    end
+    
+    subgraph "IoT Device Network"
+        Patient1[Patient 1&lt;br/&gt;ESP32 Wearable]
+        Patient2[Patient 2&lt;br/&gt;ESP32 Wearable]
+        PatientN[Patient N&lt;br/&gt;ESP32 Wearable]
+    end
+    
+    subgraph "Edge Gateway (On-Premises)"
+        RaspberryPi[Raspberry Pi 4&lt;br/&gt;EDGE Application&lt;br/&gt;Local Network]
+        LocalStorage[(Local Storage&lt;br/&gt;Backup &amp; Cache)]
+    end
+    
+    subgraph "Cloud Infrastructure (Optional)"
+        LoadBalancer[Load Balancer&lt;br/&gt;HTTPS Termination]
+        
+        subgraph "Application Tier"
+            WebServer1[Web Portal Instance 1&lt;br/&gt;FastAPI]
+            WebServer2[Web Portal Instance 2&lt;br/&gt;FastAPI]
+        end
+        
+        subgraph "Data Tier"
+            PrimaryDB[(Primary Database&lt;br/&gt;PostgreSQL/MySQL)]
+            ReplicaDB[(Replica Database&lt;br/&gt;Read-Only)]
+        end
+        
+        subgraph "Storage Tier"
+            ObjectStorage[(Object Storage&lt;br/&gt;S3/MinIO&lt;br/&gt;ECG Archives)]
+        end
+    end
+    
+    subgraph "User Access"
+        DoctorBrowser[Doctor&lt;br/&gt;Web Browser&lt;br/&gt;Hospital/Remote]
+    end
+    
+    DevMachine --&gt; DataSimDev
+    DataSimDev -.-&gt;|WiFi/Network| Patient1
+    DataSimDev -.-&gt;|WiFi/Network| Patient2
+    DataSimDev -.-&gt;|WiFi/Network| PatientN
+    
+    Patient1 --&gt;|WiFi| RaspberryPi
+    Patient2 --&gt;|WiFi| RaspberryPi
+    PatientN --&gt;|WiFi| RaspberryPi
+    
+    RaspberryPi --&gt; LocalStorage
+    RaspberryPi --&gt;|HTTPS/VPN| LoadBalancer
+    
+    LoadBalancer --&gt; WebServer1
+    LoadBalancer --&gt; WebServer2
+    
+    WebServer1 --&gt; PrimaryDB
+    WebServer2 --&gt; PrimaryDB
+    WebServer1 --&gt; ReplicaDB
+    WebServer2 --&gt; ReplicaDB
+    
+    WebServer1 --&gt; ObjectStorage
+    WebServer2 --&gt; ObjectStorage
+    
+    DoctorBrowser --&gt;|HTTPS| LoadBalancer
+    
+    style DevMachine fill:#f0f0f0
+    style RaspberryPi fill:#e1ffe1
+    style Patient1 fill:#ffe1e1
+    style Patient2 fill:#ffe1e1
+    style PatientN fill:#ffe1e1
+    style LoadBalancer fill:#e1f5ff
+    style PrimaryDB fill:#fff4e1
+    style DoctorBrowser fill:#f0f0f0
+</div><h3 id="deployment-scenarios">Deployment Scenarios </h3>
+<p><strong>Scenario 1: Development/Testing</strong></p>
+<ul>
+<li>DataSimulator on developer laptop</li>
+<li>ESP32 on local WiFi network</li>
+<li>EDGE on Raspberry Pi (local network)</li>
+<li>Web Portal on localhost or local server</li>
+</ul>
+<p><strong>Scenario 2: Clinical Pilot</strong></p>
+<ul>
+<li>DataSimulator replaced by real ECG sensors (future)</li>
+<li>ESP32 devices on patients (wearable)</li>
+<li>EDGE on Raspberry Pi (hospital network)</li>
+<li>Web Portal on hospital server (internal network)</li>
+</ul>
+<p><strong>Scenario 3: Production Deployment</strong></p>
+<ul>
+<li>Real ECG sensors integrated with ESP32</li>
+<li>Multiple EDGE gateways (per ward/clinic)</li>
+<li>Web Portal on cloud infrastructure (AWS/Azure/GCP)</li>
+<li>Load balancing and database replication</li>
+<li>Object storage for long-term ECG archives</li>
+<li>HTTPS with SSL/TLS certificates</li>
+<li>VPN for EDGE-to-Cloud communication</li>
+</ul>
+<hr>
+<h2 id="summary">Summary </h2>
+<p>This architecture documentation provides comprehensive views of:</p>
+<ol>
+<li><strong>DataSimulator</strong>: Simulation layer for ECG data generation and MQTT publishing</li>
+<li><strong>IOT (ESP32)</strong>: Embedded device layer for data reception and forwarding</li>
+<li><strong>EDGE</strong>: Intelligent processing gateway with ML inference and data aggregation</li>
+<li><strong>Web Portal</strong>: Secure web application for clinical access and audit trails</li>
+<li><strong>System Integration</strong>: End-to-end data flow and component interactions</li>
+</ol>
+<p>The system demonstrates a modern IoT architecture with:</p>
+<ul>
+<li><strong>Edge Intelligence</strong>: Processing at the edge reduces latency and bandwidth</li>
+<li><strong>Security</strong>: Multi-layer security with authentication, encryption, and audit trails</li>
+<li><strong>Scalability</strong>: Modular design supports horizontal scaling</li>
+<li><strong>Reliability</strong>: Automatic reconnection and error handling at all layers</li>
+<li><strong>Extensibility</strong>: Plugin architecture for new processing modules and features</li>
+</ul>
+<p>This architecture is suitable for research, clinical pilots, and production deployment in remote patient monitoring scenarios.</p>
+
+      </div>
+      
+      
+    
+    
+    <script type="module">
+// TODO: If ZenUML gets integrated into mermaid in the future,
+//      we can remove the following lines.
+
+
+var MERMAID_CONFIG = ({"startOnLoad":false});
+if (typeof MERMAID_CONFIG !== 'undefined') {
+  MERMAID_CONFIG.startOnLoad = false
+  MERMAID_CONFIG.cloneCssStyles = false
+  MERMAID_CONFIG.theme = "default"
+}
+
+mermaid.initialize(MERMAID_CONFIG || {})
+if (typeof(window['Reveal']) !== 'undefined') {
+  function mermaidRevealHelper(event) {
+    var currentSlide = event.currentSlide
+    var diagrams = currentSlide.querySelectorAll('.mermaid')
+    for (var i = 0; i < diagrams.length; i++) {
+      var diagram = diagrams[i]
+      if (!diagram.hasAttribute('data-processed')) {
+        mermaid.init(null, diagram, ()=> {
+          Reveal.slide(event.indexh, event.indexv)
+        })
+      }
+    }
+  }
+  Reveal.addEventListener('slidetransitionend', mermaidRevealHelper)
+  Reveal.addEventListener('ready', mermaidRevealHelper)
+  await mermaid.run({
+    nodes: document.querySelectorAll('.mermaid')
+  })
+} else {
+  await mermaid.run({
+    nodes: document.querySelectorAll('.mermaid')
+  })
+}
+</script>
+    
+    
+    
+  
+    </body></html>

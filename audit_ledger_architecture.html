@@ -1,0 +1,509 @@
+<!DOCTYPE html><html><head>
+      <title>audit_ledger_architecture</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:////Users/shakirzareen/.antigravity/extensions/shd101wyy.markdown-preview-enhanced-0.8.20-universal/crossnote/dependencies/katex/katex.min.css">
+      
+      
+      <script type="text/javascript" src="file:////Users/shakirzareen/.antigravity/extensions/shd101wyy.markdown-preview-enhanced-0.8.20-universal/crossnote/dependencies/mermaid/mermaid.min.js" charset="UTF-8"></script>
+      
+      
+      <style>
+      code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}.token.blockquote,.token.comment{color:#969896}.token.cdata{color:#183691}.token.doctype,.token.macro.property,.token.punctuation,.token.variable{color:#333}.token.builtin,.token.important,.token.keyword,.token.operator,.token.rule{color:#a71d5d}.token.attr-value,.token.regex,.token.string,.token.url{color:#183691}.token.atrule,.token.boolean,.token.code,.token.command,.token.constant,.token.entity,.token.number,.token.property,.token.symbol{color:#0086b3}.token.prolog,.token.selector,.token.tag{color:#63a35c}.token.attr-name,.token.class,.token.class-name,.token.function,.token.id,.token.namespace,.token.pseudo-class,.token.pseudo-element,.token.url-reference .token.variable{color:#795da3}.token.entity{cursor:help}.token.title,.token.title .token.punctuation{font-weight:700;color:#1d3e81}.token.list{color:#ed6a43}.token.inserted{background-color:#eaffea;color:#55a532}.token.deleted{background-color:#ffecec;color:#bd2c00}.token.bold{font-weight:700}.token.italic{font-style:italic}.language-json .token.property{color:#183691}.language-markup .token.tag .token.punctuation{color:#333}.language-css .token.function,code.language-css{color:#0086b3}.language-yaml .token.atrule{color:#63a35c}code.language-yaml{color:#183691}.language-ruby .token.function{color:#333}.language-markdown .token.url{color:#795da3}.language-makefile .token.symbol{color:#795da3}.language-makefile .token.variable{color:#183691}.language-makefile .token.builtin{color:#0086b3}.language-bash .token.keyword{color:#0086b3}pre[data-line]{position:relative;padding:1em 0 1em 3em}pre[data-line] .line-highlight-wrapper{position:absolute;top:0;left:0;background-color:transparent;display:block;width:100%}pre[data-line] .line-highlight{position:absolute;left:0;right:0;padding:inherit 0;margin-top:1em;background:hsla(24,20%,50%,.08);background:linear-gradient(to right,hsla(24,20%,50%,.1) 70%,hsla(24,20%,50%,0));pointer-events:none;line-height:inherit;white-space:pre}pre[data-line] .line-highlight:before,pre[data-line] .line-highlight[data-end]:after{content:attr(data-start);position:absolute;top:.4em;left:.6em;min-width:1em;padding:0 .5em;background-color:hsla(24,20%,50%,.4);color:#f4f1ef;font:bold 65%/1.5 sans-serif;text-align:center;vertical-align:.3em;border-radius:999px;text-shadow:none;box-shadow:0 1px #fff}pre[data-line] .line-highlight[data-end]:after{content:attr(data-end);top:auto;bottom:.4em}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body ol.no-list,html body ul.no-list{padding:0;list-style-type:none}html body ol ol,html body ol ul,html body ul ol,html body ul ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::after,html body code::before{letter-spacing:-.2em;content:'\00a0'}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:after,html body pre code:before,html body pre tt:after,html body pre tt:before{content:normal}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body code,html body pre{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ul ul ul{list-style:square}.markdown-preview ol{list-style:decimal}.markdown-preview ol ol,.markdown-preview ul ol{list-style-type:lower-roman}.markdown-preview ol ol ol,.markdown-preview ol ul ol,.markdown-preview ul ol ol,.markdown-preview ul ul ol{list-style-type:lower-alpha}.markdown-preview .newpage,.markdown-preview .pagebreak{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center!important}.markdown-preview:not([data-for=preview]) .code-chunk .code-chunk-btn-group{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .status{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .output-div{margin-bottom:16px}.markdown-preview .md-toc{padding:0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link div,.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}.markdown-preview .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}@media print{html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc{padding:0 16px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link div,html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% - 300px);padding:2em calc(50% - 457px - 300px / 2);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+      <!-- The content below will be included at the end of the <head> element. --><script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    // your code here
+  });
+</script></head><body for="html-export">
+    
+    
+      <div class="crossnote markdown-preview  ">
+      
+<h1 id="audit-ledger-architecture---web-portal">Audit Ledger Architecture - Web Portal </h1>
+<h2 id="overview">Overview </h2>
+<p>The Web Portal implements a <strong>Hash-Chained Audit Ledger</strong> for integrity verification and tamper detection. This is a cryptographically-linked immutable log that ensures all system actions are permanently recorded and verifiable.</p>
+<h2 id="system-architecture">System Architecture </h2>
+<div class="mermaid">graph TB
+    subgraph "Event Sources"
+        A1[User Login]
+        A2[ECG Data Ingestion]
+        A3[Data Access Events]
+        A4[System Operations]
+    end
+    
+    subgraph "Web Portal Application Layer"
+        B1[FastAPI Routes]
+        B2[Authentication Module]
+        B3[Data Ingestion API]
+    end
+    
+    subgraph "Audit Ledger Module"
+        C1[ledger.py]
+        C2[add_audit_entry]
+        C3[calculate_hash]
+        C4[verify_chain_integrity]
+    end
+    
+    subgraph "Data Persistence Layer"
+        D1[(SQLite Database)]
+        D2[AuditLog Table]
+    end
+    
+    subgraph "Verification &amp; Monitoring"
+        E1[Chain Integrity Verification]
+        E2[Audit Ledger Viewer UI]
+        E3[API Verification Endpoint]
+    end
+    
+    A1 --&gt; B2
+    A2 --&gt; B3
+    A3 --&gt; B1
+    A4 --&gt; B1
+    
+    B1 --&gt; C2
+    B2 --&gt; C2
+    B3 --&gt; C2
+    
+    C2 --&gt; C3
+    C2 --&gt; D2
+    
+    D2 --&gt; D1
+    
+    D1 --&gt; C4
+    C4 --&gt; E1
+    E1 --&gt; E2
+    E1 --&gt; E3
+    
+    style C1 fill:#4a90e2,stroke:#2e5c8a,color:#fff
+    style D2 fill:#e74c3c,stroke:#c0392b,color:#fff
+    style E1 fill:#2ecc71,stroke:#27ae60,color:#fff
+</div><h2 id="hash-chain-structure">Hash-Chain Structure </h2>
+<div class="mermaid">graph LR
+    subgraph "Genesis Block"
+        G[prev_hash: 0x000...000&lt;br/&gt;timestamp: T0&lt;br/&gt;actor: SYSTEM&lt;br/&gt;action: INIT&lt;br/&gt;hash: H0]
+    end
+    
+    subgraph "Block 1"
+        B1[prev_hash: H0&lt;br/&gt;timestamp: T1&lt;br/&gt;actor: dr_green&lt;br/&gt;action: LOGIN_SUCCESS&lt;br/&gt;hash: H1]
+    end
+    
+    subgraph "Block 2"
+        B2[prev_hash: H1&lt;br/&gt;timestamp: T2&lt;br/&gt;actor: DEVICE_ESP32&lt;br/&gt;action: INGEST_ECG&lt;br/&gt;hash: H2]
+    end
+    
+    subgraph "Block N"
+        BN[prev_hash: H_N-1&lt;br/&gt;timestamp: TN&lt;br/&gt;actor: dr_green&lt;br/&gt;action: VIEW_ECG&lt;br/&gt;hash: HN]
+    end
+    
+    G --&gt;|Links to| B1
+    B1 --&gt;|Links to| B2
+    B2 --&gt;|...| BN
+    
+    style G fill:#95a5a6,stroke:#7f8c8d,color:#fff
+    style B1 fill:#3498db,stroke:#2980b9,color:#fff
+    style B2 fill:#3498db,stroke:#2980b9,color:#fff
+    style BN fill:#3498db,stroke:#2980b9,color:#fff
+</div><h2 id="data-model">Data Model </h2>
+<h3 id="auditlog-table-schema">AuditLog Table Schema </h3>
+<div class="mermaid">erDiagram
+    AuditLog {
+        int id PK "Auto-increment primary key"
+        datetime timestamp "UTC timestamp of event"
+        string actor_id "User ID or Device ID"
+        string action "Event type (LOGIN, INGEST_ECG, etc.)"
+        string details "JSON string with event details"
+        string prev_hash "SHA-256 hash of previous record"
+        string record_hash "SHA-256 hash of current record"
+    }
+</div><p><strong>Field Descriptions:</strong></p>
+<ul>
+<li><strong>id</strong>: Sequential identifier for database indexing</li>
+<li><strong>timestamp</strong>: When the event occurred (UTC)</li>
+<li><strong>actor_id</strong>: Who performed the action (user or device)</li>
+<li><strong>action</strong>: Type of event (LOGIN_SUCCESS, INGEST_ECG, VIEW_ECG, etc.)</li>
+<li><strong>details</strong>: JSON-encoded additional information</li>
+<li><strong>prev_hash</strong>: Cryptographic link to previous record (64-char hex)</li>
+<li><strong>record_hash</strong>: SHA-256 hash of this record's content (64-char hex)</li>
+</ul>
+<h2 id="hash-calculation-algorithm">Hash Calculation Algorithm </h2>
+<div class="mermaid">flowchart TD
+    A[Start: New Audit Event] --&gt; B[Query Last Record]
+    B --&gt; C{First Record?}
+    C --&gt;|Yes| D[prev_hash = '0' × 64]
+    C --&gt;|No| E[prev_hash = last_record.record_hash]
+    
+    D --&gt; F[Prepare Event Data]
+    E --&gt; F
+    
+    F --&gt; G[Create Payload String:&lt;br/&gt;prev_hash + timestamp + actor_id + action + details]
+    G --&gt; H[Calculate SHA-256 Hash]
+    H --&gt; I[Create New AuditLog Entry]
+    I --&gt; J[Save to Database]
+    J --&gt; K[Commit Transaction]
+    K --&gt; L[End]
+    
+    style A fill:#2ecc71,stroke:#27ae60,color:#fff
+    style H fill:#e74c3c,stroke:#c0392b,color:#fff
+    style K fill:#f39c12,stroke:#d68910,color:#fff
+    style L fill:#2ecc71,stroke:#27ae60,color:#fff
+</div><p><strong>Hash Formula:</strong></p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>record_hash = SHA256(prev_hash || timestamp || actor_id || action || details)
+</code></pre><p>Where <code>||</code> represents string concatenation.</p>
+<h2 id="integrity-verification-process">Integrity Verification Process </h2>
+<div class="mermaid">flowchart TD
+    A[Start Verification] --&gt; B[Fetch All Audit Entries&lt;br/&gt;Ordered by ID ASC]
+    B --&gt; C[Initialize:&lt;br/&gt;expected_prev_hash = '0' × 64]
+    C --&gt; D{More Entries?}
+    
+    D --&gt;|No| E[✓ Chain Valid]
+    D --&gt;|Yes| F[Get Next Entry]
+    
+    F --&gt; G{entry.prev_hash ==&lt;br/&gt;expected_prev_hash?}
+    G --&gt;|No| H[✗ Broken Link Detected]
+    G --&gt;|Yes| I[Recalculate Hash:&lt;br/&gt;SHA256 of entry data]
+    
+    I --&gt; J{calculated_hash ==&lt;br/&gt;entry.record_hash?}
+    J --&gt;|No| K[✗ Data Tampering Detected]
+    J --&gt;|Yes| L[Update:&lt;br/&gt;expected_prev_hash = entry.record_hash]
+    
+    L --&gt; D
+    
+    style E fill:#2ecc71,stroke:#27ae60,color:#fff
+    style H fill:#e74c3c,stroke:#c0392b,color:#fff
+    style K fill:#e74c3c,stroke:#c0392b,color:#fff
+    style I fill:#3498db,stroke:#2980b9,color:#fff
+</div><h2 id="event-flow-examples">Event Flow Examples </h2>
+<h3 id="example-1-user-login-event">Example 1: User Login Event </h3>
+<div class="mermaid">sequenceDiagram
+    participant U as User (Browser)
+    participant API as FastAPI /token
+    participant Auth as auth.py
+    participant Ledger as ledger.py
+    participant DB as Database
+    
+    U-&gt;&gt;API: POST /token&lt;br/&gt;(username, password)
+    API-&gt;&gt;Auth: verify_password()
+    Auth--&gt;&gt;API: ✓ Valid
+    API-&gt;&gt;Auth: create_access_token()
+    Auth--&gt;&gt;API: JWT Token
+    
+    API-&gt;&gt;Ledger: add_audit_entry()&lt;br/&gt;actor="dr_green"&lt;br/&gt;action="LOGIN_SUCCESS"
+    Ledger-&gt;&gt;DB: Query last record
+    DB--&gt;&gt;Ledger: prev_hash
+    Ledger-&gt;&gt;Ledger: calculate_hash()
+    Ledger-&gt;&gt;DB: INSERT AuditLog
+    DB--&gt;&gt;Ledger: ✓ Committed
+    
+    API--&gt;&gt;U: Return JWT Token
+</div><h3 id="example-2-ecg-data-ingestion-event">Example 2: ECG Data Ingestion Event </h3>
+<div class="mermaid">sequenceDiagram
+    participant EDGE as EDGE Device
+    participant API as FastAPI /api/ingest
+    participant DB as Database
+    participant Ledger as ledger.py
+    
+    EDGE-&gt;&gt;API: POST /api/ingest&lt;br/&gt;(ECG data + metadata)
+    API-&gt;&gt;DB: Find/Create Patient
+    DB--&gt;&gt;API: Patient Object
+    API-&gt;&gt;DB: Create ECGRecord
+    DB--&gt;&gt;API: record_id
+    
+    API-&gt;&gt;Ledger: add_audit_entry()&lt;br/&gt;actor="DEVICE_ESP32"&lt;br/&gt;action="INGEST_ECG"&lt;br/&gt;details={record_id, patient, class}
+    
+    Ledger-&gt;&gt;DB: Query last audit record
+    DB--&gt;&gt;Ledger: prev_hash
+    Ledger-&gt;&gt;Ledger: calculate_hash()
+    Ledger-&gt;&gt;DB: INSERT AuditLog
+    DB--&gt;&gt;Ledger: ✓ Committed
+    
+    API--&gt;&gt;EDGE: {"status": "success", "record_id": 123}
+</div><h3 id="example-3-chain-integrity-verification">Example 3: Chain Integrity Verification </h3>
+<div class="mermaid">sequenceDiagram
+    participant UI as Audit Ledger UI
+    participant API as FastAPI /api/audit/verify
+    participant Ledger as ledger.py
+    participant DB as Database
+    
+    UI-&gt;&gt;API: GET /api/audit/verify
+    API-&gt;&gt;Ledger: verify_chain_integrity()
+    Ledger-&gt;&gt;DB: Query all AuditLog entries
+    DB--&gt;&gt;Ledger: All entries (ordered)
+    
+    loop For each entry
+        Ledger-&gt;&gt;Ledger: Verify prev_hash link
+        Ledger-&gt;&gt;Ledger: Recalculate hash
+        Ledger-&gt;&gt;Ledger: Compare with stored hash
+    end
+    
+    Ledger--&gt;&gt;API: is_valid = True/False
+    API--&gt;&gt;UI: {"integrity_status": "Valid"}
+    
+    Note over UI: Display status badge&lt;br/&gt;and chain visualization
+</div><h2 id="user-interface-components">User Interface Components </h2>
+<h3 id="audit-ledger-viewer">Audit Ledger Viewer </h3>
+<p>The Web Portal provides a dedicated UI at <code>/audit-ledger</code> that displays:</p>
+<ol>
+<li>
+<p><strong>Chain Integrity Status Badge</strong></p>
+<ul>
+<li>Green: ✓ Valid - All hashes verified</li>
+<li>Red: ✗ CORRUPTED - Tampering detected</li>
+</ul>
+</li>
+<li>
+<p><strong>Audit Entry Table</strong></p>
+<ul>
+<li>Timestamp (UTC)</li>
+<li>Actor ID (User or Device)</li>
+<li>Action Type</li>
+<li>Details (JSON formatted)</li>
+<li>Previous Hash (truncated)</li>
+<li>Record Hash (truncated)</li>
+</ul>
+</li>
+<li>
+<p><strong>Visual Chain Representation</strong></p>
+<ul>
+<li>Shows cryptographic linkage between entries</li>
+<li>Highlights any broken links or hash mismatches</li>
+</ul>
+</li>
+</ol>
+<h2 id="security-properties">Security Properties </h2>
+<h3 id="immutability-guarantees">Immutability Guarantees </h3>
+<div class="mermaid">graph TD
+    A[Audit Entry Created] --&gt; B[Hash Calculated]
+    B --&gt; C[Linked to Previous Hash]
+    C --&gt; D[Committed to Database]
+    D --&gt; E{Attempt to Modify?}
+    
+    E --&gt;|Modify timestamp| F[Hash Mismatch Detected]
+    E --&gt;|Modify action| F
+    E --&gt;|Modify details| F
+    E --&gt;|Modify prev_hash| G[Broken Link Detected]
+    
+    F --&gt; H[verify_chain_integrity = FALSE]
+    G --&gt; H
+    H --&gt; I[Tampering Alert]
+    
+    style D fill:#2ecc71,stroke:#27ae60,color:#fff
+    style F fill:#e74c3c,stroke:#c0392b,color:#fff
+    style G fill:#e74c3c,stroke:#c0392b,color:#fff
+    style I fill:#e74c3c,stroke:#c0392b,color:#fff
+</div><h3 id="tamper-detection-mechanisms">Tamper Detection Mechanisms </h3>
+<ol>
+<li><strong>Hash Verification</strong>: Each record's hash is recalculated and compared</li>
+<li><strong>Chain Linkage</strong>: Each record must point to the correct previous hash</li>
+<li><strong>Sequential Integrity</strong>: Any modification breaks the chain from that point forward</li>
+<li><strong>Append-Only</strong>: New entries can only be added to the end of the chain</li>
+</ol>
+<h2 id="api-endpoints">API Endpoints </h2>
+<h3 id="audit-related-endpoints">Audit-Related Endpoints </h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Purpose</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/audit/verify</code></td>
+<td>GET</td>
+<td>Verify chain integrity</td>
+<td><code>{"integrity_status": "Valid|CORRUPTED"}</code></td>
+</tr>
+<tr>
+<td><code>/audit-ledger</code></td>
+<td>GET</td>
+<td>View audit ledger UI</td>
+<td>HTML page with entries and status</td>
+</tr>
+</tbody>
+</table>
+<h3 id="events-logged-to-audit-ledger">Events Logged to Audit Ledger </h3>
+<table>
+<thead>
+<tr>
+<th>Event Type</th>
+<th>Actor</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LOGIN_SUCCESS</code></td>
+<td>Username</td>
+<td>IP address</td>
+</tr>
+<tr>
+<td><code>INGEST_ECG</code></td>
+<td>Device ID</td>
+<td>Record ID, Patient ID, Classification</td>
+</tr>
+<tr>
+<td><code>USER_CREATE</code></td>
+<td>SYSTEM</td>
+<td>Username, Role</td>
+</tr>
+<tr>
+<td><code>VIEW_ECG</code></td>
+<td>Username</td>
+<td>Record ID (future)</td>
+</tr>
+<tr>
+<td><code>DATA_EXPORT</code></td>
+<td>Username</td>
+<td>Export parameters (future)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="key-differences-from-traditional-blockchain">Key Differences from Traditional Blockchain </h2>
+<blockquote>
+<p>[!IMPORTANT]<br>
+This system is a <strong>Hash-Chained Audit Ledger</strong>, not a traditional blockchain:</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Traditional Blockchain</th>
+<th>This Audit Ledger</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Consensus</strong></td>
+<td>Distributed (PoW, PoS, etc.)</td>
+<td>Single authority (Web Portal)</td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td>Peer-to-peer</td>
+<td>Centralized database</td>
+</tr>
+<tr>
+<td><strong>Validation</strong></td>
+<td>Multiple nodes</td>
+<td>Single server verification</td>
+</tr>
+<tr>
+<td><strong>Purpose</strong></td>
+<td>Decentralized trust</td>
+<td>Tamper detection &amp; audit trail</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>Slower (consensus overhead)</td>
+<td>Fast (local database)</td>
+</tr>
+<tr>
+<td><strong>Use Case</strong></td>
+<td>Cryptocurrency, DApps</td>
+<td>Clinical audit logging</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why This Design?</strong></p>
+<ul>
+<li>✓ <strong>Regulatory Compliance</strong>: Immutable audit trail for medical data</li>
+<li>✓ <strong>Tamper Detection</strong>: Any modification is immediately detectable</li>
+<li>✓ <strong>Performance</strong>: No consensus overhead, suitable for high-frequency events</li>
+<li>✓ <strong>Simplicity</strong>: Easier to implement and maintain than distributed blockchain</li>
+<li>✓ <strong>Sufficient Security</strong>: For permissioned medical system with trusted operators</li>
+</ul>
+<h2 id="implementation-files">Implementation Files </h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+<th>Key Functions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[<a href="http://ledger.py">ledger.py</a>](file:///Volumes/Stuff/GDrive2026/Abertay/research/DEVWORK/WEB/ledger.py)</td>
+<td>Core audit ledger logic</td>
+<td><code>add_audit_entry()</code>, <code>calculate_hash()</code>, <code>verify_chain_integrity()</code></td>
+</tr>
+<tr>
+<td>[<a href="http://models.py">models.py</a>](file:///Volumes/Stuff/GDrive2026/Abertay/research/DEVWORK/WEB/models.py#L48-L66)</td>
+<td>Database schema</td>
+<td><code>AuditLog</code> model definition</td>
+</tr>
+<tr>
+<td>[<a href="http://main.py">main.py</a>](file:///Volumes/Stuff/GDrive2026/Abertay/research/DEVWORK/WEB/main.py)</td>
+<td>API endpoints &amp; event triggers</td>
+<td>Login, ingestion, verification endpoints</td>
+</tr>
+</tbody>
+</table>
+<h2 id="future-enhancements">Future Enhancements </h2>
+<blockquote>
+<p>[!TIP]<br>
+Potential improvements for enhanced security and functionality:</p>
+</blockquote>
+<ol>
+<li><strong>Digital Signatures</strong>: Add cryptographic signatures from actors</li>
+<li><strong>Merkle Trees</strong>: Implement Merkle tree for efficient batch verification</li>
+<li><strong>Periodic Anchoring</strong>: Publish hash checkpoints to external immutable storage</li>
+<li><strong>Real-time Monitoring</strong>: Alert system for integrity violations</li>
+<li><strong>Audit Search</strong>: Advanced filtering and search capabilities</li>
+<li><strong>Export Compliance</strong>: Generate audit reports for regulatory submissions</li>
+</ol>
+
+      </div>
+      
+      
+    
+    
+    <script type="module">
+// TODO: If ZenUML gets integrated into mermaid in the future,
+//      we can remove the following lines.
+
+
+var MERMAID_CONFIG = ({"startOnLoad":false});
+if (typeof MERMAID_CONFIG !== 'undefined') {
+  MERMAID_CONFIG.startOnLoad = false
+  MERMAID_CONFIG.cloneCssStyles = false
+  MERMAID_CONFIG.theme = "default"
+}
+
+mermaid.initialize(MERMAID_CONFIG || {})
+if (typeof(window['Reveal']) !== 'undefined') {
+  function mermaidRevealHelper(event) {
+    var currentSlide = event.currentSlide
+    var diagrams = currentSlide.querySelectorAll('.mermaid')
+    for (var i = 0; i < diagrams.length; i++) {
+      var diagram = diagrams[i]
+      if (!diagram.hasAttribute('data-processed')) {
+        mermaid.init(null, diagram, ()=> {
+          Reveal.slide(event.indexh, event.indexv)
+        })
+      }
+    }
+  }
+  Reveal.addEventListener('slidetransitionend', mermaidRevealHelper)
+  Reveal.addEventListener('ready', mermaidRevealHelper)
+  await mermaid.run({
+    nodes: document.querySelectorAll('.mermaid')
+  })
+} else {
+  await mermaid.run({
+    nodes: document.querySelectorAll('.mermaid')
+  })
+}
+</script>
+    
+    
+    
+  
+    </body></html>

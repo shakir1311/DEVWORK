@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --chain-valid: #00a651;
+        --chain-invalid: #d32f2f;
+        --block-bg: #f8f9fa;
+    }
+
+    .ledger-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .integrity-badge {
+        font-size: 1.1rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .integrity-valid {
+        background: var(--chain-valid);
+        color: white;
+        box-shadow: 0 0 20px rgba(0, 166, 81, 0.3);
+    }
+
+    .integrity-invalid {
+        background: var(--chain-invalid);
+        color: white;
+        box-shadow: 0 0 20px rgba(211, 47, 47, 0.3);
+        animation: pulse-red 2s infinite;
+    }
+
+    @keyframes pulse-red {
+
+        0%,
+        100% {
+            box-shadow: 0 0 20px rgba(211, 47, 47, 0.3);
+        }
+
+        50% {
+            box-shadow: 0 0 30px rgba(211, 47, 47, 0.6);
+        }
+    }
+
+    .chain-visualization {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        position: relative;
+    }
+
+    .chain-visualization::before {
+        content: '';
+        position: absolute;
+        left: 30px;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+    }
+
+    .block {
+        position: relative;
+        padding-left: 80px;
+        margin-bottom: 0.5rem;
+    }
+
+    .block-marker {
+        position: absolute;
+        left: 18px;
+        width: 24px;
+        height: 24px;
+        background: #1e3c72;
+        border: 4px solid white;
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px #1e3c72;
+        z-index: 1;
+    }
+
+    .block-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-left: 4px solid #1e3c72;
+        border-radius: 0.375rem;
+        padding: 1.25rem;
+        transition: all 0.2s;
+    }
+
+    .block-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateX(4px);
+    }
+
+    .block-id {
+        font-family: 'Courier New', monospace;
+        font-weight: 700;
+        color: #1e3c72;
+        font-size: 1.1rem;
+    }
+
+    .hash-display {
+        font-family: 'Courier New', monospace;
+        font-size: 0.75rem;
+        background: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        word-break: break-all;
+        color: #495057;
+        border-left: 3px solid #6c757d;
+    }
+
+    .action-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .action-login {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .action-ingest {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .action-view {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 0.375rem;
+        border: 1px solid #e0e0e0;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e3c72;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.5rem;
+    }
+</style>
+
+<div class="container mt-4 mb-5">
+    <!-- Ledger Header -->
+    <div class="ledger-header shadow">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                        class="bi bi-shield-lock-fill me-2" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99a11.777 11.777 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7.159 7.159 0 0 0 1.048-.625 11.775 11.775 0 0 0 2.517-2.453c1.678-2.195 3.061-5.513 2.465-9.99a1.541 1.541 0 0 0-1.044-1.263 62.467 62.467 0 0 0-2.887-.87C9.843.266 8.69 0 8 0zm0 5a1.5 1.5 0 0 1 .5 2.915l.385 1.99a.5.5 0 0 1-.491.595h-.788a.5.5 0 0 1-.49-.595l.384-1.99A1.5 1.5 0 0 1 8 5z" />
+                    </svg>
+                    Cryptographic Audit Ledger
+                </h2>
+                <p class="mb-0 opacity-75">Immutable cryptographic audit trail for all system activities</p>
+            </div>
+            <div>
+                {% if chain_valid %}
+                <span class="integrity-badge integrity-valid">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                    </svg>
+                    Chain Integrity: VALID
+                </span>
+                {% else %}
+                <span class="integrity-badge integrity-invalid">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                        class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                    </svg>
+                    Chain Integrity: COMPROMISED
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ entries|length }}</div>
+            <div class="stat-label">Total Blocks</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ entries|selectattr('action', 'equalto', 'INGEST_ECG')|list|length }}</div>
+            <div class="stat-label">Data Ingestions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ entries|selectattr('action', 'equalto', 'LOGIN_SUCCESS')|list|length }}</div>
+            <div class="stat-label">Login Events</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{% if chain_valid %}100%{% else %}0%{% endif %}</div>
+            <div class="stat-label">Integrity Score</div>
+        </div>
+    </div>
+
+    <!-- Chain Visualization -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white border-bottom">
+            <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;">Audit Chain Visualization</h5>
+            <small class="text-muted">Most recent 100 blocks (newest first)</small>
+        </div>
+        <div class="card-body">
+            {% if entries %}
+            <div class="chain-visualization">
+                {% for entry in entries %}
+                <div class="block">
+                    <div class="block-marker"></div>
+                    <div class="block-card">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="block-id me-3">Block #{{ entry.id }}</span>
+                                    <span
+                                        class="action-badge {% if entry.action == 'LOGIN_SUCCESS' %}action-login{% elif entry.action == 'INGEST_ECG' %}action-ingest{% else %}action-view{% endif %}">
+                                        {{ entry.action }}
+                                    </span>
+                                </div>
+
+                                <div class="mb-2">
+                                    <small class="text-muted">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                            fill="currentColor" class="bi bi-clock me-1" viewBox="0 0 16 16">
+                                            <path
+                                                d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+                                            <path
+                                                d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+                                        </svg>
+                                        {{ entry.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                                    </small>
+                                    <small class="text-muted ms-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                            fill="currentColor" class="bi bi-person me-1" viewBox="0 0 16 16">
+                                            <path
+                                                d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z" />
+                                        </svg>
+                                        {{ entry.actor_id }}
+                                    </small>
+                                </div>
+
+                                <div class="mb-2">
+                                    <strong class="small">Details:</strong>
+                                    <span class="small text-muted">{{ entry.details }}</span>
+                                </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <div class="small mb-1"><strong>Current Hash:</strong></div>
+                                        <div class="hash-display">{{ entry.record_hash[:32] }}...</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="small mb-1"><strong>Previous Hash:</strong></div>
+                                        <div class="hash-display">{{ entry.prev_hash[:32] if entry.prev_hash else
+                                            'GENESIS' }}...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                <div class="text-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#1e3c72"
+                                        class="bi bi-box-seam" viewBox="0 0 16 16">
+                                        <path
+                                            d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z" />
+                                    </svg>
+                                    <div class="mt-2 small text-muted">Cryptographically<br>Sealed Block</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#adb5bd" class="mb-3"
+                    viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                </svg>
+                <p class="text-muted">No audit entries in the ledger yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Technical Info -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.75rem; letter-spacing: 0.5px;">Technical
+                Information</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="small mb-2"><strong>Hash Algorithm:</strong> SHA-256</p>
+                    <p class="small mb-2"><strong>Chain Type:</strong> Hash-Chained Cryptographic Ledger</p>
+                    <p class="small mb-0"><strong>Storage:</strong> SQLite Database</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="small mb-2"><strong>Immutability:</strong> Cryptographic Hash Linking</p>
+                    <p class="small mb-2"><strong>Verification:</strong> Real-time Chain Integrity Check</p>
+                    <p class="small mb-0"><strong>Compliance:</strong> HIPAA Audit Trail Requirements</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="text-center mt-4">
+        <a href="/dashboard" class="btn btn-outline-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-arrow-left me-2" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
+            </svg>
+            Return to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

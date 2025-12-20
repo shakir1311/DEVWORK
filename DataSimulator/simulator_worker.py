@@ -26,7 +26,7 @@ class SimulatorWorker(QThread):
     CHUNK_HEADER_FORMAT = "<HHHHI"  # version, sampling_rate, chunk_num, total_chunks, sample_count
     # Default chunk size (samples per MQTT message). This is just a starting value;
     # the actual chunk size is fully configurable at runtime from the GUI.
-    CHUNK_SIZE_SAMPLES = 30
+    CHUNK_SIZE_SAMPLES = 600  # Default 600 samples (2 seconds @ 300Hz)
     
     # PyQt6 signals
     sig_connected = pyqtSignal(str)  # MQTT connected successfully
@@ -317,11 +317,13 @@ class SimulatorWorker(QThread):
                     
                     time.sleep(0.05)  # Small delay to avoid busy-waiting
                 
-                # If no ACK received, log warning but continue (QoS 1 ensures delivery)
+                # If no ACK received, abort transmission
                 if not ack_received:
-                    logger.warning(f"No ACK received for chunk {chunk_num + 1}, but continuing (QoS 1 ensures delivery)")
-                    # Don't break - continue sending chunks even without ACK
-                    # The ESP32 will still receive them via QoS 1
+                    err_msg = f"Timed out waiting for ACK for chunk {chunk_num + 1}. Stopping transmission."
+                    logger.error(err_msg)
+                    self.sig_error.emit(err_msg)
+                    # Abort the loop
+                    break
                 
                 chunks_sent += 1
                 elapsed = time.time() - start_time

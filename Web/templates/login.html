@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login - Doctor's Portal</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f0f2f5;
+            margin: 0;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h2 {
+            color: #0064c8;
+            text-align: center;
+            margin-top: 0;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #0064c8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0052a3;
+        }
+
+        .error {
+            color: red;
+            font-size: 0.9em;
+            display: none;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-box">
+        <h2>Doctor Login</h2>
+        <div id="error-msg" class="error">Invalid Credentials</div>
+        <form id="login-form">
+            <input type="text" id="username" placeholder="Username" required value="dr_green">
+            <input type="password" id="password" placeholder="Password" required value="medical_secure!">
+            <button type="submit">Sign In</button>
+        </form>
+        <p style="text-align: center; font-size: 0.8em; color: #666; margin-top: 20px;">
+            Secure Access • Audit Logged
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('password', password);
+
+            try {
+                const response = await fetch('/token', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('token', data.access_token);
+                    // For prototype, we just redirect. In prod, we'd set a cookie.
+                    document.cookie = `access_token=${data.access_token}; path=/`;
+                    window.location.href = '/dashboard';
+                } else {
+                    document.getElementById('error-msg').style.display = 'block';
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('error-msg').textContent = "Connection Error";
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>

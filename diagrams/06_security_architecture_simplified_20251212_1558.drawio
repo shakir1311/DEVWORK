@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Security Architecture - Simplified" id="sec-simple">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="750" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/><mxCell id="1" parent="0"/>
+        
+        <!-- Header -->
+        <mxCell id="header" value="" style="rounded=0;fillColor=#1e293b;strokeColor=none" vertex="1" parent="1"><mxGeometry width="1500" height="65" as="geometry"/></mxCell>
+        <mxCell id="title" value="BIEIF-RPM: Security Architecture" style="text;fontSize=22;fontStyle=1;fontColor=#fff" vertex="1" parent="1"><mxGeometry x="40" y="15" width="400" height="28" as="geometry"/></mxCell>
+        <mxCell id="subtitle" value="Zero Trust • Defense-in-Depth • End-to-End Encryption" style="text;fontSize=11;fontColor=#94a3b8" vertex="1" parent="1"><mxGeometry x="40" y="42" width="350" height="16" as="geometry"/></mxCell>
+        <mxCell id="zt" value="ZERO TRUST" style="rounded=1;fillColor=#7c3aed;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#fff" vertex="1" parent="1"><mxGeometry x="1350" y="20" width="100" height="25" as="geometry"/></mxCell>
+        
+        <!-- PKI Layer -->
+        <mxCell id="pki_bg" value="" style="rounded=1;fillColor=#ede9fe;strokeColor=#c4b5fd;strokeWidth=2" vertex="1" parent="1"><mxGeometry x="40" y="85" width="1410" height="70" as="geometry"/></mxCell>
+        <mxCell id="pki_title" value="🔐 PKI TRUST INFRASTRUCTURE" style="text;fontSize=12;fontStyle=1;fontColor=#5b21b6" vertex="1" parent="1"><mxGeometry x="55" y="95" width="250" height="18" as="geometry"/></mxCell>
+        <mxCell id="pki_flow" value="Root CA (Offline) → Device CA → Device Registry → Certificate Revocation List" style="text;fontSize=10;fontColor=#6b21a8" vertex="1" parent="1"><mxGeometry x="55" y="118" width="400" height="14" as="geometry"/></mxCell>
+        <mxCell id="pki_prov" value="Factory Provisioning: Secure key generation • eFuse protection • Certificate enrollment" style="rounded=1;fillColor=#faf5ff;strokeColor=#c4b5fd;fontSize=9;fontColor=#7c3aed" vertex="1" parent="1"><mxGeometry x="500" y="100" width="400" height="28" as="geometry"/></mxCell>
+        <mxCell id="pki_life" value="Certificate Lifecycle: Auto-rotation • Revocation • Validation" style="rounded=1;fillColor=#faf5ff;strokeColor=#c4b5fd;fontSize=9;fontColor=#7c3aed" vertex="1" parent="1"><mxGeometry x="920" y="100" width="290" height="28" as="geometry"/></mxCell>
+        
+        <!-- Main Flow -->
+        <mxCell id="iot" value="" style="rounded=1;fillColor=#fef2f2;strokeColor=#ef4444;strokeWidth=2;shadow=1" vertex="1" parent="1"><mxGeometry x="40" y="175" width="220" height="200" as="geometry"/></mxCell>
+        <mxCell id="iot_h" value="🔴 IoT Device (ESP32)" style="text;fontSize=12;fontStyle=1;fontColor=#dc2626" vertex="1" parent="1"><mxGeometry x="55" y="185" width="180" height="18" as="geometry"/></mxCell>
+        <mxCell id="iot_hw" value="Hardware Security" style="rounded=1;fillColor=#1e293b;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#fff" vertex="1" parent="1"><mxGeometry x="55" y="210" width="115" height="22" as="geometry"/></mxCell>
+        <mxCell id="iot_hw_d" value="• Secure Element (HSM)&#xa;• Non-exportable keys&#xa;• HW-accelerated crypto" style="text;fontSize=9;fontColor=#374151" vertex="1" parent="1"><mxGeometry x="55" y="235" width="130" height="40" as="geometry"/></mxCell>
+        <mxCell id="iot_dev" value="Device Hardening" style="rounded=1;fillColor=#dcfce7;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#166534" vertex="1" parent="1"><mxGeometry x="55" y="280" width="115" height="22" as="geometry"/></mxCell>
+        <mxCell id="iot_dev_d" value="• Secure Boot&#xa;• Encrypted Storage&#xa;• Debug Ports Disabled" style="text;fontSize=9;fontColor=#374151" vertex="1" parent="1"><mxGeometry x="55" y="305" width="120" height="40" as="geometry"/></mxCell>
+        <mxCell id="iot_ble" value="BLE Security" style="rounded=1;fillColor=#dbeafe;strokeColor=none;fontSize=9;fontStyle=1;fontColor=#1e40af" vertex="1" parent="1"><mxGeometry x="180" y="210" width="70" height="20" as="geometry"/></mxCell>
+        <mxCell id="iot_ble_d" value="Encrypted&#xa;Pairing" style="text;fontSize=8;fontColor=#1e40af" vertex="1" parent="1"><mxGeometry x="185" y="232" width="55" height="22" as="geometry"/></mxCell>
+        
+        <!-- Arrow 1 -->
+        <mxCell id="arr1" value="" style="rounded=1;fillColor=#fef3c7;strokeColor=#f59e0b;strokeWidth=2" vertex="1" parent="1"><mxGeometry x="280" y="245" width="80" height="60" as="geometry"/></mxCell>
+        <mxCell id="arr1_t" value="Mutual TLS&#xa;Encrypted&#xa;Channel" style="text;fontSize=9;fontStyle=1;fontColor=#92400e;align=center" vertex="1" parent="1"><mxGeometry x="285" y="252" width="70" height="48" as="geometry"/></mxCell>
+        
+        <!-- Edge -->
+        <mxCell id="edge" value="" style="rounded=1;fillColor=#fef9c3;strokeColor=#f59e0b;strokeWidth=2;shadow=1" vertex="1" parent="1"><mxGeometry x="380" y="175" width="260" height="200" as="geometry"/></mxCell>
+        <mxCell id="edge_h" value="🟡 Edge Processor (Pi4)" style="text;fontSize=12;fontStyle=1;fontColor=#d97706" vertex="1" parent="1"><mxGeometry x="395" y="185" width="200" height="18" as="geometry"/></mxCell>
+        <mxCell id="edge_mqtt" value="MQTT Broker" style="rounded=1;fillColor=#78350f;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#fff" vertex="1" parent="1"><mxGeometry x="395" y="210" width="95" height="22" as="geometry"/></mxCell>
+        <mxCell id="edge_mqtt_d" value="• Certificate validation&#xa;• Revocation checking&#xa;• Access control (ACL)" style="text;fontSize=9;fontColor=#374151" vertex="1" parent="1"><mxGeometry x="395" y="235" width="130" height="40" as="geometry"/></mxCell>
+        <mxCell id="edge_tee" value="Trusted Execution" style="rounded=1;fillColor=#1e293b;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#fff" vertex="1" parent="1"><mxGeometry x="395" y="280" width="120" height="22" as="geometry"/></mxCell>
+        <mxCell id="edge_tee_d" value="• Secure key storage&#xa;• Protected processing&#xa;• Isolated execution" style="text;fontSize=9;fontColor=#374151" vertex="1" parent="1"><mxGeometry x="395" y="305" width="125" height="40" as="geometry"/></mxCell>
+        <mxCell id="edge_proc" value="AI Processing" style="rounded=1;fillColor=#fef3c7;strokeColor=none;fontSize=9;fontStyle=1;fontColor=#92400e" vertex="1" parent="1"><mxGeometry x="530" y="210" width="85" height="18" as="geometry"/></mxCell>
+        <mxCell id="edge_proc_d" value="Local inference&#xa;Quality checks" style="text;fontSize=8;fontColor=#92400e" vertex="1" parent="1"><mxGeometry x="530" y="230" width="85" height="22" as="geometry"/></mxCell>
+        
+        <!-- Arrow 2 -->
+        <mxCell id="arr2" value="" style="rounded=1;fillColor=#d1fae5;strokeColor=#10b981;strokeWidth=2" vertex="1" parent="1"><mxGeometry x="660" y="245" width="80" height="60" as="geometry"/></mxCell>
+        <mxCell id="arr2_t" value="TLS 1.3&#xa;Forward&#xa;Secrecy" style="text;fontSize=9;fontStyle=1;fontColor=#065f46;align=center" vertex="1" parent="1"><mxGeometry x="665" y="252" width="70" height="48" as="geometry"/></mxCell>
+        
+        <!-- Cloud -->
+        <mxCell id="cloud" value="" style="rounded=1;fillColor=#ecfdf5;strokeColor=#10b981;strokeWidth=2;shadow=1" vertex="1" parent="1"><mxGeometry x="760" y="175" width="260" height="200" as="geometry"/></mxCell>
+        <mxCell id="cloud_h" value="🟢 Cloud Backend" style="text;fontSize=12;fontStyle=1;fontColor=#059669" vertex="1" parent="1"><mxGeometry x="775" y="185" width="180" height="18" as="geometry"/></mxCell>
+        <mxCell id="cloud_api" value="FastAPI Server" style="rounded=1;fillColor=#6ee7b7;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#064e3b" vertex="1" parent="1"><mxGeometry x="775" y="210" width="100" height="22" as="geometry"/></mxCell>
+        <mxCell id="cloud_db" value="Encrypted Database" style="rounded=1;fillColor=#1e293b;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#fff" vertex="1" parent="1"><mxGeometry x="775" y="240" width="130" height="22" as="geometry"/></mxCell>
+        <mxCell id="cloud_db_d" value="• SQLCipher (encrypted)&#xa;• Secure password hashing&#xa;• Hash-chain audit trail" style="text;fontSize=9;fontColor=#374151" vertex="1" parent="1"><mxGeometry x="775" y="265" width="145" height="40" as="geometry"/></mxCell>
+        <mxCell id="cloud_auth" value="Authentication" style="rounded=1;fillColor=#dbeafe;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#1e40af" vertex="1" parent="1"><mxGeometry x="775" y="310" width="95" height="22" as="geometry"/></mxCell>
+        <mxCell id="cloud_auth_d" value="JWT tokens&#xa;Role-based access" style="text;fontSize=8;fontColor=#1e40af" vertex="1" parent="1"><mxGeometry x="775" y="334" width="100" height="22" as="geometry"/></mxCell>
+        <mxCell id="cloud_ai" value="AI/XAI" style="rounded=1;fillColor=#faf5ff;strokeColor=none;fontSize=9;fontStyle=1;fontColor=#7c3aed" vertex="1" parent="1"><mxGeometry x="920" y="210" width="50" height="18" as="geometry"/></mxCell>
+        <mxCell id="cloud_ai_d" value="Risk analysis&#xa;Explainable AI" style="text;fontSize=8;fontColor=#7c3aed" vertex="1" parent="1"><mxGeometry x="920" y="230" width="75" height="22" as="geometry"/></mxCell>
+        
+        <!-- Arrow 3 -->
+        <mxCell id="arr3" value="" style="rounded=1;fillColor=#dbeafe;strokeColor=#3b82f6;strokeWidth=2" vertex="1" parent="1"><mxGeometry x="1040" y="245" width="80" height="60" as="geometry"/></mxCell>
+        <mxCell id="arr3_t" value="HTTPS&#xa;Secure&#xa;Sessions" style="text;fontSize=9;fontStyle=1;fontColor=#1e40af;align=center" vertex="1" parent="1"><mxGeometry x="1045" y="252" width="70" height="48" as="geometry"/></mxCell>
+        
+        <!-- Clinical -->
+        <mxCell id="clin" value="" style="rounded=1;fillColor=#eff6ff;strokeColor=#3b82f6;strokeWidth=2;shadow=1" vertex="1" parent="1"><mxGeometry x="1140" y="175" width="160" height="200" as="geometry"/></mxCell>
+        <mxCell id="clin_h" value="🔵 Web Portal" style="text;fontSize=12;fontStyle=1;fontColor=#2563eb" vertex="1" parent="1"><mxGeometry x="1155" y="185" width="140" height="18" as="geometry"/></mxCell>
+        <mxCell id="clin_dash" value="Clinician Dashboard" style="rounded=1;fillColor=#93c5fd;strokeColor=none;fontSize=10;fontStyle=1;fontColor=#1e3a8a" vertex="1" parent="1"><mxGeometry x="1155" y="210" width="130" height="22" as="geometry"/></mxCell>
+        <mxCell id="clin_sec" value="Security Controls" style="rounded=1;fillColor=#fff;strokeColor=#93c5fd;fontSize=9;fontStyle=1;fontColor=#1e40af" vertex="1" parent="1"><mxGeometry x="1155" y="245" width="100" height="18" as="geometry"/></mxCell>
+        <mxCell id="clin_sec_d" value="• HTTPS only&#xa;• Session timeout&#xa;• Action logging&#xa;• Access control" style="text;fontSize=9;fontColor=#374151" vertex="1" parent="1"><mxGeometry x="1155" y="268" width="100" height="55" as="geometry"/></mxCell>
+        <mxCell id="clin_icon" value="👨‍⚕️" style="text;fontSize=28" vertex="1" parent="1"><mxGeometry x="1230" y="320" width="50" height="40" as="geometry"/></mxCell>
+        
+        <!-- Audit -->
+        <mxCell id="audit_bg" value="" style="rounded=1;fillColor=#ecfdf5;strokeColor=#10b981;strokeWidth=2" vertex="1" parent="1"><mxGeometry x="40" y="395" width="595" height="70" as="geometry"/></mxCell>
+        <mxCell id="audit_t" value="🔗 CRYPTOGRAPHIC AUDIT TRAIL" style="text;fontSize=11;fontStyle=1;fontColor=#059669" vertex="1" parent="1"><mxGeometry x="55" y="405" width="250" height="16" as="geometry"/></mxCell>
+        <mxCell id="audit_d" value="Tamper-evident logging • Hash-chained entries • Every action recorded • Chain verification" style="text;fontSize=10;fontColor=#065f46" vertex="1" parent="1"><mxGeometry x="55" y="425" width="520" height="14" as="geometry"/></mxCell>
+        <mxCell id="audit_chain" value="[Genesis] → [Login] → [Ingest] → [View] → ... → ✓" style="rounded=1;fillColor=#d1fae5;strokeColor=#6ee7b7;fontSize=9;fontColor=#064e3b" vertex="1" parent="1"><mxGeometry x="55" y="442" width="280" height="18" as="geometry"/></mxCell>
+        
+        <!-- Threats -->
+        <mxCell id="threat_bg" value="" style="rounded=1;fillColor=#fef2f2;strokeColor=#ef4444;strokeWidth=2" vertex="1" parent="1"><mxGeometry x="655" y="395" width="645" height="70" as="geometry"/></mxCell>
+        <mxCell id="threat_t" value="⚔️ THREAT MITIGATIONS" style="text;fontSize=11;fontStyle=1;fontColor=#dc2626" vertex="1" parent="1"><mxGeometry x="670" y="405" width="180" height="16" as="geometry"/></mxCell>
+        <mxCell id="threat1" value="Spoofing → Device certificates + Mutual authentication" style="text;fontSize=9;fontColor=#374151" vertex="1" parent="1"><mxGeometry x="670" y="425" width="280" height="12" as="geometry"/></mxCell>
+        <mxCell id="threat2" value="Tampering → Secure boot + Hash-chain audit" style="text;fontSize=9;fontColor=#374151" vertex="1" parent="1"><mxGeometry x="670" y="440" width="250" height="12" as="geometry"/></mxCell>
+        <mxCell id="threat3" value="Disclosure → End-to-end encryption + DB encryption" style="text;fontSize=9;fontColor=#374151" vertex="1" parent="1"><mxGeometry x="960" y="425" width="280" height="12" as="geometry"/></mxCell>
+        <mxCell id="threat4" value="Elevation → Role-based access + Least privilege" style="text;fontSize=9;fontColor=#374151" vertex="1" parent="1"><mxGeometry x="960" y="440" width="260" height="12" as="geometry"/></mxCell>
+        
+        <!-- Footer -->
+        <mxCell id="footer" value="" style="rounded=0;fillColor=#1e293b;strokeColor=none" vertex="1" parent="1"><mxGeometry y="485" width="1500" height="35" as="geometry"/></mxCell>
+        <mxCell id="tech" value="Hardware Security • Secure Boot • Encrypted Storage • Mutual TLS • Certificate Management • Token Authentication • Encrypted Database • Audit Logging" style="text;fontSize=9;fontColor=#94a3b8" vertex="1" parent="1"><mxGeometry x="40" y="495" width="700" height="14" as="geometry"/></mxCell>
+        <mxCell id="comply" value="HIPAA • GDPR • FDA Compliance" style="text;fontSize=9;fontColor=#6b7280" vertex="1" parent="1"><mxGeometry x="1200" y="495" width="200" height="14" as="geometry"/></mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

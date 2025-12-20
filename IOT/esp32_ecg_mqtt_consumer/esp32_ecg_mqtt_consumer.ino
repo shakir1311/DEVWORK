@@ -1310,7 +1310,10 @@ void discoverEDGEBroker() {
   
   // Wait for response
   unsigned long startTime = millis();
-  while (millis() - startTime < EDGE_BROKER_DISCOVERY_TIMEOUT) {
+  // Reduce blocking time if called frequently
+  unsigned long timeout = EDGE_BROKER_DISCOVERY_TIMEOUT;
+  
+  while (millis() - startTime < timeout) {
     int packetSize = udp.parsePacket();
     if (packetSize > 0) {
       char buffer[256];
@@ -1465,8 +1468,10 @@ void handleEDGEMQTTDisconnect() {
   edgeBrokerIP = "";
   
   // Always perform fresh discovery when disconnected (no storage or fallback)
-  if (millis() - lastDiscoveryAttempt > 10000) {  // Try discovery every 10 seconds
+  if (millis() - lastDiscoveryAttempt > 5000) {  // Try discovery every 5 seconds (reduced from 10)
     Serial.println("[INFO] EDGE MQTT disconnected - performing fresh broker discovery...");
+    // Use non-blocking discovery check if possible, or just short timeout
+    // For now, we use the blocking discovery but with short timeout in udp read
     discoverEDGEBroker();
     lastDiscoveryAttempt = millis();
   }

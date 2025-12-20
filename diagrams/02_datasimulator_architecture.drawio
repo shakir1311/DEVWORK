@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-10T17:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram name="DataSimulator Architecture" id="datasim-arch">
+    <mxGraphModel dx="1100" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="750" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="DataSimulator - Component Architecture (MVC Pattern)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="250" y="20" width="500" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Main Application Container -->
+        <mxCell id="appContainer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#333333;strokeWidth=2;dashed=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="700" height="550" as="geometry" />
+        </mxCell>
+        <mxCell id="appLabel" value="DataSimulator Application" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="65" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Presentation Layer (View) -->
+        <mxCell id="viewLayer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;opacity=50" vertex="1" parent="1">
+          <mxGeometry x="60" y="100" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="viewLabel" value="PRESENTATION LAYER (View)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="60" y="105" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ecggui" value="&lt;b&gt;ecg_gui.py&lt;/b&gt;&lt;br&gt;&lt;hr&gt;PyQt6 GUI&lt;br&gt;• Patient selection dropdown&lt;br&gt;• Live ECG preview plot&lt;br&gt;• Control buttons (Start/Stop)&lt;br&gt;• Status indicators" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="75" y="130" width="170" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Control Layer (Controller) -->
+        <mxCell id="controlLayer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;opacity=50" vertex="1" parent="1">
+          <mxGeometry x="60" y="240" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="controlLabel" value="CONTROL LAYER (Controller)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="60" y="245" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="appcontroller" value="&lt;b&gt;app_controller.py&lt;/b&gt;&lt;br&gt;&lt;hr&gt;Application Controller&lt;br&gt;• Orchestrates app state&lt;br&gt;• Coordinates components&lt;br&gt;• Handles user actions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="75" y="270" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="simworker" value="&lt;b&gt;simulator_worker.py&lt;/b&gt;&lt;br&gt;&lt;hr&gt;Background Worker&lt;br&gt;• Runs in QThread&lt;br&gt;• Non-blocking publish&lt;br&gt;• Progress signals" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="215" y="270" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="controlconfig" value="&lt;b&gt;config.py&lt;/b&gt;&lt;br&gt;Settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="75" y="360" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Model Layer -->
+        <mxCell id="modelLayer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e1;strokeColor=#d6b656;opacity=50" vertex="1" parent="1">
+          <mxGeometry x="60" y="420" width="380" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="modelLabel" value="MODEL LAYER (Data Management)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="60" y="425" width="220" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ecgsim" value="&lt;b&gt;ecg_simulator.py&lt;/b&gt;&lt;br&gt;&lt;hr&gt;ECG Dataset Manager&lt;br&gt;• Loads patient data&lt;br&gt;• Parses .mat files&lt;br&gt;• 300 Hz sampling" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e1;strokeColor=#d6b656;align=left;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="75" y="450" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="heaparser" value="&lt;b&gt;hea_parser.py&lt;/b&gt;&lt;br&gt;&lt;hr&gt;Metadata Parser&lt;br&gt;• PhysioNet .hea files&lt;br&gt;• Extracts metadata" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e1;strokeColor=#d6b656;align=left;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="205" y="450" width="110" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="downloader" value="&lt;b&gt;dataset_downloader.py&lt;/b&gt;&lt;br&gt;&lt;hr&gt;PhysioNet Downloader&lt;br&gt;• On-demand download&lt;br&gt;• Bulk download option" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e1;strokeColor=#d6b656;align=left;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="325" y="450" width="105" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="refcsv" value="REFERENCE.csv" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff4e1;strokeColor=#d6b656;size=10" vertex="1" parent="1">
+          <mxGeometry x="75" y="545" width="90" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- Communication Layer -->
+        <mxCell id="commLayer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5ff;strokeColor=#0066CC;opacity=50" vertex="1" parent="1">
+          <mxGeometry x="460" y="240" width="260" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="commLabel" value="COMMUNICATION LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#0066CC" vertex="1" parent="1">
+          <mxGeometry x="460" y="245" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="mqttbroker" value="&lt;b&gt;mqtt_broker.py&lt;/b&gt;&lt;br&gt;&lt;hr&gt;Embedded MQTT Broker&lt;br&gt;• Pure Python (no deps)&lt;br&gt;• Port: 1883&lt;br&gt;• QoS 0 support" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5ff;strokeColor=#0066CC;align=left;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="475" y="270" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="udpdiscovery" value="&lt;b&gt;UDP Discovery&lt;/b&gt;&lt;br&gt;&lt;hr&gt;Responder Service&lt;br&gt;• Port: 1884&lt;br&gt;• Broadcasts broker IP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5ff;strokeColor=#0066CC;align=left;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="605" y="270" width="100" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="mqttprotocol" value="&lt;b&gt;MQTT Protocol&lt;/b&gt;&lt;br&gt;Topic: ecg/full_record&lt;br&gt;Payload: Binary (36KB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="475" y="360" width="110" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- Data Storage -->
+        <mxCell id="storageLayer" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;opacity=50" vertex="1" parent="1">
+          <mxGeometry x="460" y="420" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="storageLabel" value="DATA STORAGE" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="460" y="425" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="dataset" value="&lt;b&gt;PhysioNet CinC 2017&lt;/b&gt;&lt;br&gt;8,528 ECG Recordings&lt;br&gt;300 Hz Sampling Rate" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#f5f5f5;strokeColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="475" y="450" width="130" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="datafiles" value=".mat + .hea files" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#f5f5f5;strokeColor=#666666;size=10" vertex="1" parent="1">
+          <mxGeometry x="615" y="460" width="90" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- External Systems -->
+        <mxCell id="extLabel" value="EXTERNAL SYSTEMS" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="780" y="60" width="150" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="physionet" value="&lt;b&gt;PhysioNet Archive&lt;/b&gt;&lt;br&gt;archive.physionet.org" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="780" y="90" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="esp32" value="&lt;b&gt;ESP32 Devices&lt;/b&gt;&lt;br&gt;MQTT Clients" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe1e1;strokeColor=#CC0000" vertex="1" parent="1">
+          <mxGeometry x="800" y="200" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Connections -->
+        <mxCell id="c1" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#333333" edge="1" parent="1" source="ecggui" target="appcontroller">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#333333" edge="1" parent="1" source="appcontroller" target="simworker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" value="" style="endArrow=classic;html=1;strokeColor=#333333" edge="1" parent="1" source="appcontroller" target="ecgsim">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" value="" style="endArrow=classic;html=1;strokeColor=#333333" edge="1" parent="1" source="simworker" target="mqttbroker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c5" value="" style="endArrow=classic;html=1;strokeColor=#333333" edge="1" parent="1" source="ecgsim" target="heaparser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c6" value="" style="endArrow=classic;html=1;strokeColor=#666666;dashed=1" edge="1" parent="1" source="downloader" target="physionet">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c7" value="" style="endArrow=classic;html=1;strokeColor=#0066CC;strokeWidth=2" edge="1" parent="1" source="mqttbroker" target="esp32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c8" value="" style="endArrow=classic;html=1;strokeColor=#0066CC;dashed=1" edge="1" parent="1" source="udpdiscovery" target="esp32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c9" value="" style="endArrow=classic;html=1;strokeColor=#333333" edge="1" parent="1" source="ecgsim" target="dataset">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c10" value="" style="endArrow=classic;html=1;strokeColor=#333333" edge="1" parent="1" source="downloader" target="dataset">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
