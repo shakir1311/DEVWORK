@@ -11,9 +11,16 @@ def calculate_hash(prev_hash: str, timestamp: str, actor_id: str, action: str, d
     payload = f"{prev_hash}{timestamp}{actor_id}{action}{details}"
     return hashlib.sha256(payload.encode('utf-8')).hexdigest()
 
-def add_audit_entry(db: Session, actor_id: str, action: str, details: dict):
+def add_audit_entry(db: Session, actor_id: str, action: str, details: dict, auto_commit: bool = True):
     """
     Add a new entry to the immutable audit ledger.
+    
+    Args:
+        db: Database session
+        actor_id: Actor performing the action
+        action: Action type
+        details: Action details dict
+        auto_commit: If True (default), commits immediately. Set False for batch operations.
     """
     # 1. Get the last record's hash
     last_entry = db.query(models.AuditLog).order_by(models.AuditLog.id.desc()).first()
@@ -48,7 +55,8 @@ def add_audit_entry(db: Session, actor_id: str, action: str, details: dict):
     )
     
     db.add(new_entry)
-    db.commit()
+    if auto_commit:
+        db.commit()
     return new_entry
 
 def verify_chain_integrity(db: Session) -> bool:

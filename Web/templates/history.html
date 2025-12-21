@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --medical-blue: #0066cc;
+        --medical-green: #00a651;
+        --medical-red: #d32f2f;
+        --medical-gray: #f5f7fa;
+    }
+
+    .clinical-header {
+        background: white;
+        border-bottom: 3px solid var(--medical-blue);
+        padding: 1.5rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .clinical-table thead th {
+        background-color: var(--medical-gray);
+        color: #2c3e50;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .status-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+
+    .status-archived {
+        background-color: #6c757d;
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Clinical Header -->
+    <div class="clinical-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h4 class="mb-1" style="color: var(--medical-blue); font-weight: 600;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            class="bi bi-clock-history me-2" viewBox="0 0 16 16">
+                            <path
+                                d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.027 7.027 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z" />
+                            <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z" />
+                            <path
+                                d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7.5 9V3z" />
+                        </svg>
+                        Full ECG History
+                    </h4>
+                    <p class="mb-0 text-muted small">Complete archive of all processed ECG records</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="/dashboard" class="btn btn-outline-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-speedometer2 me-1" viewBox="0 0 16 16">
+                            <path
+                                d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z" />
+                            <path fill-rule="evenodd"
+                                d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.92C4.397 13.205 6.092 14 8 14s3.603-.795 4.923-1.411c.757-.043 1.477-.344 1.68-.92A7 7 0 0 0 8 3z" />
+                        </svg>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- ECG Records Table -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white border-bottom" style="padding: 1rem 1.5rem;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;">All Records</h5>
+                    <span class="badge bg-light text-dark border">
+                        <span class="status-indicator status-archived"></span>
+                        Archived Data
+                    </span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                {% if records %}
+                <div class="table-responsive">
+                    <table class="table clinical-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Study ID</th>
+                                <th>Patient MRN</th>
+                                <th>Patient Name</th>
+                                <th>Date/Time</th>
+                                <th>Heart Rate (BPM)</th>
+                                <th>Diagnosis</th>
+                                <th>Metrics</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% include "partials/rows.html" %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted">No records found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        {% if total_pages > 1 %}
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div class="text-muted small">
+                Showing {{ (current_page - 1) * limit + 1 }} to {{ [(current_page * limit), total_count]|min }} of {{
+                total_count }} records
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                    <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                        <a class="page-link" href="?page={{ current_page - 1 }}&limit={{ limit }}">Previous</a>
+                    </li>
+
+                    {% for p in range(1, total_pages + 1) %}
+                    {% if p == current_page or p == 1 or p == total_pages or (p >= current_page - 2 and p <=
+                        current_page + 2) %} <li class="page-item {% if p == current_page %}active{% endif %}">
+                        <a class="page-link" href="?page={{ p }}&limit={{ limit }}">{{ p }}</a>
+                        </li>
+                        {% elif p == current_page - 3 or p == current_page + 3 %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                        {% endfor %}
+
+                        <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+                            <a class="page-link" href="?page={{ current_page + 1 }}&limit={{ limit }}">Next</a>
+                        </li>
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

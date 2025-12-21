@@ -45,6 +45,135 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# HTTP Server for batch processing (bypasses IOT layer)
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import numpy as np
+
+BATCH_HTTP_PORT = 5001
+
+class BatchHTTPHandler(BaseHTTPRequestHandler):
+    """HTTP handler for direct batch ECG ingestion (bypasses IOT/MQTT)."""
+    
+    edge_layer = None  # Will be set by EDGELayer
+    
+    def log_message(self, format, *args):
+        """Suppress default HTTP logging."""
+        pass
+    
+    def do_POST(self):
+        if self.path == '/api/batch-ingest':
+            try:
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data.decode('utf-8'))
+                
+                # Extract ECG data
+                patient_id = data.get('patient_id', 'UNKNOWN')
+                ecg_values = np.array(data.get('ecg_values', []), dtype=np.float32)
+                sampling_rate = data.get('sampling_rate', 300)
+                duration_seconds = data.get('duration_seconds', len(ecg_values) / sampling_rate)
+                
+                # Build metadata matching Portal's expected format
+                # Portal expects metadata.patient_info.patient_id (nested)
+                metadata = {
+                    'patient_info': {
+                        'patient_id': patient_id,
+                    },
+                    'sampling_rate': sampling_rate,
+                    'total_samples': len(ecg_values),
+                    'duration_seconds': duration_seconds,
+                    'record_date': data.get('record_date', ''),
+                    'record_time': data.get('record_time', ''),
+                }
+                
+                # Process through pipeline
+                if BatchHTTPHandler.edge_layer and BatchHTTPHandler.edge_layer.processor_pipeline:
+                    results = BatchHTTPHandler.edge_layer.processor_pipeline.process(ecg_values, metadata)
+                    
+                    # Send to Portal and get timing
+                    record_id, portal_insert_ms = BatchHTTPHandler.edge_layer._send_to_portal(ecg_values, metadata, results)
+                    
+                    # Extract classification from nested structure
+                    # Pipeline returns: {'processors_run': [...], 'results': {'ml_inference': {...}}}
+                    ml_results = results.get('results', {}).get('ml_inference', {})
+                    classification = ml_results.get('classification', '?')
+                    confidence = ml_results.get('confidence', 0.0)
+                    
+                    response = {
+                        'status': 'success',
+                        'patient_id': patient_id,
+                        'classification': classification,
+                        'confidence': confidence,
+                        'portal_record_id': record_id,
+                        'portal_insert_ms': portal_insert_ms
+                    }
+                else:
+                    response = {'status': 'error', 'message': 'Pipeline not initialized'}
+                
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+                
+            except Exception as e:
+                logger.error(f"Batch ingest error: {e}")
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'status': 'error', 'message': str(e)}).encode('utf-8'))
+        
+        elif self.path == '/api/inference-only':
+            # Inference only - no Portal upload (for bulk experiments)
+            try:
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data.decode('utf-8'))
+                
+                patient_id = data.get('patient_id', 'UNKNOWN')
+                ecg_values = np.array(data.get('ecg_values', []), dtype=np.float32)
+                sampling_rate = data.get('sampling_rate', 300)
+                duration_seconds = data.get('duration_seconds', len(ecg_values) / sampling_rate)
+                
+                metadata = {
+                    'patient_info': {'patient_id': patient_id},
+                    'sampling_rate': sampling_rate,
+                    'total_samples': len(ecg_values),
+                    'duration_seconds': duration_seconds,
+                }
+                
+                if BatchHTTPHandler.edge_layer and BatchHTTPHandler.edge_layer.processor_pipeline:
+                    results = BatchHTTPHandler.edge_layer.processor_pipeline.process(ecg_values, metadata)
+                    
+                    ml_results = results.get('results', {}).get('ml_inference', {})
+                    hr_results = results.get('results', {}).get('heart_rate', {})
+                    
+                    response = {
+                        'status': 'success',
+                        'patient_id': patient_id,
+                        'classification': ml_results.get('classification', '?'),
+                        'confidence': ml_results.get('confidence', 0.0),
+                        'heart_rate': hr_results.get('heart_rate_bpm', 0.0),
+                        'full_results': results
+                    }
+                else:
+                    response = {'status': 'error', 'message': 'Pipeline not initialized'}
+                
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+                
+            except Exception as e:
+                logger.error(f"Inference-only error: {e}")
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'status': 'error', 'message': str(e)}).encode('utf-8'))
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+
 
 class EDGELayer:
     """Main EDGE layer application."""
@@ -126,6 +255,13 @@ class EDGELayer:
             if hasattr(self, 'ml_processor'):
                 self.gui.update_models_list(self.ml_processor.get_available_models())
         
+        # Start HTTP batch server for direct DataSimulator access (bypasses IOT)
+        BatchHTTPHandler.edge_layer = self
+        self.batch_http_server = HTTPServer(('0.0.0.0', BATCH_HTTP_PORT), BatchHTTPHandler)
+        self.batch_http_thread = threading.Thread(target=self.batch_http_server.serve_forever, daemon=True)
+        self.batch_http_thread.start()
+        logger.info(f"✓ Batch HTTP server started on port {BATCH_HTTP_PORT}")
+        
         logger.info("✓ Components initialized")
     
     def _on_mqtt_message(self, topic: str, payload: bytes):
@@ -201,7 +337,7 @@ class EDGELayer:
     
     
     def _send_to_portal(self, ecg_data, metadata, results):
-        """Send data to the Doctor's Portal API."""
+        """Send data to the Doctor's Portal API. Returns (record_id, insert_time_ms)."""
         try:
             # Convert NumPy array to list for JSON serialization
             ecg_list = ecg_data.tolist() if hasattr(ecg_data, 'tolist') else list(ecg_data)
@@ -213,18 +349,26 @@ class EDGELayer:
             }
             
             headers = {'Content-Type': 'application/json'}
-            # Use short timeout to avoid blocking main thread too long
-            response = requests.post(PORTAL_API_URL, json=payload, headers=headers, timeout=2)
+            
+            # Time the Portal insert for ledger performance comparison
+            start_time = time.time()
+            response = requests.post(PORTAL_API_URL, json=payload, headers=headers, timeout=10)
+            insert_time_ms = (time.time() - start_time) * 1000
             
             if response.status_code == 200:
-                logger.info(f"✓ Data sent to Portal (ID: {response.json().get('record_id')})")
+                record_id = response.json().get('record_id', 0)
+                logger.info(f"✓ Data sent to Portal (ID: {record_id}, insert: {insert_time_ms:.1f}ms)")
+                return record_id, insert_time_ms
             else:
                 logger.warning(f"Failed to send to Portal: {response.status_code} {response.text}")
+                return 0, insert_time_ms
                 
         except requests.exceptions.ConnectionError:
             logger.warning("Portal unreachable (Connection refused). Is the web server running?")
+            return 0, 0
         except Exception as e:
             logger.error(f"Error sending to Portal: {e}")
+            return 0, 0
 
     def _on_ecg_complete(self, ecg_data, metadata: dict):
         """
@@ -433,6 +577,10 @@ def main():
     # Create and start EDGE layer
     edge = EDGELayer(gui=gui)
     edge.initialize()
+    
+    # Pass processor pipeline to GUI for bulk experiments
+    if gui and edge.processor_pipeline:
+        gui.set_processor_pipeline(edge.processor_pipeline)
     
     # Start EDGE layer in a separate thread if GUI is running
     if gui:

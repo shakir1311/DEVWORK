@@ -1,0 +1,12 @@
+{
+  "mode": "LEDGER_ON",
+  "ledger_enabled": true,
+  "total_records": 8528,
+  "total_time_ms": 61662.78817100101,
+  "avg_insert_time_ms": 5.996567426004807,
+  "median_insert_time_ms": 3.681623999000294,
+  "min_insert_time_ms": 2.06297000113409,
+  "max_insert_time_ms": 8690.509158004716,
+  "std_insert_time_ms": 101.64818345377084,
+  "records_per_second": 138.30059024172664
+}

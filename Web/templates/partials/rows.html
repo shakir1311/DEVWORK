@@ -9,8 +9,14 @@
         <div style="font-size: 0.875rem;">{{ record.timestamp.strftime('%Y-%m-%d') }}</div>
         <div style="font-size: 0.75rem; color: #6c757d;">{{ record.timestamp.strftime('%H:%M:%S') }}</div>
     </td>
-    <td><strong>{{ "%.0f"|format(record.heart_rate) }}</strong> <span
-            style="color: #6c757d; font-size: 0.85rem;">bpm</span></td>
+    <td>
+        {% if record.heart_rate is not none %}
+        <strong>{{ "%.0f"|format(record.heart_rate) }}</strong>
+        {% else %}
+        <strong>--</strong>
+        {% endif %}
+        <span style="color: #6c757d; font-size: 0.85rem;">bpm</span>
+    </td>
     <td>
         {% if record.classification == 'N' %}
         <span class="diagnosis-normal">Normal Sinus Rhythm</span>

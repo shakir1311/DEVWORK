@@ -1,0 +1,39 @@
+{
+  "ledger_off": {
+    "mode": "LEDGER_OFF",
+    "ledger_enabled": false,
+    "total_records": 8528,
+    "total_time_ms": 26711.346297997807,
+    "avg_insert_time_ms": 2.6048499583179034,
+    "median_insert_time_ms": 2.3035880003590137,
+    "min_insert_time_ms": 1.2133350028307177,
+    "max_insert_time_ms": 38.70576099870959,
+    "std_insert_time_ms": 1.4276042703497922,
+    "records_per_second": 319.26507577939753,
+    "system_stats_before": {
+      "cpu_usage_total": 37.3,
+      "ram_free_mb": 61.0,
+      "ram_active_mb": 17395.0
+    }
+  },
+  "ledger_on": {
+    "mode": "LEDGER_ON",
+    "ledger_enabled": true,
+    "total_records": 8528,
+    "total_time_ms": 32946.9386980054,
+    "avg_insert_time_ms": 3.2976710829543032,
+    "median_insert_time_ms": 2.9908140022598673,
+    "min_insert_time_ms": 1.754053999320604,
+    "max_insert_time_ms": 39.155517995823175,
+    "std_insert_time_ms": 1.5343334166755382,
+    "records_per_second": 258.8404366842217,
+    "system_stats_before": {
+      "cpu_usage_total": 28.4,
+      "ram_free_mb": 394.0,
+      "ram_active_mb": 17443.0
+    }
+  },
+  "overhead_ms": 0.6872260019008536,
+  "overhead_percent": 29.832852133009435,
+  "timestamp": "2025-12-20T22:10:00.304108+00:00"
+}

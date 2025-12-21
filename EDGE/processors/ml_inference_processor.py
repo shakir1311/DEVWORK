@@ -143,6 +143,7 @@ class MLInferenceProcessor(ECGProcessor):
         self.current_model_path = None
         self.current_model_type = None
         self.device = None
+        self.skip_xai = False  # Set to True for bulk experiments
         
         # Setup device
         if PYTORCH_AVAILABLE:
@@ -541,9 +542,9 @@ class MLInferenceProcessor(ECGProcessor):
                 name: float(prob) for name, prob in zip(CLASS_NAMES, results['probabilities'])
             }
             
-            # Generate XAI explanation for ECG-DualNet
+            # Generate XAI explanation for ECG-DualNet (unless skipped)
             logger.info(f"[MLInference] Model type: {self.current_model_type}")
-            if self.current_model_type == 'ecg_dualnet':
+            if self.current_model_type == 'ecg_dualnet' and not self.skip_xai:
                 logger.info("[MLInference] Generating XAI explanation...")
                 try:
                     explainer = ECGExplainer(self.current_model, self.device)
@@ -557,6 +558,8 @@ class MLInferenceProcessor(ECGProcessor):
                 except Exception as e:
                     logger.warning(f"[MLInference] XAI explanation failed: {e}", exc_info=True)
                     results['explanation'] = None
+            elif self.current_model_type == 'ecg_dualnet' and self.skip_xai:
+                logger.debug("[MLInference] Skipping XAI (disabled for performance)")
             else:
                 logger.info(f"[MLInference] Skipping XAI (model type is not ecg_dualnet)")
             

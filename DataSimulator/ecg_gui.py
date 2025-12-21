@@ -22,6 +22,7 @@ import pyqtgraph as pg
 from app_controller import SimulationController
 from dataset_downloader import DatasetDownloadWorker
 from mqtt_broker import EmbeddedMQTTBroker
+from batch_simulator import BatchSimulatorWorker
 import config
 
 logging.basicConfig(level=logging.INFO)
@@ -377,6 +378,8 @@ class ECGSimulatorApp(QMainWindow):
         
         # Check dataset status and update UI
         self.update_dataset_status()
+        # Batch simulator worker
+        self.batch_worker: Optional[BatchSimulatorWorker] = None
         
         logger.info("GUI initialized")
     
@@ -428,6 +431,10 @@ class ECGSimulatorApp(QMainWindow):
         # Control buttons
         control_panel = self.create_control_panel()
         main_layout.addWidget(control_panel)
+        
+        # Batch Experiment panel
+        batch_panel = self.create_batch_experiment_panel()
+        main_layout.addWidget(batch_panel)
         
         # Status and progress
         status_panel = self.create_status_panel()
@@ -861,6 +868,102 @@ class ECGSimulatorApp(QMainWindow):
         self.show_plot_btn.setStyleSheet("background-color: #0064c8; color: white; font-weight: bold;")
         self.show_plot_btn.clicked.connect(self.on_show_plot_window)
         layout.addWidget(self.show_plot_btn)
+        
+        group.setLayout(layout)
+        return group
+    
+    def create_batch_experiment_panel(self) -> QGroupBox:
+        """Create batch experiment automation panel."""
+        group = QGroupBox("🔬 Batch Experiment (Automation)")
+        group.setStyleSheet("QGroupBox { font-weight: bold; }")
+        layout = QVBoxLayout()
+        
+        # Description
+        desc_label = QLabel(
+            "Run all 8,528 ECG records through the pipeline automatically.\n"
+            "Results are saved to experiment_results/ folder."
+        )
+        desc_label.setStyleSheet("color: #666; font-size: 10px;")
+        desc_label.setWordWrap(True)
+        layout.addWidget(desc_label)
+        
+        # Configuration row 1
+        config_row1 = QHBoxLayout()
+        
+        config_row1.addWidget(QLabel("Experiment Name:"))
+        self.experiment_name_input = QLineEdit("ledger_on")
+        self.experiment_name_input.setMaximumWidth(150)
+        self.experiment_name_input.setToolTip("Folder name for results (ledger_on or ledger_off)")
+        config_row1.addWidget(self.experiment_name_input)
+        
+        config_row1.addWidget(QLabel("Min Delay:"))
+        self.batch_delay_spinbox = QDoubleSpinBox()
+        self.batch_delay_spinbox.setRange(0.0, 10.0)
+        self.batch_delay_spinbox.setValue(0.0)
+        self.batch_delay_spinbox.setSuffix(" s")
+        self.batch_delay_spinbox.setToolTip("Minimum delay between records (0 = as fast as possible)")
+        self.batch_delay_spinbox.setMaximumWidth(80)
+        config_row1.addWidget(self.batch_delay_spinbox)
+        
+        config_row1.addStretch()
+        layout.addLayout(config_row1)
+        
+        # Configuration row 2 - Portal URL
+        config_row2 = QHBoxLayout()
+        config_row2.addWidget(QLabel("Portal URL:"))
+        self.portal_url_input = QLineEdit("http://localhost:8000")
+        self.portal_url_input.setMaximumWidth(250)
+        self.portal_url_input.setToolTip("Web Portal URL for polling record completion")
+        config_row2.addWidget(self.portal_url_input)
+        config_row2.addStretch()
+        layout.addLayout(config_row2)
+        
+        # Batch progress
+        progress_layout = QHBoxLayout()
+        self.batch_progress_label = QLabel("Ready")
+        self.batch_progress_label.setStyleSheet("font-weight: bold;")
+        progress_layout.addWidget(self.batch_progress_label)
+        progress_layout.addStretch()
+        
+        self.batch_current_patient_label = QLabel("")
+        self.batch_current_patient_label.setStyleSheet("color: #0064c8;")
+        progress_layout.addWidget(self.batch_current_patient_label)
+        
+        layout.addLayout(progress_layout)
+        
+        # Progress bar
+        self.batch_progress_bar = QProgressBar()
+        self.batch_progress_bar.setRange(0, 100)
+        self.batch_progress_bar.setValue(0)
+        layout.addWidget(self.batch_progress_bar)
+        
+        # Stats row
+        stats_layout = QHBoxLayout()
+        self.batch_elapsed_label = QLabel("Elapsed: --")
+        stats_layout.addWidget(self.batch_elapsed_label)
+        self.batch_remaining_label = QLabel("Remaining: --")
+        stats_layout.addWidget(self.batch_remaining_label)
+        self.batch_accuracy_label = QLabel("Accuracy: --")
+        stats_layout.addWidget(self.batch_accuracy_label)
+        stats_layout.addStretch()
+        layout.addLayout(stats_layout)
+        
+        # Control buttons
+        button_layout = QHBoxLayout()
+        
+        self.batch_start_btn = QPushButton("🚀 Simulate All Records")
+        self.batch_start_btn.setStyleSheet("background-color: #28a745; color: white; font-weight: bold; padding: 8px;")
+        self.batch_start_btn.clicked.connect(self.on_batch_start_clicked)
+        button_layout.addWidget(self.batch_start_btn)
+        
+        self.batch_stop_btn = QPushButton("⏹ Stop")
+        self.batch_stop_btn.setEnabled(False)
+        self.batch_stop_btn.setStyleSheet("padding: 8px;")
+        self.batch_stop_btn.clicked.connect(self.on_batch_stop_clicked)
+        button_layout.addWidget(self.batch_stop_btn)
+        
+        button_layout.addStretch()
+        layout.addLayout(button_layout)
         
         group.setLayout(layout)
         return group
@@ -1770,6 +1873,156 @@ class ECGSimulatorApp(QMainWindow):
         self.plot_window.show()
         self.plot_window.raise_()
         self.plot_window.activateWindow()
+    
+    # === Batch Experiment Event Handlers ===
+    
+    @pyqtSlot()
+    def on_batch_start_clicked(self):
+        """Start batch simulation of all records."""
+        # Validate MQTT connection
+        if not self.controller or not self.mqtt_connected:
+            QMessageBox.warning(
+                self, "MQTT Not Connected",
+                "Please connect to MQTT broker first before starting batch simulation."
+            )
+            return
+        
+        # Check if dataset is available
+        if not self.controller.simulator.check_dataset_available():
+            QMessageBox.warning(
+                self, "Dataset Not Available",
+                "Please download the dataset first."
+            )
+            return
+        
+        # Confirm with user
+        patient_count = len(self.controller.simulator.list_patients())
+        reply = QMessageBox.question(
+            self, "Start Batch Experiment",
+            f"This will process all {patient_count} ECG records through the pipeline.\n\n"
+            f"Experiment: {self.experiment_name_input.text()}\n"
+            f"Portal URL: {self.portal_url_input.text()}\n"
+            f"Min Delay: {self.batch_delay_spinbox.value()}s\n\n"
+            "Continue?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        
+        # Create and configure batch worker
+        self.batch_worker = BatchSimulatorWorker(
+            self.controller.simulator,
+            self.portal_url_input.text(),
+            edge_url="http://localhost:5001"
+        )
+        self.batch_worker.configure(
+            min_delay_seconds=self.batch_delay_spinbox.value(),
+            experiment_name=self.experiment_name_input.text(),
+            portal_url=self.portal_url_input.text(),
+            edge_url="http://localhost:5001"
+        )
+        
+        # Connect signals
+        self.batch_worker.sig_progress.connect(self.on_batch_progress)
+        self.batch_worker.sig_status.connect(self.on_batch_status)
+        self.batch_worker.sig_record_complete.connect(self.on_batch_record_complete)
+        self.batch_worker.sig_finished.connect(self.on_batch_finished)
+        self.batch_worker.sig_error.connect(self.on_batch_error)
+        
+        # Update UI
+        self.batch_start_btn.setEnabled(False)
+        self.batch_stop_btn.setEnabled(True)
+        self.batch_progress_label.setText("Starting...")
+        self.batch_progress_bar.setValue(0)
+        
+        # Start
+        self.batch_worker.start()
+        self.log_message(f"🚀 Batch experiment started: {self.experiment_name_input.text()}")
+    
+    @pyqtSlot()
+    def on_batch_stop_clicked(self):
+        """Stop batch simulation."""
+        if self.batch_worker and self.batch_worker.isRunning():
+            self.batch_worker.stop()
+            self.batch_stop_btn.setEnabled(False)
+            self.batch_progress_label.setText("Stopping...")
+            self.log_message("⏹ Batch stop requested")
+    
+    @pyqtSlot(int, int, str)
+    def on_batch_progress(self, current: int, total: int, patient_id: str):
+        """Handle batch progress update."""
+        percent = int((current / total) * 100) if total > 0 else 0
+        self.batch_progress_bar.setValue(percent)
+        self.batch_progress_label.setText(f"Processing {current}/{total}")
+        self.batch_current_patient_label.setText(f"Patient: {patient_id}")
+        
+        # Estimate remaining time based on elapsed
+        if hasattr(self, '_batch_start_time') and current > 1:
+            import time
+            elapsed = time.time() - self._batch_start_time
+            rate = current / elapsed  # records per second
+            remaining = (total - current) / rate if rate > 0 else 0
+            self.batch_elapsed_label.setText(f"Elapsed: {int(elapsed)}s")
+            self.batch_remaining_label.setText(f"Remaining: ~{int(remaining)}s")
+        elif current == 1:
+            import time
+            self._batch_start_time = time.time()
+    
+    @pyqtSlot(str)
+    def on_batch_status(self, message: str):
+        """Handle batch status message."""
+        self.log_message(f"📊 {message}")
+    
+    @pyqtSlot(dict)
+    def on_batch_record_complete(self, result: dict):
+        """Handle single record completion."""
+        patient_id = result.get('patient_id', '?')
+        success = result.get('success', False)
+        predicted = result.get('predicted_class', '?')
+        ground_truth = result.get('ground_truth', '?')
+        latency = result.get('latency_ms', 0)
+        
+        if success:
+            match = "✓" if predicted == ground_truth else "✗"
+            self.log_message(f"  {patient_id}: {ground_truth}→{predicted} {match} ({latency:.0f}ms)")
+    
+    @pyqtSlot(dict)
+    def on_batch_finished(self, summary: dict):
+        """Handle batch completion."""
+        self.batch_start_btn.setEnabled(True)
+        self.batch_stop_btn.setEnabled(False)
+        
+        total = summary.get('total_records', 0)
+        successful = summary.get('successful', 0)
+        accuracy = summary.get('accuracy', 0) * 100
+        elapsed = summary.get('elapsed_seconds', 0)
+        
+        self.batch_progress_label.setText("Complete!")
+        self.batch_progress_bar.setValue(100)
+        self.batch_accuracy_label.setText(f"Accuracy: {accuracy:.1f}%")
+        self.batch_elapsed_label.setText(f"Elapsed: {int(elapsed)}s")
+        self.batch_remaining_label.setText(f"Done: {successful}/{total}")
+        
+        self.log_message(f"✅ Batch complete: {successful}/{total} records, {accuracy:.1f}% accuracy, {elapsed:.0f}s")
+        
+        QMessageBox.information(
+            self, "Batch Complete",
+            f"Processed {successful}/{total} records\n"
+            f"Accuracy: {accuracy:.1f}%\n"
+            f"Time: {elapsed:.0f} seconds\n\n"
+            f"Results saved to experiment_results/{summary.get('experiment_folder', '')}/"
+        )
+    
+    @pyqtSlot(str)
+    def on_batch_error(self, message: str):
+        """Handle batch error."""
+        self.batch_start_btn.setEnabled(True)
+        self.batch_stop_btn.setEnabled(False)
+        self.batch_progress_label.setText("Error")
+        self.log_message(f"❌ Batch error: {message}", "error")
+        QMessageBox.critical(self, "Batch Error", message)
     
     def closeEvent(self, event):
         """Handle window close event."""

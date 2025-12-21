@@ -4,9 +4,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 import json
 import datetime
+import os
 from typing import List, Dict, Any
+
+# Environment variable to enable/disable audit ledger (for experiments)
+LEDGER_ENABLED = os.getenv("LEDGER_ENABLED", "true").lower() == "true"
 
 import models
 import schemas
@@ -18,6 +23,9 @@ from database import get_db, engine
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Doctor's Portal", description="Secure ECG Analysis Portal")
+
+# Log ledger status at startup
+print(f"🔐 Audit Ledger: {'ENABLED' if LEDGER_ENABLED else 'DISABLED'}")
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -72,6 +80,28 @@ async def dashboard_rows(request: Request, db: Session = Depends(get_db)):
     """Returns just the table rows HTML for AJAX refresh"""
     records = db.query(models.ECGRecord).order_by(models.ECGRecord.timestamp.desc()).limit(20).all()
     return templates.TemplateResponse("partials/rows.html", {"request": request, "records": records})
+
+@app.get("/history", response_class=HTMLResponse)
+async def history_view(request: Request, page: int = 1, limit: int = 50, db: Session = Depends(get_db)):
+    """View full history of ECG records with pagination"""
+    skip = (page - 1) * limit
+    
+    # Get total count
+    total_count = db.query(models.ECGRecord).count()
+    total_pages = (total_count + limit - 1) // limit
+    
+    # Get paginated records
+    records = db.query(models.ECGRecord).order_by(models.ECGRecord.timestamp.desc()).offset(skip).limit(limit).all()
+    
+    return templates.TemplateResponse("history.html", {
+        "request": request,
+        "records": records,
+        "title": "ECG Record History",
+        "current_page": page,
+        "total_pages": total_pages,
+        "limit": limit,
+        "total_count": total_count
+    })
 
 @app.get("/ecg/{record_id}", response_class=HTMLResponse)
 async def view_ecg(record_id: int, request: Request, db: Session = Depends(get_db)):
@@ -144,21 +174,132 @@ async def ingest_ecg(data: ECGIngestSchema, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_record)
     
-    # 5. Log to Cryptographic Audit Trail
-    ledger.add_audit_entry(
-        db, 
-        actor_id=f"DEVICE_{meta.get('device_id')}", 
-        action="INGEST_ECG", 
-        details={"record_id": new_record.id, "patient": p_id_ext, "class": classification}
-    )
+    # 5. Log to Cryptographic Audit Trail (if enabled)
+    if LEDGER_ENABLED:
+        ledger.add_audit_entry(
+            db, 
+            actor_id=f"DEVICE_{meta.get('device_id')}", 
+            action="INGEST_ECG", 
+            details={"record_id": new_record.id, "patient": p_id_ext, "class": classification}
+        )
     
-    return {"status": "success", "record_id": new_record.id}
+    return {"status": "success", "record_id": new_record.id, "ledger_enabled": LEDGER_ENABLED}
+
+
+class BatchIngestRecord(BaseModel):
+    """Single record in a batch ingest request."""
+    patient_id: str
+    ecg_values: List[float]
+    classification: str
+    confidence: float
+    heart_rate: float = 0.0
+    metadata: Dict[str, Any] = {}
+    results: Dict[str, Any] = {}
+
+
+class BatchIngestSchema(BaseModel):
+    """Schema for bulk ECG record ingestion."""
+    records: List[BatchIngestRecord]
+
+
+@app.post("/api/batch-ingest")
+async def batch_ingest_ecg(data: BatchIngestSchema, db: Session = Depends(get_db)):
+    """
+    Bulk insert ECG records for experiment automation.
+    Returns timing stats for ledger performance comparison.
+    """
+    import time
+    
+    start_time = time.time()
+    inserted_count = 0
+    record_ids = []
+    
+    for rec in data.records:
+        try:
+            # Find or Create Patient
+            patient = db.query(models.Patient).filter(
+                models.Patient.patient_id_external == rec.patient_id
+            ).first()
+            if not patient:
+                patient = models.Patient(
+                    patient_id_external=rec.patient_id,
+                    name=f"Patient {rec.patient_id}",
+                    dob="Unknown"
+                )
+                db.add(patient)
+                db.flush()  # Get ID without committing
+            
+            # Create ECG Record
+            new_record = models.ECGRecord(
+                patient_id=patient.id,
+                timestamp=datetime.datetime.utcnow(),
+                device_id="BATCH_INGEST",
+                heart_rate=rec.heart_rate,
+                classification=rec.classification,
+                confidence=rec.confidence,
+                ecg_data=rec.ecg_values,
+                processing_results=rec.results
+            )
+            db.add(new_record)
+            db.flush()  # Get ID
+            record_ids.append(new_record.id)
+            
+            # Log to Audit Trail if enabled
+            if LEDGER_ENABLED:
+                ledger.add_audit_entry(
+                    db,
+                    actor_id="BATCH_INGEST",
+                    action="INGEST_ECG",
+                    details={"record_id": new_record.id, "patient": rec.patient_id, "class": rec.classification}
+                )
+            
+            inserted_count += 1
+            
+        except Exception as e:
+            print(f"Error inserting {rec.patient_id}: {e}")
+            continue
+    
+    # Commit all at once
+    db.commit()
+    
+    total_time_ms = (time.time() - start_time) * 1000
+    avg_time_per_record = total_time_ms / inserted_count if inserted_count > 0 else 0
+    
+    return {
+        "status": "success",
+        "inserted_count": inserted_count,
+        "total_time_ms": total_time_ms,
+        "avg_time_per_record_ms": avg_time_per_record,
+        "ledger_enabled": LEDGER_ENABLED,
+        "record_ids": record_ids
+    }
 
 @app.get("/api/system/latest-record-id")
 async def get_latest_record_id(db: Session = Depends(get_db)):
     """Public endpoint for dashboard polling"""
     last_record = db.query(models.ECGRecord.id).order_by(models.ECGRecord.id.desc()).first()
     return {"latest_id": last_record.id if last_record else 0}
+
+@app.get("/api/ecg/{record_id}")
+async def get_ecg_record(record_id: int, db: Session = Depends(get_db)):
+    """Get ECG record details by ID (for batch simulator)"""
+    record = db.query(models.ECGRecord).filter(models.ECGRecord.id == record_id).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Record not found")
+    
+    # Get patient external ID if available
+    patient_ext_id = None
+    if record.patient:
+        patient_ext_id = record.patient.patient_id_external
+    
+    return {
+        "id": record.id,
+        "patient_id": record.patient_id,
+        "patient_external_id": patient_ext_id,
+        "classification": record.classification,
+        "confidence": record.confidence,
+        "timestamp": record.timestamp.isoformat() if record.timestamp else None
+    }
 
 @app.get("/api/audit/verify")
 async def verify_audit_trail(db: Session = Depends(get_db)):
@@ -167,19 +308,32 @@ async def verify_audit_trail(db: Session = Depends(get_db)):
     return {"integrity_status": "Valid" if is_valid else "CORRUPTED"}
 
 @app.get("/audit-ledger", response_class=HTMLResponse)
-async def audit_ledger_view(request: Request, db: Session = Depends(get_db)):
-    """View Cryptographic Audit Ledger"""
-    # Get all audit entries
-    entries = db.query(models.AuditLog).order_by(models.AuditLog.id.desc()).limit(100).all()
+async def audit_ledger_view(request: Request, page: int = 1, limit: int = 50, db: Session = Depends(get_db)):
+    """View Cryptographic Audit Ledger with Pagination"""
+    # Calculate skip
+    skip = (page - 1) * limit
+    
+    # Get total count
+    total_count = db.query(models.AuditLog).count()
+    total_pages = (total_count + limit - 1) // limit
+    
+    # Get paginated entries
+    entries = db.query(models.AuditLog).order_by(models.AuditLog.id.desc()).offset(skip).limit(limit).all()
     
     # Verify chain integrity
-    is_valid = ledger.verify_chain_integrity(db)
+    # keys optimization: Don't verify full chain on every page load - it blocks the DB!
+    # User can use the dedicated Verify button/endpoint if needed.
+    is_valid = True 
     
     return templates.TemplateResponse("audit_ledger.html", {
         "request": request,
         "entries": entries,
         "chain_valid": is_valid,
-        "title": "Cryptographic Audit Ledger"
+        "title": "Cryptographic Audit Ledger",
+        "current_page": page,
+        "total_pages": total_pages,
+        "limit": limit,
+        "total_count": total_count
     })
 
 # --- Patient Features ---

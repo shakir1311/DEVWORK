@@ -238,6 +238,65 @@ class EDGEGUI(QMainWindow):
         
         info_layout.addSpacing(10)
         
+        # ============= Bulk Experiment Section =============
+        experiment_label = QLabel("Bulk Experiment:")
+        experiment_label.setStyleSheet("font-weight: bold;")
+        info_layout.addWidget(experiment_label)
+        
+        # Ledger checkbox
+        from PyQt6.QtWidgets import QCheckBox, QProgressBar
+        self.ledger_checkbox = QCheckBox("Ledger Enabled")
+        self.ledger_checkbox.setChecked(True)
+        self.ledger_checkbox.setToolTip("Toggle cryptographic ledger for performance comparison")
+        info_layout.addWidget(self.ledger_checkbox)
+        
+        # XAI checkbox
+        self.xai_checkbox = QCheckBox("XAI Enabled")
+        self.xai_checkbox.setChecked(True)
+        self.xai_checkbox.setToolTip("Toggle XAI explanations (disable for ~50% faster inference)")
+        info_layout.addWidget(self.xai_checkbox)
+        
+        # Experiment buttons
+        experiment_btns = QHBoxLayout()
+        
+        self.bulk_start_btn = QPushButton("🚀 Run Bulk Experiment")
+        self.bulk_start_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #28a745;
+                color: white;
+                font-weight: bold;
+                padding: 8px;
+                border-radius: 5px;
+            }
+            QPushButton:hover { background-color: #218838; }
+            QPushButton:disabled { background-color: #cccccc; }
+        """)
+        self.bulk_start_btn.clicked.connect(self._on_bulk_experiment_start)
+        experiment_btns.addWidget(self.bulk_start_btn)
+        
+        self.bulk_stop_btn = QPushButton("⏹")
+        self.bulk_stop_btn.setFixedWidth(40)
+        self.bulk_stop_btn.setEnabled(False)
+        self.bulk_stop_btn.clicked.connect(self._on_bulk_experiment_stop)
+        experiment_btns.addWidget(self.bulk_stop_btn)
+        
+        info_layout.addLayout(experiment_btns)
+        
+        # Progress bar
+        self.bulk_progress = QProgressBar()
+        self.bulk_progress.setValue(0)
+        self.bulk_progress.setFormat("%v / %m (%p%)")
+        info_layout.addWidget(self.bulk_progress)
+        
+        # Progress label
+        self.bulk_progress_label = QLabel("Ready to run experiment")
+        self.bulk_progress_label.setStyleSheet("color: #666; font-size: 9pt;")
+        info_layout.addWidget(self.bulk_progress_label)
+        
+        self.bulk_worker = None
+        
+        info_layout.addSpacing(10)
+        
         # Fetch ECG Data button
         self.fetch_btn = QPushButton("📥 Fetch ECG Data")
         self.fetch_btn.setStyleSheet("""
@@ -687,6 +746,94 @@ class EDGEGUI(QMainWindow):
         # Emit a special signal or just log - actual refresh done by main.py
         # For now we'll just log, main.py will need to call update_models_list
         self.signal_emitter.model_changed.emit("__REFRESH__")
+    
+    def set_processor_pipeline(self, pipeline):
+        """Store reference to processor pipeline for bulk experiments."""
+        self._processor_pipeline = pipeline
+    
+    def _on_bulk_experiment_start(self):
+        """Start bulk experiment."""
+        from bulk_experiment import BulkExperimentWorker
+        
+        if not hasattr(self, '_processor_pipeline') or not self._processor_pipeline:
+            self.log_message("Error: Processor pipeline not set", "error")
+            return
+        
+        ledger_enabled = self.ledger_checkbox.isChecked()
+        ledger_status = "ON" if ledger_enabled else "OFF"
+        xai_enabled = self.xai_checkbox.isChecked()
+        xai_status = "ON" if xai_enabled else "OFF"
+        
+        self.log_message(f"Starting bulk experiment (Ledger: {ledger_status}, XAI: {xai_status})...", "info")
+        
+        # Create worker
+        self.bulk_worker = BulkExperimentWorker(self._processor_pipeline)
+        self.bulk_worker.configure(
+            experiment_name=f"bulk_ledger_{ledger_status.lower()}_xai_{xai_status.lower()}",
+            ledger_enabled=ledger_enabled,
+            xai_enabled=xai_enabled
+        )
+        
+        # Connect signals
+        self.bulk_worker.sig_progress.connect(self._on_bulk_progress)
+        self.bulk_worker.sig_status.connect(self._on_bulk_status)
+        self.bulk_worker.sig_error.connect(self._on_bulk_error)
+        self.bulk_worker.sig_finished.connect(self._on_bulk_finished)
+        
+        # Update UI
+        self.bulk_start_btn.setEnabled(False)
+        self.bulk_stop_btn.setEnabled(True)
+        self.ledger_checkbox.setEnabled(False)
+        self.xai_checkbox.setEnabled(False)
+        self.bulk_progress.setValue(0)
+        
+        # Start
+        self.bulk_worker.start()
+    
+    def _on_bulk_experiment_stop(self):
+        """Stop bulk experiment."""
+        if self.bulk_worker:
+            self.bulk_worker.stop()
+            self.log_message("Stopping experiment...", "warning")
+    
+    def _on_bulk_progress(self, current: int, total: int, patient_id: str):
+        """Handle progress update."""
+        self.bulk_progress.setMaximum(total)
+        self.bulk_progress.setValue(current)
+        self.bulk_progress_label.setText(f"Processing: {patient_id}")
+    
+    def _on_bulk_status(self, status: str):
+        """Handle status update."""
+        self.bulk_progress_label.setText(status)
+        self.log_message(status, "info")
+    
+    def _on_bulk_error(self, error: str):
+        """Handle error."""
+        self.log_message(f"Experiment error: {error}", "error")
+        self._reset_bulk_ui()
+    
+    def _on_bulk_finished(self, summary: dict):
+        """Handle experiment completion."""
+        accuracy = summary.get('accuracy', 0) * 100
+        portal_stats = summary.get('portal_insert', {})
+        avg_time = portal_stats.get('avg_time_per_record_ms', 0)
+        ledger_status = "ON" if summary.get('ledger_enabled', True) else "OFF"
+        
+        self.log_message(
+            f"✓ Experiment complete: {accuracy:.1f}% accuracy, "
+            f"{avg_time:.2f}ms/record (Ledger: {ledger_status})",
+            "success"
+        )
+        self.bulk_progress_label.setText(f"Complete: {accuracy:.1f}% accuracy")
+        self._reset_bulk_ui()
+    
+    def _reset_bulk_ui(self):
+        """Reset bulk experiment UI after completion."""
+        self.bulk_start_btn.setEnabled(True)
+        self.bulk_stop_btn.setEnabled(False)
+        self.ledger_checkbox.setEnabled(True)
+        self.xai_checkbox.setEnabled(True)
+        self.bulk_worker = None
     
     def get_signal_emitter(self) -> ECGDataSignal:
         """Get the signal emitter for thread-safe updates."""
