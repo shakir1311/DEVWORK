@@ -114,6 +114,15 @@ async def view_ecg(record_id: int, request: Request, db: Session = Depends(get_d
     if isinstance(results, str):
         results = json.loads(results)
         
+    if LEDGER_ENABLED:
+        # Log this view action to the immutable ledger
+        ledger.add_audit_entry(
+            db,
+            actor_id="CLINICIAN_VIEW", # User auth would populate actual ID
+            action="VIEW_ECG",
+            details={"record_id": record.id, "patient": record.patient.patient_id_external}
+        )
+        
     return templates.TemplateResponse("ecg_view.html", {
         "request": request,
         "record": record,
@@ -158,6 +167,11 @@ async def ingest_ecg(data: ECGIngestSchema, db: Session = Depends(get_db)):
     confidence = ml_results.get('confidence', 0.0)
     bpm = hr_results.get('heart_rate_bpm', 0.0)
     
+    # Firmware / Provenance
+    model_version = ml_results.get('model_version', None)
+    model_hash = ml_results.get('model_hash', None)
+    data_hash = ml_results.get('data_hash', None)
+    
     # 4. Create ECG Record
     new_record = models.ECGRecord(
         patient_id=patient.id,
@@ -166,6 +180,9 @@ async def ingest_ecg(data: ECGIngestSchema, db: Session = Depends(get_db)):
         heart_rate=bpm,
         classification=classification,
         confidence=confidence,
+        model_version=model_version,
+        model_hash=model_hash,
+        data_hash=data_hash,
         ecg_data=data.ecg_values, # Stores as JSON
         processing_results=data.results
     )
@@ -180,7 +197,14 @@ async def ingest_ecg(data: ECGIngestSchema, db: Session = Depends(get_db)):
             db, 
             actor_id=f"DEVICE_{meta.get('device_id')}", 
             action="INGEST_ECG", 
-            details={"record_id": new_record.id, "patient": p_id_ext, "class": classification}
+            details={
+                "record_id": new_record.id, 
+                "patient": p_id_ext, 
+                "class": classification,
+                "model_version": model_version,
+                "model_hash": model_hash,
+                "data_hash": data_hash
+            }
         )
     
     return {"status": "success", "record_id": new_record.id, "ledger_enabled": LEDGER_ENABLED}
@@ -229,6 +253,12 @@ async def batch_ingest_ecg(data: BatchIngestSchema, db: Session = Depends(get_db
                 db.add(patient)
                 db.flush()  # Get ID without committing
             
+            # Extract Provenance
+            ml_results = rec.results.get('results', {}).get('ml_inference', {})
+            model_version = ml_results.get('model_version', None)
+            model_hash = ml_results.get('model_hash', None)
+            data_hash = ml_results.get('data_hash', None)
+            
             # Create ECG Record
             new_record = models.ECGRecord(
                 patient_id=patient.id,
@@ -237,6 +267,9 @@ async def batch_ingest_ecg(data: BatchIngestSchema, db: Session = Depends(get_db
                 heart_rate=rec.heart_rate,
                 classification=rec.classification,
                 confidence=rec.confidence,
+                model_version=model_version,
+                model_hash=model_hash,
+                data_hash=data_hash,
                 ecg_data=rec.ecg_values,
                 processing_results=rec.results
             )
@@ -250,7 +283,14 @@ async def batch_ingest_ecg(data: BatchIngestSchema, db: Session = Depends(get_db
                     db,
                     actor_id="BATCH_INGEST",
                     action="INGEST_ECG",
-                    details={"record_id": new_record.id, "patient": rec.patient_id, "class": rec.classification}
+                    details={
+                        "record_id": new_record.id, 
+                        "patient": rec.patient_id, 
+                        "class": rec.classification,
+                        "model_version": model_version,
+                        "model_hash": model_hash,
+                        "data_hash": data_hash
+                    }
                 )
             
             inserted_count += 1
@@ -299,6 +339,61 @@ async def get_ecg_record(record_id: int, db: Session = Depends(get_db)):
         "classification": record.classification,
         "confidence": record.confidence,
         "timestamp": record.timestamp.isoformat() if record.timestamp else None
+    }
+
+@app.get("/api/ecg/{record_id}/provenance")
+async def get_ecg_provenance(record_id: int, db: Session = Depends(get_db)):
+    """API endpoint to fetch full tamper-evident cryptographic provenance for a record."""
+    record = db.query(models.ECGRecord).filter(models.ECGRecord.id == record_id).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Record not found")
+        
+    # Find Ledger blocks
+    audit_entries = db.query(models.AuditLog).filter(
+        models.AuditLog.details.like(f'%"record_id": {record_id}%')
+    ).order_by(models.AuditLog.timestamp.asc()).all()
+    
+    if not audit_entries:
+        return {"status": "error", "message": "No ledger entry found for this transaction. The transaction was likely handled outside of the blockchain context.", "ledger_valid": False}
+        
+    history = []
+    ledger_valid = True
+    
+    for entry in audit_entries:
+        # Verify the specific block integrity by re-computing its hash
+        calculated_hash = ledger.calculate_hash(
+            entry.prev_hash,
+            str(entry.timestamp),
+            entry.actor_id,
+            entry.action,
+            entry.details
+        )
+        is_val = (calculated_hash == entry.record_hash)
+        if not is_val:
+            ledger_valid = False
+            
+        history.append({
+            "action": entry.action,
+            "actor_id": entry.actor_id,
+            "timestamp": entry.timestamp.isoformat() if entry.timestamp else None,
+            "record_hash": entry.record_hash,
+            "prev_hash": entry.prev_hash,
+            "is_valid": is_val
+        })
+        
+    # The primary hash for the modal header is from the creation event
+    ingest_entry = next((e for e in audit_entries if e.action == "INGEST_ECG"), audit_entries[0])
+    
+    return {
+        "status": "success",
+        "ledger_valid": ledger_valid, # True only if ALL historical blocks are valid
+        "record_hash": ingest_entry.record_hash,
+        "prev_hash": ingest_entry.prev_hash,
+        "data_hash": record.data_hash,
+        "model_hash": record.model_hash,
+        "model_version": record.model_version,
+        "timestamp": ingest_entry.timestamp.isoformat() if ingest_entry.timestamp else None,
+        "history": history
     }
 
 @app.get("/api/audit/verify")

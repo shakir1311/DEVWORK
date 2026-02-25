@@ -22,6 +22,9 @@ PACKAGE_MAPPING = {
     # Add more mappings as needed
 }
 
+# Local modules that shouldn't be piped
+LOCAL_MODULES = {"database", "models", "ledger"}
+
 # Standard library modules to ignore
 STD_LIB = set(sys.builtin_module_names) | {
     "os", "sys", "re", "json", "time", "datetime", "math", "random",
@@ -90,7 +93,7 @@ def resolve_packages(imports):
     """Resolves import names to PyPI package names."""
     required_packages = set()
     for imp in imports:
-        if imp in STD_LIB:
+        if imp in STD_LIB or imp in LOCAL_MODULES:
             continue
         
         if imp.startswith("_"): continue 

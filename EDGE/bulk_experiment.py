@@ -381,6 +381,12 @@ class BulkExperimentWorker(QThread):
                 db.add(patient)
                 db.flush()
             
+            # Extract hashes for provenance
+            ml_results = results.get('results', {}).get('ml_inference', {})
+            model_version = ml_results.get('model_version')
+            model_hash = ml_results.get('model_hash')
+            data_hash = ml_results.get('data_hash')
+
             # Create ECG record
             new_record = models.ECGRecord(
                 patient_id=patient.id,
@@ -389,6 +395,9 @@ class BulkExperimentWorker(QThread):
                 heart_rate=heart_rate,
                 classification=classification,
                 confidence=confidence,
+                model_version=model_version,
+                model_hash=model_hash,
+                data_hash=data_hash,
                 ecg_data=ecg_values,
                 processing_results=results
             )
@@ -401,7 +410,14 @@ class BulkExperimentWorker(QThread):
                     db,
                     actor_id="BULK_EXPERIMENT",
                     action="INGEST_ECG",
-                    details={"record_id": new_record.id, "patient": patient_id},
+                    details={
+                        "record_id": new_record.id, 
+                        "patient": patient_id,
+                        "class": classification,
+                        "model_version": model_version,
+                        "model_hash": model_hash,
+                        "data_hash": data_hash
+                    },
                     auto_commit=auto_commit  # Pass through for batch mode
                 )
             
@@ -450,6 +466,12 @@ class BulkExperimentWorker(QThread):
                         db.add(patient)
                         db.flush()
                     
+                    # Extract hashes for provenance
+                    ml_results = rec.get('results', {}).get('ml_inference', {})
+                    model_version = ml_results.get('model_version')
+                    model_hash = ml_results.get('model_hash')
+                    data_hash = ml_results.get('data_hash')
+
                     # Create ECG record
                     new_record = models.ECGRecord(
                         patient_id=patient.id,
@@ -458,6 +480,9 @@ class BulkExperimentWorker(QThread):
                         heart_rate=rec.get('heart_rate', 0.0),
                         classification=rec.get('classification', '?'),
                         confidence=rec.get('confidence', 0.0),
+                        model_version=model_version,
+                        model_hash=model_hash,
+                        data_hash=data_hash,
                         ecg_data=rec.get('ecg_values', []),
                         processing_results=rec.get('results', {})
                     )
@@ -470,7 +495,14 @@ class BulkExperimentWorker(QThread):
                             db,
                             actor_id="BULK_EXPERIMENT",
                             action="INGEST_ECG",
-                            details={"record_id": new_record.id, "patient": patient_id}
+                            details={
+                                "record_id": new_record.id, 
+                                "patient": patient_id,
+                                "class": rec.get('classification'),
+                                "model_version": model_version,
+                                "model_hash": model_hash,
+                                "data_hash": data_hash
+                            }
                         )
                     
                     inserted_count += 1

@@ -39,6 +39,11 @@ class ECGRecord(Base):
     classification = Column(String) # N, A, O, ~
     confidence = Column(Float)
     
+    # Tamper-Evident Provenance
+    model_version = Column(String, nullable=True)
+    model_hash = Column(String, nullable=True)
+    data_hash = Column(String, nullable=True)
+    
     # Data Storage (JSON blobs)
     ecg_data = Column(JSON) # The raw/filtered samples
     processing_results = Column(JSON) # Full results dict

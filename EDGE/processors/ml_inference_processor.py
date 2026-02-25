@@ -142,6 +142,8 @@ class MLInferenceProcessor(ECGProcessor):
         self.current_model = None
         self.current_model_path = None
         self.current_model_type = None
+        self.current_model_hash = None
+        self.current_model_version = None
         self.device = None
         self.skip_xai = False  # Set to True for bulk experiments
         
@@ -250,6 +252,21 @@ class MLInferenceProcessor(ECGProcessor):
         """Rescan models directory."""
         self._available_models = self._scan_models()
         return self._available_models
+        
+    def _compute_file_hash(self, file_path: str) -> str:
+        """Compute SHA-256 hash of a file."""
+        if not os.path.exists(file_path):
+            return "unknown"
+        import hashlib
+        try:
+            sha256_hash = hashlib.sha256()
+            with open(file_path, "rb") as f:
+                for byte_block in iter(lambda: f.read(4096), b""):
+                    sha256_hash.update(byte_block)
+            return sha256_hash.hexdigest()
+        except Exception as e:
+            logger.error(f"[MLInference] Failed to compute hash for {file_path}: {e}")
+            return "error"
     
     def _load_ecg_dualnet(self) -> bool:
         """Load pretrained ECG-DualNet model from local ecg_dualnet folder."""
@@ -283,9 +300,11 @@ class MLInferenceProcessor(ECGProcessor):
                 device=device_str,
                 model_path=pretrained_path
             )
-            self.current_model_path = 'ECG-DualNet-S (Pretrained)'
+            self.current_model_path = pretrained_path
             self.current_model_type = 'ecg_dualnet'
-            logger.info("[MLInference] Loaded ECG-DualNet-S pretrained model (86.34% accuracy)")
+            self.current_model_hash = self._compute_file_hash(pretrained_path)
+            self.current_model_version = 'ECG-DualNet-S-v1.0'
+            logger.info(f"[MLInference] Loaded ECG-DualNet-S pretrained model (Hash: {self.current_model_hash[:8]})")
             return True
         except Exception as e:
             logger.error(f"[MLInference] Failed to load ECG-DualNet: {e}", exc_info=True)
@@ -414,7 +433,9 @@ class MLInferenceProcessor(ECGProcessor):
             
             self.current_model_path = model_path
             self.current_model_type = model_type
-            logger.info(f"[MLInference] Loaded model: {filename} ({model_type})")
+            self.current_model_hash = self._compute_file_hash(model_path)
+            self.current_model_version = filename
+            logger.info(f"[MLInference] Loaded model: {filename} ({model_type}) Hash: {self.current_model_hash[:8]}")
             return True
             
         except Exception as e:
@@ -465,10 +486,19 @@ class MLInferenceProcessor(ECGProcessor):
         Returns:
             Dictionary with classification results
         """
+        # Calculate Input Data Hash
+        import hashlib
+        import json
+        ecg_list = ecg_data.tolist() if hasattr(ecg_data, 'tolist') else list(ecg_data)
+        data_hash = hashlib.sha256(json.dumps(ecg_list).encode('utf-8')).hexdigest()
+        
         results = {
             'model_loaded': self.current_model is not None,
             'model_path': self.current_model_path,
             'model_type': self.current_model_type,
+            'model_hash': getattr(self, 'current_model_hash', None),
+            'model_version': getattr(self, 'current_model_version', None),
+            'data_hash': data_hash,
             'classification': None,
             'classification_description': None,
             'confidence': None,

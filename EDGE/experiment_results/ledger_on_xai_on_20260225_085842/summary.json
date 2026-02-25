@@ -1,0 +1,16 @@
+{
+  "experiment_name": "bulk_ledger_on_xai_on",
+  "timestamp": "2026-02-25T09:00:52.688809",
+  "total_records": 150,
+  "successful_inferences": 150,
+  "accuracy": 0.8533333333333334,
+  "correct_predictions": 128,
+  "inference_time_seconds": 123.77778601646423,
+  "portal_insert": {
+    "inserted_count": 150,
+    "total_time_ms": 6266.607999801636,
+    "avg_time_per_record_ms": 41.77738666534424,
+    "ledger_enabled": true
+  },
+  "ledger_enabled": true
+}

@@ -266,6 +266,12 @@ class BatchSimulatorWorker(QThread):
                         db.add(patient)
                         db.flush()
                     
+                    # Extract Provenance Hashes
+                    ml_results = rec.get('results', {}).get('ml_inference', {})
+                    model_version = ml_results.get('model_version')
+                    model_hash = ml_results.get('model_hash')
+                    data_hash = ml_results.get('data_hash')
+
                     # Create ECG record with raw waveform
                     new_record = models.ECGRecord(
                         patient_id=patient.id,
@@ -274,6 +280,9 @@ class BatchSimulatorWorker(QThread):
                         heart_rate=rec.get('heart_rate', 0.0),
                         classification=rec.get('classification', '?'),
                         confidence=rec.get('confidence', 0.0),
+                        model_version=model_version,
+                        model_hash=model_hash,
+                        data_hash=data_hash,
                         ecg_data=rec.get('ecg_values', []),
                         processing_results=rec.get('results', {})
                     )
@@ -287,7 +296,14 @@ class BatchSimulatorWorker(QThread):
                             db,
                             actor_id="BATCH_EXPERIMENT",
                             action="INGEST_ECG",
-                            details={"record_id": new_record.id, "patient": patient_id, "class": rec.get('classification')}
+                            details={
+                                "record_id": new_record.id, 
+                                "patient": patient_id, 
+                                "class": rec.get('classification'),
+                                "model_version": model_version,
+                                "model_hash": model_hash,
+                                "data_hash": data_hash
+                            }
                         )
                     
                     inserted_count += 1

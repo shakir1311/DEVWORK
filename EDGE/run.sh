@@ -121,8 +121,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # Set paths for subsequent use
-PYTHON="python3"
-PIP="pip"
+PYTHON="./venv/bin/python3"
+PIP="./venv/bin/pip"
 
 echo ""
 
