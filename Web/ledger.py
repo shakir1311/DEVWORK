@@ -1,15 +1,29 @@
 import hashlib
+import hmac
 import json
 import datetime
+import os
 from sqlalchemy.orm import Session
 import models
 
+# HMAC secret key — stored outside the database so an attacker with DB-only
+# access cannot recompute valid hashes after tampering with field values.
+# Falls back to a dev-only default; production MUST set the env var.
+LEDGER_HMAC_KEY = os.getenv(
+    "LEDGER_HMAC_KEY",
+    "CHANGE_ME_IN_PRODUCTION_phd_ledger_hmac_secret"
+).encode("utf-8")
+
+
 def calculate_hash(prev_hash: str, timestamp: str, actor_id: str, action: str, details: str) -> str:
     """
-    Calculate SHA-256 hash of a block.
+    Calculate HMAC-SHA256 of a ledger block using a server-side secret key.
+    An attacker with database-only access cannot forge valid hashes without
+    possessing LEDGER_HMAC_KEY.
     """
     payload = f"{prev_hash}{timestamp}{actor_id}{action}{details}"
-    return hashlib.sha256(payload.encode('utf-8')).hexdigest()
+    return hmac.new(LEDGER_HMAC_KEY, payload.encode("utf-8"), hashlib.sha256).hexdigest()
+
 
 def add_audit_entry(db: Session, actor_id: str, action: str, details: dict, auto_commit: bool = True):
     """
@@ -22,20 +36,16 @@ def add_audit_entry(db: Session, actor_id: str, action: str, details: dict, auto
         details: Action details dict
         auto_commit: If True (default), commits immediately. Set False for batch operations.
     """
-    # 1. Get the last record's hash
     last_entry = db.query(models.AuditLog).order_by(models.AuditLog.id.desc()).first()
     
     if last_entry:
         prev_hash = last_entry.record_hash
     else:
-        # Genesis Block Link
         prev_hash = "0" * 64
         
-    # 2. Prepare data
     timestamp = datetime.datetime.utcnow()
-    details_str = json.dumps(details, sort_keys=True) # Sort keys for consistent hashing
+    details_str = json.dumps(details, sort_keys=True)
     
-    # 3. Calculate Hash (The "Proof of work" equivalent, though trivial here)
     record_hash = calculate_hash(
         prev_hash, 
         str(timestamp), 
@@ -44,7 +54,6 @@ def add_audit_entry(db: Session, actor_id: str, action: str, details: dict, auto
         details_str
     )
     
-    # 4. Create and Save Record
     new_entry = models.AuditLog(
         timestamp=timestamp,
         actor_id=actor_id,
@@ -59,22 +68,22 @@ def add_audit_entry(db: Session, actor_id: str, action: str, details: dict, auto
         db.commit()
     return new_entry
 
-def verify_chain_integrity(db: Session) -> bool:
+
+def verify_chain_integrity(db: Session) -> dict:
     """
     Verify the entire cryptographic audit ledger for tampering.
-    Returns True if valid, False if tampering detected.
+    Returns a dict with detailed results instead of a simple bool so the
+    caller can report exactly which block failed.
     """
     entries = db.query(models.AuditLog).order_by(models.AuditLog.id.asc()).all()
     
     expected_prev_hash = "0" * 64
     
     for entry in entries:
-        # 1. Check if points to correct previous
         if entry.prev_hash != expected_prev_hash:
             print(f"Broken Link at ID {entry.id}! PrevHash mismatch.")
-            return False
+            return {"valid": False, "failed_id": entry.id, "reason": "prev_hash link broken"}
             
-        # 2. specific hash check
         calculated = calculate_hash(
             entry.prev_hash,
             str(entry.timestamp),
@@ -85,8 +94,127 @@ def verify_chain_integrity(db: Session) -> bool:
         
         if calculated != entry.record_hash:
             print(f"Data Tampering at ID {entry.id}! Hash mismatch.")
-            return False
+            return {"valid": False, "failed_id": entry.id, "reason": "record_hash mismatch"}
             
         expected_prev_hash = entry.record_hash
         
-    return True
+    return {"valid": True, "total_blocks": len(entries)}
+
+
+def verify_all_blocks(db: Session) -> list:
+    """
+    Verify every block individually and return a list of per-block results.
+    Unlike verify_chain_integrity (which stops at the first failure), this
+    walks the entire chain so the UI can mark each block as valid/invalid.
+    """
+    entries = db.query(models.AuditLog).order_by(models.AuditLog.id.asc()).all()
+    results = {}
+    expected_prev_hash = "0" * 64
+
+    for entry in entries:
+        link_ok = (entry.prev_hash == expected_prev_hash)
+
+        calculated = calculate_hash(
+            entry.prev_hash,
+            str(entry.timestamp),
+            entry.actor_id,
+            entry.action,
+            entry.details
+        )
+        hash_ok = (calculated == entry.record_hash)
+
+        valid = link_ok and hash_ok
+        reason = "valid"
+        if not link_ok:
+            reason = "prev_hash link broken"
+        elif not hash_ok:
+            reason = "record_hash mismatch"
+
+        results[entry.id] = {
+            "valid": valid,
+            "reason": reason,
+        }
+
+        expected_prev_hash = entry.record_hash
+
+    return results
+
+
+def verify_ecg_data_integrity(db: Session, record_id: int) -> dict:
+    """
+    Field-level tamper detection for an ECG record.
+
+    1. Re-derive SHA-256 of ecg_data and compare to the stored data_hash.
+    2. Look up the INGEST_ECG audit entry and compare the current DB field
+       values against the snapshot captured at ingest time, reporting every
+       field that differs.
+    """
+    record = db.query(models.ECGRecord).filter(models.ECGRecord.id == record_id).first()
+    if not record:
+        return {"valid": False, "reason": "record_not_found", "tampered_fields": []}
+
+    tampered_fields = []
+
+    # --- 1. ECG raw-data hash check ---
+    data_hash_ok = True
+    stored_hash = record.data_hash
+    recomputed_hash = None
+
+    if not stored_hash:
+        data_hash_ok = False
+    else:
+        ecg_data = record.ecg_data
+        if ecg_data is None:
+            data_hash_ok = False
+        else:
+            ecg_list = json.loads(ecg_data) if isinstance(ecg_data, str) else list(ecg_data)
+            recomputed_hash = hashlib.sha256(json.dumps(ecg_list).encode("utf-8")).hexdigest()
+            if recomputed_hash != stored_hash:
+                data_hash_ok = False
+                tampered_fields.append("ecg_data")
+
+    # --- 2. Cross-reference against ledger snapshot ---
+    ingest_entry = db.query(models.AuditLog).filter(
+        models.AuditLog.action == "INGEST_ECG",
+        models.AuditLog.details.like(f'%"record_id": {record_id}%')
+    ).first()
+
+    if ingest_entry:
+        try:
+            snapshot = json.loads(ingest_entry.details)
+        except (json.JSONDecodeError, TypeError):
+            snapshot = {}
+
+        if "class" in snapshot and snapshot["class"] != record.classification:
+            tampered_fields.append("classification")
+
+        if "data_hash" in snapshot and snapshot["data_hash"] != record.data_hash:
+            tampered_fields.append("data_hash")
+
+        if "model_hash" in snapshot and snapshot["model_hash"] != record.model_hash:
+            tampered_fields.append("model_hash")
+
+        if "model_version" in snapshot and snapshot["model_version"] != record.model_version:
+            tampered_fields.append("model_version")
+
+        if "patient" in snapshot and record.patient:
+            if snapshot["patient"] != record.patient.patient_id_external:
+                tampered_fields.append("patient")
+
+    no_hash = (stored_hash is None)
+    valid = data_hash_ok and len(tampered_fields) == 0
+
+    reason = "match"
+    if no_hash and len(tampered_fields) == 0:
+        reason = "no_data_hash_stored"
+        valid = False
+    elif not valid:
+        reason = "fields_tampered"
+
+    return {
+        "valid": valid,
+        "stored_hash": stored_hash,
+        "recomputed_hash": recomputed_hash,
+        "reason": reason,
+        "tampered_fields": tampered_fields,
+    }

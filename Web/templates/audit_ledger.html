@@ -140,6 +140,11 @@
         color: #f57c00;
     }
 
+    .action-entity {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -168,6 +173,101 @@
         letter-spacing: 0.5px;
         margin-top: 0.5rem;
     }
+
+    .block-integrity {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+    }
+
+    .block-integrity-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .block-integrity-icon.pending {
+        background: #e9ecef;
+        color: #6c757d;
+    }
+
+    .block-integrity-icon.valid {
+        background: #d4edda;
+        color: var(--chain-valid);
+    }
+
+    .block-integrity-icon.invalid {
+        background: #f8d7da;
+        color: var(--chain-invalid);
+        animation: pulse-red 2s infinite;
+    }
+
+    .block-card.block-invalid {
+        border-left-color: var(--chain-invalid);
+        background: #fff5f5;
+    }
+
+    .block-card.block-valid {
+        border-left-color: var(--chain-valid);
+    }
+
+    .block.hidden-by-filter {
+        display: none;
+    }
+
+    .filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.4rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 2px solid;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .filter-btn-invalid {
+        border-color: var(--chain-invalid);
+        background: white;
+        color: var(--chain-invalid);
+    }
+
+    .filter-btn-invalid:hover,
+    .filter-btn-invalid.active {
+        background: var(--chain-invalid);
+        color: white;
+    }
+
+    .filter-btn-all {
+        border-color: #1e3c72;
+        background: white;
+        color: #1e3c72;
+    }
+
+    .filter-btn-all:hover,
+    .filter-btn-all.active {
+        background: #1e3c72;
+        color: white;
+    }
+
+    .filter-count {
+        font-size: 0.75rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 1rem;
+        background: rgba(0,0,0,0.1);
+        margin-left: 0.25rem;
+    }
 </style>
 
 <div class="container mt-4 mb-5">
@@ -185,26 +285,15 @@
                 </h2>
                 <p class="mb-0 opacity-75">Immutable cryptographic audit trail for all system activities</p>
             </div>
-            <div>
-                {% if chain_valid %}
-                <span class="integrity-badge integrity-valid">
+            <div id="integrity-container">
+                <span id="integrity-badge" class="integrity-badge" style="background: #6c757d; color: white;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                        class="bi bi-hourglass-split" viewBox="0 0 16 16">
+                        <path d="M2.5 15a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11zm2-13v1c0 .537.12 1.045.337 1.5h6.326c.216-.455.337-.963.337-1.5V2h-7zm3 6.35c0 .701-.478 1.236-1.011 1.492A3.5 3.5 0 0 0 4.5 13s.866-1.299 3-1.48V8.35zm1 0v3.17c2.134.181 3 1.48 3 1.48a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351z"/>
                     </svg>
-                    Chain Integrity: VALID
+                    Verifying chain...
                 </span>
-                {% else %}
-                <span class="integrity-badge integrity-invalid">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                        class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-                    </svg>
-                    Chain Integrity: COMPROMISED
-                </span>
-                {% endif %}
+                <div id="integrity-detail" style="margin-top: 8px; font-size: 0.8rem; opacity: 0.85; display: none;"></div>
             </div>
         </div>
     </div>
@@ -212,19 +301,19 @@
     <!-- Statistics -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-value">{{ entries|length }}</div>
+            <div class="stat-value">{{ total_count }}</div>
             <div class="stat-label">Total Blocks</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">{{ entries|selectattr('action', 'equalto', 'INGEST_ECG')|list|length }}</div>
-            <div class="stat-label">Data Ingestions</div>
+            <div class="stat-label">Data Ingestions (this page)</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">{{ entries|selectattr('action', 'equalto', 'LOGIN_SUCCESS')|list|length }}</div>
-            <div class="stat-label">Login Events</div>
+            <div class="stat-label">Login Events (this page)</div>
         </div>
         <div class="stat-card">
-            <div class="stat-value">{% if chain_valid %}100%{% else %}0%{% endif %}</div>
+            <div id="integrity-score" class="stat-value" style="color: #6c757d;">...</div>
             <div class="stat-label">Integrity Score</div>
         </div>
     </div>
@@ -232,24 +321,37 @@
     <!-- Chain Visualization -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-white border-bottom">
-            <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;">Audit Chain Visualization</h5>
-            <small class="text-muted">Most recent 100 blocks (newest first)</small>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;">Audit Chain Visualization</h5>
+                    <small class="text-muted">Showing {{ entries|length }} of {{ total_count }} blocks (newest first)</small>
+                </div>
+                <div class="filter-bar" id="filter-bar" style="display: none;">
+                    <button class="filter-btn filter-btn-all active" id="btn-show-all" onclick="filterBlocks('all')">
+                        Show All <span class="filter-count" id="count-all">...</span>
+                    </button>
+                    <button class="filter-btn filter-btn-invalid" id="btn-show-invalid" onclick="filterBlocks('invalid')">
+                        Show Invalid Only <span class="filter-count" id="count-invalid">...</span>
+                    </button>
+                </div>
+            </div>
         </div>
         <div class="card-body">
             {% if entries %}
             <div class="chain-visualization">
                 {% for entry in entries %}
-                <div class="block">
-                    <div class="block-marker"></div>
-                    <div class="block-card">
+                <div class="block" data-block-id="{{ entry.id }}">
+                    <div class="block-marker" id="marker-{{ entry.id }}"></div>
+                    <div class="block-card" id="card-{{ entry.id }}">
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="d-flex align-items-center mb-2">
                                     <span class="block-id me-3">Block #{{ entry.id }}</span>
                                     <span
-                                        class="action-badge {% if entry.action == 'LOGIN_SUCCESS' %}action-login{% elif entry.action == 'INGEST_ECG' %}action-ingest{% else %}action-view{% endif %}">
+                                        class="action-badge {% if entry.action == 'LOGIN_SUCCESS' %}action-login{% elif entry.action == 'INGEST_ECG' %}action-ingest{% elif entry.action in ['PATIENT_CREATE', 'USER_CREATE'] %}action-entity{% else %}action-view{% endif %}">
                                         {{ entry.action }}
                                     </span>
+                                    <span class="ms-2" id="block-badge-{{ entry.id }}" style="font-size: 0.8rem;"></span>
                                 </div>
 
                                 <div class="mb-2">
@@ -278,6 +380,9 @@
                                     <span class="small text-muted">{{ entry.details }}</span>
                                 </div>
 
+                                <div id="block-reason-{{ entry.id }}" style="display: none; margin-bottom: 0.5rem;">
+                                </div>
+
                                 <div class="row mt-3">
                                     <div class="col-md-6">
                                         <div class="small mb-1"><strong>Current Hash:</strong></div>
@@ -292,13 +397,13 @@
                             </div>
 
                             <div class="col-md-4 d-flex align-items-center justify-content-center">
-                                <div class="text-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#1e3c72"
-                                        class="bi bi-box-seam" viewBox="0 0 16 16">
-                                        <path
-                                            d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z" />
-                                    </svg>
-                                    <div class="mt-2 small text-muted">Cryptographically<br>Sealed Block</div>
+                                <div class="block-integrity" id="block-icon-{{ entry.id }}">
+                                    <div class="block-integrity-icon pending">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M2.5 15a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11zm2-13v1c0 .537.12 1.045.337 1.5h6.326c.216-.455.337-.963.337-1.5V2h-7zm3 6.35c0 .701-.478 1.236-1.011 1.492A3.5 3.5 0 0 0 4.5 13s.866-1.299 3-1.48V8.35zm1 0v3.17c2.134.181 3 1.48 3 1.48a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="small text-muted">Verifying...</div>
                                 </div>
                             </div>
                         </div>
@@ -356,13 +461,13 @@
                 Information</h6>
             <div class="row">
                 <div class="col-md-6">
-                    <p class="small mb-2"><strong>Hash Algorithm:</strong> SHA-256</p>
-                    <p class="small mb-2"><strong>Chain Type:</strong> Hash-Chained Cryptographic Ledger</p>
-                    <p class="small mb-0"><strong>Storage:</strong> SQLite Database</p>
+                    <p class="small mb-2"><strong>Hash Algorithm:</strong> HMAC-SHA256 (keyed)</p>
+                    <p class="small mb-2"><strong>Chain Type:</strong> HMAC Hash-Chained Cryptographic Ledger</p>
+                    <p class="small mb-0"><strong>Storage:</strong> SQLite Database (WAL mode)</p>
                 </div>
                 <div class="col-md-6">
-                    <p class="small mb-2"><strong>Immutability:</strong> Cryptographic Hash Linking</p>
-                    <p class="small mb-2"><strong>Verification:</strong> Real-time Chain Integrity Check</p>
+                    <p class="small mb-2"><strong>Immutability:</strong> Keyed HMAC &mdash; cannot be forged without server secret</p>
+                    <p class="small mb-2"><strong>Verification:</strong> Real-time Chain &amp; ECG Data Integrity Check</p>
                     <p class="small mb-0"><strong>Compliance:</strong> HIPAA Audit Trail Requirements</p>
                 </div>
             </div>
@@ -381,4 +486,119 @@
         </a>
     </div>
 </div>
+
+<script>
+const SVG_VALID_SM = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>`;
+const SVG_INVALID_SM = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>`;
+const SVG_VALID_LG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>`;
+const SVG_INVALID_LG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>`;
+
+let blockResults = {};
+let currentFilter = 'all';
+
+function filterBlocks(mode) {
+    currentFilter = mode;
+    const allBlocks = document.querySelectorAll('.block[data-block-id]');
+    const btnAll = document.getElementById('btn-show-all');
+    const btnInvalid = document.getElementById('btn-show-invalid');
+
+    btnAll.classList.toggle('active', mode === 'all');
+    btnInvalid.classList.toggle('active', mode === 'invalid');
+
+    allBlocks.forEach(el => {
+        const bid = el.getAttribute('data-block-id');
+        const result = blockResults[bid];
+        if (mode === 'invalid') {
+            const isInvalid = result && !result.valid;
+            el.classList.toggle('hidden-by-filter', !isInvalid);
+        } else {
+            el.classList.remove('hidden-by-filter');
+        }
+    });
+}
+
+function annotateBlock(bid, result) {
+    const card = document.getElementById('card-' + bid);
+    const marker = document.getElementById('marker-' + bid);
+    const iconArea = document.getElementById('block-icon-' + bid);
+    const badgeSpan = document.getElementById('block-badge-' + bid);
+    const reasonDiv = document.getElementById('block-reason-' + bid);
+
+    if (!card) return;
+
+    if (result.valid) {
+        card.classList.add('block-valid');
+        marker.style.background = 'var(--chain-valid)';
+        marker.style.boxShadow = '0 0 0 3px var(--chain-valid)';
+        iconArea.innerHTML = `
+            <div class="block-integrity-icon valid">${SVG_VALID_SM}</div>
+            <div class="small" style="color: var(--chain-valid); font-weight: 600;">VERIFIED</div>`;
+        badgeSpan.innerHTML = `<span style="color: var(--chain-valid); font-weight: 600;">&#10003;</span>`;
+    } else {
+        card.classList.add('block-invalid');
+        marker.style.background = 'var(--chain-invalid)';
+        marker.style.boxShadow = '0 0 0 3px var(--chain-invalid)';
+        iconArea.innerHTML = `
+            <div class="block-integrity-icon invalid">${SVG_INVALID_SM}</div>
+            <div class="small" style="color: var(--chain-invalid); font-weight: 600;">CORRUPTED</div>`;
+        badgeSpan.innerHTML = `<span style="color: var(--chain-invalid); font-weight: 600;">&#10007; INVALID</span>`;
+        reasonDiv.style.display = 'block';
+        reasonDiv.innerHTML = `<span class="small" style="color: var(--chain-invalid); font-weight: 600; background: #f8d7da; padding: 3px 8px; border-radius: 4px;">Reason: ${result.reason}</span>`;
+    }
+}
+
+(function () {
+    const badge = document.getElementById('integrity-badge');
+    const detail = document.getElementById('integrity-detail');
+    const score = document.getElementById('integrity-score');
+    const filterBar = document.getElementById('filter-bar');
+
+    fetch('/api/audit/verify-all')
+        .then(r => r.json())
+        .then(data => {
+            blockResults = data.blocks || {};
+            const totalBlocks = data.total_blocks || 0;
+            const invalidCount = data.invalid_count || 0;
+            const isValid = invalidCount === 0;
+
+            // Global badge
+            badge.className = 'integrity-badge ' + (isValid ? 'integrity-valid' : 'integrity-invalid');
+            badge.innerHTML = (isValid ? SVG_VALID_LG : SVG_INVALID_LG) +
+                ' Chain Integrity: ' + (isValid ? 'VALID' : 'COMPROMISED');
+
+            // Integrity score
+            const pct = totalBlocks > 0 ? Math.round(((totalBlocks - invalidCount) / totalBlocks) * 100) : 100;
+            score.textContent = pct + '%';
+            score.style.color = isValid ? 'var(--chain-valid)' : 'var(--chain-invalid)';
+
+            // Detail line
+            detail.style.display = 'block';
+            if (isValid) {
+                detail.textContent = 'All ' + totalBlocks + ' blocks verified (HMAC-SHA256)';
+            } else {
+                detail.textContent = invalidCount + ' of ' + totalBlocks + ' blocks failed verification';
+            }
+
+            // Filter bar counts
+            document.getElementById('count-all').textContent = totalBlocks;
+            document.getElementById('count-invalid').textContent = invalidCount;
+            filterBar.style.display = 'flex';
+
+            // Annotate each block on the current page
+            document.querySelectorAll('.block[data-block-id]').forEach(el => {
+                const bid = el.getAttribute('data-block-id');
+                const result = blockResults[bid];
+                if (result) {
+                    annotateBlock(bid, result);
+                }
+            });
+        })
+        .catch(() => {
+            badge.className = 'integrity-badge integrity-invalid';
+            badge.innerHTML = SVG_INVALID_LG + ' Verification Error';
+            score.textContent = '?';
+            score.style.color = 'var(--chain-invalid)';
+        });
+})();
+</script>
 {% endblock %}

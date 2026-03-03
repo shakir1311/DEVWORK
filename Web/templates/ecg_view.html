@@ -167,17 +167,40 @@
                         '<span style="color: green; font-weight: bold;">✓ VERIFIED in Immutable Ledger</span>' :
                         '<span style="color: red; font-weight: bold;">✗ CORRUPTED / UNVERIFIED</span>';
 
+                    const dataIntegrity = data.data_integrity || {};
+                    const dataValid = dataIntegrity.valid;
+                    const dataStatusColor = dataValid ? 'green' : 'red';
+                    const dataStatusText = dataValid
+                        ? '<span style="color: green; font-weight: bold;">&#10003; DATA INTACT</span>'
+                        : '<span style="color: red; font-weight: bold;">&#10007; DATA TAMPERED</span>';
+
                     content.innerHTML = `
                         <div style="background: #f8f9fa; padding: 15px; margin-bottom: 15px; border-radius: 4px; border-left: 5px solid ${data.ledger_valid ? 'green' : 'red'};">
-                            <h4 style="margin-top: 0; color: #333; margin-bottom: 5px;">Blockchain Audit Status</h4>
+                            <h4 style="margin-top: 0; color: #333; margin-bottom: 5px;">Blockchain Audit Status (HMAC-SHA256)</h4>
                             <div>${ledgerStatus}</div>
                             <div style="margin-top: 10px; font-size: 0.85em; color: #555;">
                                 <div><b>Block Timestamp:</b> ${data.timestamp}</div>
                                 <div><b>Record Hash:</b> <span style="word-break: break-all; color: #0066cc;">${data.record_hash}</span></div>
                                 <div><b>Previous Hash:</b> <span style="word-break: break-all; color: #666;">${data.prev_hash}</span></div>
+                                <div style="margin-top: 4px; font-size: 0.9em; color: #888;">Hashes are keyed (HMAC) &mdash; cannot be forged without the server secret.</div>
                             </div>
                         </div>
                         
+                        <div style="background: #f8f9fa; padding: 15px; margin-bottom: 15px; border-radius: 4px; border-left: 5px solid ${dataStatusColor};">
+                            <h4 style="margin-top: 0; color: #333; margin-bottom: 5px;">ECG Data Integrity Verification</h4>
+                            <div>${dataStatusText}</div>
+                            ${(dataIntegrity.tampered_fields && dataIntegrity.tampered_fields.length > 0) ? `
+                            <div style="margin-top: 10px; padding: 8px 12px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;">
+                                <b style="color: #721c24;">Tampered Fields:</b>
+                                ${dataIntegrity.tampered_fields.map(f => '<span style="display:inline-block; background:#dc3545; color:white; padding:2px 8px; border-radius:3px; font-size:0.8em; margin:2px 3px; font-family:monospace;">' + f + '</span>').join('')}
+                            </div>` : ''}
+                            <div style="margin-top: 10px; font-size: 0.85em; color: #555;">
+                                <div><b>Stored Hash (at ingest):</b> <span style="word-break: break-all; font-family: monospace;">${dataIntegrity.stored_hash || 'N/A'}</span></div>
+                                <div><b>Recomputed Hash (now):</b> <span style="word-break: break-all; font-family: monospace; color: ${dataValid ? '#333' : 'red'};">${dataIntegrity.recomputed_hash || 'N/A'}</span></div>
+                            </div>
+                            <div style="margin-top: 8px; font-size: 0.85em; color: #666;">SHA-256 of stored ECG array is recomputed and compared against the original ingest-time hash. Fields are cross-referenced against the immutable ledger snapshot.</div>
+                        </div>
+
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div style="background: #e9ecef; padding: 15px; border-radius: 4px;">
                                 <h4 style="margin-top: 0; color: #333; margin-bottom: 8px;">AI Model Provenance</h4>

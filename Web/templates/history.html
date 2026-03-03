@@ -99,6 +99,7 @@
                                 <th>Heart Rate (BPM)</th>
                                 <th>Diagnosis</th>
                                 <th>Metrics</th>
+                                <th>Integrity</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -147,4 +148,39 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+(function () {
+    const rows = document.querySelectorAll('tr[data-ecg-id]');
+    const ids = [];
+    rows.forEach(r => ids.push(r.getAttribute('data-ecg-id')));
+    if (ids.length === 0) return;
+
+    fetch('/api/ecg/verify-batch', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({record_ids: ids})
+    })
+    .then(r => r.json())
+    .then(data => {
+        const results = data.results || {};
+        for (const [rid, result] of Object.entries(results)) {
+            const cell = document.getElementById('integrity-' + rid);
+            if (!cell) continue;
+            if (result.valid) {
+                cell.innerHTML = '<span title="Data hash verified" style="color: #00a651; font-weight: 600; font-size: 0.85rem;">&#10003; Valid</span>';
+            } else if (result.reason === 'no_data_hash_stored') {
+                cell.innerHTML = '<span title="No hash was recorded at ingest" style="color: #6c757d; font-size: 0.8rem;">N/A</span>';
+            } else {
+                const fields = result.tampered_fields || [];
+                const fieldList = fields.length > 0
+                    ? '<div style="font-size:0.7rem; color:#d32f2f; margin-top:2px;">' + fields.join(', ') + '</div>'
+                    : '';
+                cell.innerHTML = '<span style="color: #d32f2f; font-weight: 600; font-size: 0.85rem;">&#10007; Corrupt</span>' + fieldList;
+            }
+        }
+    })
+    .catch(() => {});
+})();
+</script>
 {% endblock %}

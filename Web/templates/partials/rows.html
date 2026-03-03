@@ -1,5 +1,5 @@
 {% for record in records %}
-<tr>
+<tr data-ecg-id="{{ record.id }}">
     <td><span style="font-family: 'Courier New', monospace; color: #495057;">ECG-{{ "%05d"|format(record.id) }}</span>
     </td>
     <td><span style="font-family: 'Courier New', monospace; font-weight: 600;">{{ record.patient.patient_id_external
@@ -40,6 +40,9 @@
         {% else %}
         <span style="color: #ccc;">-</span>
         {% endif %}
+    </td>
+    <td class="ecg-integrity-cell" id="integrity-{{ record.id }}" style="text-align: center;">
+        <span style="color: #adb5bd; font-size: 0.8rem;">...</span>
     </td>
     <td>
         <a href="/ecg/{{ record.id }}" class="btn btn-sm btn-outline-primary">

@@ -151,12 +151,24 @@ async def ingest_ecg(data: ECGIngestSchema, db: Session = Depends(get_db)):
     if not patient:
         patient = models.Patient(
             patient_id_external=p_id_ext,
-            name=f"Patient {p_id_ext}", # Placeholder name
+            name=f"Patient {p_id_ext}",
             dob="Unknown"
         )
         db.add(patient)
         db.commit()
         db.refresh(patient)
+        
+        if LEDGER_ENABLED:
+            ledger.add_audit_entry(
+                db,
+                actor_id=f"DEVICE_{meta.get('device_id')}",
+                action="PATIENT_CREATE",
+                details={
+                    "patient_db_id": patient.id,
+                    "patient_external_id": p_id_ext,
+                    "name": patient.name,
+                }
+            )
     
     # 3. Extract Processing Results
     # Assuming standard EDGE format: results['results']['ml_inference']...
@@ -244,6 +256,7 @@ async def batch_ingest_ecg(data: BatchIngestSchema, db: Session = Depends(get_db
             patient = db.query(models.Patient).filter(
                 models.Patient.patient_id_external == rec.patient_id
             ).first()
+            patient_is_new = False
             if not patient:
                 patient = models.Patient(
                     patient_id_external=rec.patient_id,
@@ -251,7 +264,8 @@ async def batch_ingest_ecg(data: BatchIngestSchema, db: Session = Depends(get_db
                     dob="Unknown"
                 )
                 db.add(patient)
-                db.flush()  # Get ID without committing
+                db.flush()
+                patient_is_new = True
             
             # Extract Provenance
             ml_results = rec.results.get('results', {}).get('ml_inference', {})
@@ -279,6 +293,18 @@ async def batch_ingest_ecg(data: BatchIngestSchema, db: Session = Depends(get_db
             
             # Log to Audit Trail if enabled
             if LEDGER_ENABLED:
+                if patient_is_new:
+                    ledger.add_audit_entry(
+                        db,
+                        actor_id="BATCH_INGEST",
+                        action="PATIENT_CREATE",
+                        details={
+                            "patient_db_id": patient.id,
+                            "patient_external_id": rec.patient_id,
+                            "name": patient.name,
+                        },
+                        auto_commit=False
+                    )
                 ledger.add_audit_entry(
                     db,
                     actor_id="BATCH_INGEST",
@@ -290,7 +316,8 @@ async def batch_ingest_ecg(data: BatchIngestSchema, db: Session = Depends(get_db
                         "model_version": model_version,
                         "model_hash": model_hash,
                         "data_hash": data_hash
-                    }
+                    },
+                    auto_commit=False
                 )
             
             inserted_count += 1
@@ -360,7 +387,6 @@ async def get_ecg_provenance(record_id: int, db: Session = Depends(get_db)):
     ledger_valid = True
     
     for entry in audit_entries:
-        # Verify the specific block integrity by re-computing its hash
         calculated_hash = ledger.calculate_hash(
             entry.prev_hash,
             str(entry.timestamp),
@@ -381,43 +407,75 @@ async def get_ecg_provenance(record_id: int, db: Session = Depends(get_db)):
             "is_valid": is_val
         })
         
-    # The primary hash for the modal header is from the creation event
     ingest_entry = next((e for e in audit_entries if e.action == "INGEST_ECG"), audit_entries[0])
+    
+    # Hardening #2: verify stored ECG data against its original hash
+    data_verification = ledger.verify_ecg_data_integrity(db, record_id)
     
     return {
         "status": "success",
-        "ledger_valid": ledger_valid, # True only if ALL historical blocks are valid
+        "ledger_valid": ledger_valid,
         "record_hash": ingest_entry.record_hash,
         "prev_hash": ingest_entry.prev_hash,
         "data_hash": record.data_hash,
         "model_hash": record.model_hash,
         "model_version": record.model_version,
         "timestamp": ingest_entry.timestamp.isoformat() if ingest_entry.timestamp else None,
-        "history": history
+        "history": history,
+        "data_integrity": data_verification
     }
 
 @app.get("/api/audit/verify")
 async def verify_audit_trail(db: Session = Depends(get_db)):
-    """Check if the cryptographic audit ledger integrity is intact"""
-    is_valid = ledger.verify_chain_integrity(db)
-    return {"integrity_status": "Valid" if is_valid else "CORRUPTED"}
+    """Check if the cryptographic audit ledger integrity is intact (HMAC-SHA256)."""
+    result = ledger.verify_chain_integrity(db)
+    return {
+        "integrity_status": "Valid" if result["valid"] else "CORRUPTED",
+        "details": result
+    }
+
+@app.get("/api/audit/verify-all")
+async def verify_all_blocks(db: Session = Depends(get_db)):
+    """Return per-block verification results for every entry in the chain."""
+    results = ledger.verify_all_blocks(db)
+    invalid_ids = [bid for bid, r in results.items() if not r["valid"]]
+    return {
+        "total_blocks": len(results),
+        "invalid_count": len(invalid_ids),
+        "blocks": results,
+    }
+
+@app.get("/api/ecg/{record_id}/verify-data")
+async def verify_ecg_data(record_id: int, db: Session = Depends(get_db)):
+    """Re-derive SHA-256 of stored ecg_data and compare against the original data_hash."""
+    result = ledger.verify_ecg_data_integrity(db, record_id)
+    return {
+        "record_id": record_id,
+        "data_integrity": "Valid" if result["valid"] else "TAMPERED",
+        "details": result
+    }
+
+@app.post("/api/ecg/verify-batch")
+async def verify_ecg_batch(payload: dict, db: Session = Depends(get_db)):
+    """Batch-verify ECG data integrity for a list of record IDs."""
+    record_ids = payload.get("record_ids", [])
+    results = {}
+    for rid in record_ids:
+        r = ledger.verify_ecg_data_integrity(db, int(rid))
+        results[str(rid)] = r
+    return {"results": results}
 
 @app.get("/audit-ledger", response_class=HTMLResponse)
 async def audit_ledger_view(request: Request, page: int = 1, limit: int = 50, db: Session = Depends(get_db)):
     """View Cryptographic Audit Ledger with Pagination"""
-    # Calculate skip
     skip = (page - 1) * limit
     
-    # Get total count
     total_count = db.query(models.AuditLog).count()
     total_pages = (total_count + limit - 1) // limit
     
-    # Get paginated entries
     entries = db.query(models.AuditLog).order_by(models.AuditLog.id.desc()).offset(skip).limit(limit).all()
     
-    # Verify chain integrity
-    # keys optimization: Don't verify full chain on every page load - it blocks the DB!
-    # User can use the dedicated Verify button/endpoint if needed.
+    # Deferred to the Verify button — avoids blocking page loads.
     is_valid = True 
     
     return templates.TemplateResponse("audit_ledger.html", {

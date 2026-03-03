@@ -40,6 +40,8 @@ def init_db():
         db.add(new_admin)
         db.commit()
         
+        add_audit_entry(db, "SYSTEM", "USER_CREATE", {"username": "admin", "role": "admin"})
+        
     # Create Mock Patients
 
 

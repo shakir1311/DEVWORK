@@ -181,7 +181,7 @@
     {% if records %}
     <div class="timeline">
         {% for record in records %}
-        <div class="timeline-entry">
+        <div class="timeline-entry" data-ecg-id="{{ record.id }}">
             <!-- Timeline Marker -->
             <div
                 class="timeline-marker {% if record.classification == 'N' %}marker-normal{% elif record.classification == 'A' %}marker-afib{% else %}marker-other{% endif %}">
@@ -189,10 +189,11 @@
 
             <!-- Study Card -->
             <div class="study-card">
-                <!-- First Row: Date + Button -->
+                <!-- First Row: Date + Integrity + Button -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <div class="study-timestamp">
-                        <strong>Study Date:</strong> {{ record.timestamp.strftime('%B %d, %Y at %I:%M %p') }}
+                    <div class="study-timestamp" style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span><strong>Study Date:</strong> {{ record.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                        <span id="integrity-{{ record.id }}" style="font-size: 0.8rem; color: #adb5bd;">...</span>
                     </div>
                     <a href="/ecg/{{ record.id }}" class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -277,4 +278,37 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+(function () {
+    const entries = document.querySelectorAll('[data-ecg-id]');
+    const ids = [];
+    entries.forEach(e => ids.push(e.getAttribute('data-ecg-id')));
+    if (ids.length === 0) return;
+
+    fetch('/api/ecg/verify-batch', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({record_ids: ids})
+    })
+    .then(r => r.json())
+    .then(data => {
+        const results = data.results || {};
+        for (const [rid, result] of Object.entries(results)) {
+            const el = document.getElementById('integrity-' + rid);
+            if (!el) continue;
+            if (result.valid) {
+                el.innerHTML = '<span style="color: #00a651; font-weight: 600;">&#10003; Data Intact</span>';
+            } else if (result.reason === 'no_data_hash_stored') {
+                el.innerHTML = '<span style="color: #6c757d;">No hash</span>';
+            } else {
+                const fields = result.tampered_fields || [];
+                const fieldInfo = fields.length > 0 ? ' (' + fields.join(', ') + ')' : '';
+                el.innerHTML = '<span style="color: #d32f2f; font-weight: 600;">&#10007; Corrupt' + fieldInfo + '</span>';
+            }
+        }
+    })
+    .catch(() => {});
+})();
+</script>
 {% endblock %}

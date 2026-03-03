@@ -9,6 +9,88 @@
         --medical-gray: #f5f7fa;
     }
 
+    .integrity-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition: box-shadow 0.25s, transform 0.15s;
+        border: 2px solid;
+    }
+
+    .integrity-banner:hover {
+        transform: translateY(-1px);
+        text-decoration: none;
+    }
+
+    .integrity-banner.state-loading {
+        background: #f8f9fa;
+        border-color: #6c757d;
+        color: #6c757d;
+    }
+
+    .integrity-banner.state-valid {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border-color: var(--medical-green);
+        color: #155724;
+        box-shadow: 0 2px 8px rgba(0, 166, 81, 0.15);
+    }
+
+    .integrity-banner.state-valid:hover {
+        box-shadow: 0 4px 16px rgba(0, 166, 81, 0.25);
+    }
+
+    .integrity-banner.state-invalid {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        border-color: var(--medical-red);
+        color: #721c24;
+        box-shadow: 0 2px 8px rgba(211, 47, 47, 0.2);
+        animation: integrity-pulse 2s infinite;
+    }
+
+    .integrity-banner.state-invalid:hover {
+        box-shadow: 0 4px 16px rgba(211, 47, 47, 0.35);
+    }
+
+    @keyframes integrity-pulse {
+        0%, 100% { box-shadow: 0 2px 8px rgba(211, 47, 47, 0.2); }
+        50% { box-shadow: 0 2px 16px rgba(211, 47, 47, 0.4); }
+    }
+
+    .integrity-banner-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .integrity-banner-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .state-loading .integrity-banner-icon { background: #dee2e6; }
+    .state-valid .integrity-banner-icon { background: rgba(0, 166, 81, 0.15); }
+    .state-invalid .integrity-banner-icon { background: rgba(211, 47, 47, 0.15); }
+
+    .integrity-banner-right {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+
     .clinical-header {
         background: white;
         border-bottom: 3px solid var(--medical-blue);
@@ -128,6 +210,24 @@
 </style>
 
 <div class="container-fluid">
+    <!-- System Integrity Banner -->
+    <a href="/audit-ledger" id="integrity-banner" class="integrity-banner state-loading">
+        <div class="integrity-banner-left">
+            <div class="integrity-banner-icon" id="integrity-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M2.5 15a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11z"/>
+                </svg>
+            </div>
+            <span id="integrity-text">Checking system integrity...</span>
+        </div>
+        <div class="integrity-banner-right">
+            <span id="integrity-meta"></span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+            </svg>
+        </div>
+    </a>
+
     <!-- Clinical Header -->
     <div class="clinical-header">
         <div class="container-fluid">
@@ -206,6 +306,7 @@
                                 <th>Heart Rate (BPM)</th>
                                 <th>Diagnosis</th>
                                 <th>Metrics</th>
+                                <th>Integrity</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -230,7 +331,7 @@
 
         <!-- System Status Panel -->
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="card shadow-sm border-0 mb-3">
                     <div class="card-body">
                         <h6 class="card-title text-muted text-uppercase"
@@ -242,29 +343,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card shadow-sm border-0 mb-3">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted text-uppercase"
-                            style="font-size: 0.75rem; letter-spacing: 0.5px;">Audit Trail</h6>
-                        <div class="d-flex align-items-center mt-2">
-                            <span class="status-indicator status-active"></span>
-                            <span style="font-size: 0.9rem;">Cryptographic Audit Ledger Active</span>
-                        </div>
-                        <a href="/audit-ledger" class="btn btn-sm btn-outline-primary mt-2 w-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
-                                class="bi bi-shield-lock me-1" viewBox="0 0 16 16">
-                                <path
-                                    d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.775 11.775 0 0 1-2.517 2.453 7.159 7.159 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7.158 7.158 0 0 1-1.048-.625 11.777 11.777 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 62.456 62.456 0 0 1 5.072.56z" />
-                                <path
-                                    d="M9.5 6.5a1.5 1.5 0 0 1-1 1.415l.385 1.99a.5.5 0 0 1-.491.595h-.788a.5.5 0 0 1-.49-.595l.384-1.99a1.5 1.5 0 1 1 2-1.415z" />
-                            </svg>
-                            View Ledger
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="card shadow-sm border-0 mb-3">
                     <div class="card-body">
                         <h6 class="card-title text-muted text-uppercase"
@@ -276,7 +355,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="card shadow-sm border-0 mb-3">
                     <div class="card-body">
                         <h6 class="card-title text-muted text-uppercase"
@@ -296,30 +375,43 @@
     // Auto-Refresh Logic
     let latestId = {{ records[0].id if records else 0 }};
 
+    function refreshTableRows() {
+        fetch('/dashboard/rows')
+            .then(response => response.text())
+            .then(html => {
+                const tbody = document.getElementById('ecgTableBody');
+                if (tbody) {
+                    tbody.innerHTML = html;
+                    tbody.style.backgroundColor = '#e8f4f8';
+                    setTimeout(() => { tbody.style.backgroundColor = 'transparent'; }, 1000);
+                    verifyEcgRows();
+                }
+            });
+    }
+
     function checkForUpdates() {
         fetch('/api/system/latest-record-id')
             .then(response => response.json())
             .then(data => {
                 if (data.latest_id > latestId) {
-                    fetch('/dashboard/rows')
-                        .then(response => response.text())
-                        .then(html => {
-                            const tbody = document.getElementById('ecgTableBody');
-                            tbody.innerHTML = html;
-                            latestId = data.latest_id;
-
-                            // Subtle clinical feedback
-                            tbody.style.backgroundColor = '#e8f4f8';
-                            setTimeout(() => {
-                                tbody.style.backgroundColor = 'transparent';
-                            }, 1000);
-                        });
+                    latestId = data.latest_id;
+                    refreshTableRows();
                 }
             })
             .catch(err => console.error("Polling error:", err));
     }
 
-    setInterval(checkForUpdates, 3000);
+    // Unified 3-second poll: new records + ECG integrity + system integrity
+    function pollAll() {
+        checkForUpdates();
+        verifyEcgRows();
+        checkIntegrity();
+    }
+
+    // Refresh on first load to defeat bfcache / stale server-rendered HTML
+    refreshTableRows();
+    pollAll();
+    setInterval(pollAll, 3000);
 
     // Patient Search (MRN/Name)
     const searchInput = document.getElementById('patientSearch');
@@ -383,5 +475,82 @@
             searchResults.classList.remove('show');
         }
     });
+
+    // --- ECG Record Integrity Verification ---
+    function renderIntegrityCell(cell, result) {
+        if (result.valid) {
+            cell.innerHTML = '<span title="Data hash verified" style="color: #00a651; font-weight: 600; font-size: 0.85rem;">&#10003; Valid</span>';
+        } else if (result.reason === 'no_data_hash_stored') {
+            cell.innerHTML = '<span title="No hash was recorded at ingest" style="color: #6c757d; font-size: 0.8rem;">N/A</span>';
+        } else {
+            const fields = result.tampered_fields || [];
+            const fieldList = fields.length > 0
+                ? '<div style="font-size:0.7rem; color:#d32f2f; margin-top:2px;">' + fields.join(', ') + '</div>'
+                : '';
+            cell.innerHTML = '<span style="color: #d32f2f; font-weight: 600; font-size: 0.85rem;">&#10007; Corrupt</span>' + fieldList;
+        }
+    }
+
+    function verifyEcgRows() {
+        const rows = document.querySelectorAll('tr[data-ecg-id]');
+        const ids = [];
+        rows.forEach(r => ids.push(r.getAttribute('data-ecg-id')));
+        if (ids.length === 0) return;
+
+        fetch('/api/ecg/verify-batch', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({record_ids: ids})
+        })
+        .then(r => r.json())
+        .then(data => {
+            const results = data.results || {};
+            for (const [rid, result] of Object.entries(results)) {
+                const cell = document.getElementById('integrity-' + rid);
+                if (!cell) continue;
+                renderIntegrityCell(cell, result);
+            }
+        })
+        .catch(() => {});
+    }
+
+    // --- System Integrity ---
+    const SVG_SHIELD_VALID = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99a11.777 11.777 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7.159 7.159 0 0 0 1.048-.625 11.775 11.775 0 0 0 2.517-2.453c1.678-2.195 3.061-5.513 2.465-9.99a1.541 1.541 0 0 0-1.044-1.263 62.467 62.467 0 0 0-2.887-.87C9.843.266 8.69 0 8 0zm2.146 5.146a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647z"/></svg>`;
+    const SVG_SHIELD_INVALID = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99a11.777 11.777 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7.159 7.159 0 0 0 1.048-.625 11.775 11.775 0 0 0 2.517-2.453c1.678-2.195 3.061-5.513 2.465-9.99a1.541 1.541 0 0 0-1.044-1.263 62.467 62.467 0 0 0-2.887-.87C9.843.266 8.69 0 8 0zM5.022 7.686a.5.5 0 0 1 .706-.042l.708.708.707-.708a.5.5 0 1 1 .708.708L7.143 9.06l.708.707a.5.5 0 0 1-.708.708l-.707-.708-.708.708a.5.5 0 1 1-.708-.708l.708-.707-.708-.708a.5.5 0 0 1 .042-.706z"/></svg>`;
+
+    function checkIntegrity() {
+        const banner = document.getElementById('integrity-banner');
+        const icon = document.getElementById('integrity-icon');
+        const text = document.getElementById('integrity-text');
+        const meta = document.getElementById('integrity-meta');
+
+        fetch('/api/audit/verify')
+            .then(r => r.json())
+            .then(data => {
+                const isValid = data.integrity_status === 'Valid';
+                const details = data.details || {};
+
+                banner.className = 'integrity-banner ' + (isValid ? 'state-valid' : 'state-invalid');
+                icon.innerHTML = isValid ? SVG_SHIELD_VALID : SVG_SHIELD_INVALID;
+
+                if (isValid) {
+                    text.textContent = 'System Integrity: INTACT';
+                    meta.textContent = (details.total_blocks || 0) + ' blocks verified (HMAC-SHA256)';
+                } else {
+                    text.textContent = 'System Integrity: COMPROMISED';
+                    const reason = details.failed_id
+                        ? 'Block #' + details.failed_id + ' — ' + details.reason
+                        : 'Chain verification failed';
+                    meta.textContent = reason;
+                }
+            })
+            .catch(() => {
+                banner.className = 'integrity-banner state-invalid';
+                icon.innerHTML = SVG_SHIELD_INVALID;
+                text.textContent = 'System Integrity: UNKNOWN';
+                meta.textContent = 'Verification endpoint unreachable';
+            });
+    }
+
 </script>
 {% endblock %}
