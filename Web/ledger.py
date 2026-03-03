@@ -41,43 +41,56 @@ def add_audit_entry(db: Session, actor_id: str, action: str, details: dict, auto
     """
     Add a new entry to the immutable audit ledger.
     
+    Uses a dedicated IMMEDIATE-mode connection for the read-last-hash + insert
+    so that SQLite acquires a write lock *before* reading the chain tail.
+    This prevents two concurrent processes from reading the same prev_hash and
+    forking the hash chain.
+    
     Args:
-        db: Database session
+        db: Database session (used for the caller's broader transaction)
         actor_id: Actor performing the action
         action: Action type
         details: Action details dict
         auto_commit: If True (default), commits immediately. Set False for batch operations.
     """
-    last_entry = db.query(models.AuditLog).order_by(models.AuditLog.id.desc()).first()
-    
-    if last_entry:
-        prev_hash = last_entry.record_hash
-    else:
-        prev_hash = "0" * 64
-        
+    from sqlalchemy import text
+
     timestamp = datetime.datetime.utcnow()
     details_str = json.dumps(details, sort_keys=True)
-    
-    record_hash = calculate_hash(
-        prev_hash, 
-        str(timestamp), 
-        actor_id, 
-        action, 
-        details_str
-    )
-    
-    new_entry = models.AuditLog(
-        timestamp=timestamp,
-        actor_id=actor_id,
-        action=action,
-        details=details_str,
-        prev_hash=prev_hash,
-        record_hash=record_hash
-    )
-    
-    db.add(new_entry)
-    if auto_commit:
-        db.commit()
+
+    # Use the engine's raw connection with BEGIN IMMEDIATE to serialise
+    # the read-prev-hash + insert as an atomic unit, preventing chain forks.
+    engine = db.get_bind()
+    with engine.connect() as conn:
+        conn.execute(text("BEGIN IMMEDIATE"))
+        
+        row = conn.execute(
+            text("SELECT record_hash FROM audit_log ORDER BY id DESC LIMIT 1")
+        ).fetchone()
+        prev_hash = row[0] if row else "0" * 64
+
+        record_hash = calculate_hash(
+            prev_hash, str(timestamp), actor_id, action, details_str
+        )
+
+        conn.execute(
+            text(
+                "INSERT INTO audit_log (timestamp, actor_id, action, details, prev_hash, record_hash) "
+                "VALUES (:ts, :actor, :action, :details, :prev, :hash)"
+            ),
+            {
+                "ts": str(timestamp),
+                "actor": actor_id,
+                "action": action,
+                "details": details_str,
+                "prev": prev_hash,
+                "hash": record_hash,
+            },
+        )
+        conn.execute(text("COMMIT"))
+
+    # Return an ORM object so callers can still inspect the new entry.
+    new_entry = db.query(models.AuditLog).order_by(models.AuditLog.id.desc()).first()
     return new_entry
 
 

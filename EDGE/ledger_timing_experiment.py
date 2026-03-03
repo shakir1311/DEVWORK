@@ -34,11 +34,23 @@ OUTPUT_DIR = EDGE_DIR / 'experiment_results/ledger_timing'
 
 def setup_db():
     """Connect to Portal's SQLite database."""
-    from sqlalchemy import create_engine
+    from sqlalchemy import create_engine, event
     from sqlalchemy.orm import sessionmaker
     
     db_path = PORTAL_DIR / 'portal.db'
-    engine = create_engine(f'sqlite:///{db_path}', echo=False)
+    engine = create_engine(
+        f'sqlite:///{db_path}',
+        echo=False,
+        connect_args={"timeout": 30}
+    )
+    
+    @event.listens_for(engine, "connect")
+    def _set_sqlite_pragma(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA busy_timeout=30000")
+        cursor.close()
+    
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     
     import models

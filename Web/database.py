@@ -5,14 +5,14 @@ from sqlalchemy.orm import sessionmaker
 SQLITE_URL = "sqlite:///./portal.db"
 
 engine = create_engine(
-    SQLITE_URL, connect_args={"check_same_thread": False, "timeout": 10}
+    SQLITE_URL, connect_args={"check_same_thread": False, "timeout": 30}
 )
 
 @event.listens_for(engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA journal_mode=WAL")
-    cursor.execute("PRAGMA busy_timeout=10000")
+    cursor.execute("PRAGMA busy_timeout=30000")
     cursor.close()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
