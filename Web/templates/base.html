@@ -144,14 +144,155 @@
             border: 1px solid var(--primary);
             color: var(--primary);
         }
+
+        .nav-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 0 24px;
+        }
+        .nav-search-container {
+            position: relative;
+            width: 100%;
+            max-width: 360px;
+            display: flex;
+        }
+        .nav-search-input {
+            width: 100%;
+            padding: 6px 12px;
+            padding-right: 32px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--secondary);
+        }
+        .nav-search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 100, 200, 0.15);
+            background: white;
+        }
+        .nav-search-toggle {
+            position: absolute;
+            right: 1px;
+            top: 1px;
+            bottom: 1px;
+            width: 28px;
+            background: none;
+            border: none;
+            border-left: 1px solid #dee2e6;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            border-radius: 0 5px 5px 0;
+            transition: background 0.15s, color 0.15s;
+        }
+        .nav-search-toggle:hover {
+            background: #e9ecef;
+            color: var(--primary);
+        }
+        .nav-search-results {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            max-height: 320px;
+            overflow-y: auto;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            z-index: 1100;
+        }
+        .nav-search-results.show {
+            display: block;
+        }
+        .nav-search-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.12s;
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .nav-search-item:last-child {
+            border-bottom: none;
+        }
+        .nav-search-item:hover {
+            background-color: #f0f5ff;
+        }
+        .nav-search-item.border-normal { border-left-color: var(--success); }
+        .nav-search-item.border-afib   { border-left-color: var(--warning); }
+        .nav-search-item.border-other  { border-left-color: #6c757d; }
+        .nav-search-item.border-mixed  { border-left-color: var(--primary); }
+        .nav-search-item.border-bad    { border-left-color: var(--danger); }
+        .nav-search-left {
+            min-width: 0;
+            flex: 1;
+        }
+        .nav-search-mrn {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.82rem;
+            font-family: 'Courier New', monospace;
+        }
+        .nav-search-name {
+            color: #495057;
+            font-size: 0.78rem;
+            margin-top: 1px;
+        }
+        .nav-search-badges {
+            display: flex;
+            gap: 3px;
+            flex-shrink: 0;
+            align-items: center;
+        }
+        .nav-search-badges .cls-dot {
+            display: inline-block;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.4;
+        }
+        .cls-dot.cls-N { background: var(--success); }
+        .cls-dot.cls-A { background: var(--warning); color: #333; }
+        .cls-dot.cls-O { background: #6c757d; }
+        .cls-dot.cls-U { background: #adb5bd; }
+        .nav-search-integrity {
+            font-size: 0.7rem;
+            margin-left: 2px;
+        }
     </style>
 </head>
 
 <body>
     <nav class="navbar">
         <a href="/dashboard" class="logo">🏥 Medical Portal</a>
+        <div class="nav-center">
+            <div class="nav-search-container" id="navSearchContainer">
+                <input type="text" class="nav-search-input" id="patientSearch"
+                    placeholder="Search patient by MRN or name..." autocomplete="off">
+                <button type="button" class="nav-search-toggle" id="searchToggle" title="Show all patients">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                    </svg>
+                </button>
+                <div id="searchResults" class="nav-search-results"></div>
+            </div>
+        </div>
         <div class="nav-links">
+            {% block nav_links %}
             <a href="/dashboard">Dashboard</a>
+            {% endblock %}
             <a href="/" onclick="logout()">Logout</a>
         </div>
     </nav>
@@ -162,9 +303,133 @@
 
     <script>
         function logout() {
-            // Clear token if using localStorage (prototype only)
             localStorage.removeItem("token");
         }
+
+        // Global patient search
+        (function() {
+            const searchInput = document.getElementById('patientSearch');
+            const searchResults = document.getElementById('searchResults');
+            const searchToggle = document.getElementById('searchToggle');
+            if (!searchInput || !searchResults) return;
+
+            let searchTimeout;
+            let allPatientsCache = null;
+
+            const CLASS_LABELS = {N:'Normal', A:'AFib', O:'Other', U:'Unknown'};
+
+            function borderClass(p) {
+                if (p.integrity === 'unknown') return 'border-bad';
+                const d = p.dominant_class;
+                if (!d) return '';
+                const counts = p.classifications || {};
+                const types = Object.keys(counts).filter(k => counts[k] > 0);
+                if (types.length > 1) return 'border-mixed';
+                if (d === 'N') return 'border-normal';
+                if (d === 'A') return 'border-afib';
+                return 'border-other';
+            }
+
+            function classBadges(p) {
+                const counts = p.classifications || {};
+                return Object.entries(counts)
+                    .sort((a,b) => b[1] - a[1])
+                    .map(([cls, cnt]) => `<span class="cls-dot cls-${cls}" title="${CLASS_LABELS[cls] || cls}: ${cnt}">${cls}:${cnt}</span>`)
+                    .join('');
+            }
+
+            function renderPatients(patients) {
+                searchResults.innerHTML = '';
+                if (patients.length > 0) {
+                    patients.forEach(p => {
+                        const item = document.createElement('div');
+                        item.className = 'nav-search-item ' + borderClass(p);
+                        const integrityIcon = p.integrity === 'ok'
+                            ? '<span class="nav-search-integrity" title="Integrity OK" style="color:var(--success);">&#9679;</span>'
+                            : '<span class="nav-search-integrity" title="Integrity unknown" style="color:var(--danger);">&#9679;</span>';
+                        item.innerHTML = `
+                            <div class="nav-search-left">
+                                <div class="nav-search-mrn">${p.external_id} ${integrityIcon}</div>
+                                <div class="nav-search-name">${p.name} &middot; ${p.record_count || 0} records</div>
+                            </div>
+                            <div class="nav-search-badges">${classBadges(p)}</div>`;
+                        item.onclick = () => { window.location.href = `/patient/${p.id}`; };
+                        searchResults.appendChild(item);
+                    });
+                    searchResults.classList.add('show');
+                } else {
+                    searchResults.innerHTML = '<div class="nav-search-item" style="color:#999; cursor:default;">No patients found</div>';
+                    searchResults.classList.add('show');
+                }
+            }
+
+            function loadAllPatients() {
+                if (allPatientsCache) {
+                    renderPatients(allPatientsCache);
+                    return;
+                }
+                searchResults.innerHTML = '<div class="nav-search-item" style="color:#999; cursor:default;">Loading...</div>';
+                searchResults.classList.add('show');
+                fetch('/api/patients/search?q=')
+                    .then(res => res.json())
+                    .then(patients => {
+                        allPatientsCache = patients;
+                        renderPatients(patients);
+                    })
+                    .catch(() => {
+                        searchResults.innerHTML = '<div class="nav-search-item" style="color:#dc3545; cursor:default;">Search unavailable</div>';
+                        searchResults.classList.add('show');
+                    });
+            }
+
+            if (searchToggle) {
+                searchToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (searchResults.classList.contains('show')) {
+                        searchResults.classList.remove('show');
+                    } else {
+                        searchInput.value = '';
+                        loadAllPatients();
+                        searchInput.focus();
+                    }
+                });
+            }
+
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim();
+                clearTimeout(searchTimeout);
+
+                if (query.length < 1) {
+                    searchResults.classList.remove('show');
+                    searchResults.innerHTML = '';
+                    return;
+                }
+
+                searchTimeout = setTimeout(() => {
+                    fetch(`/api/patients/search?q=${encodeURIComponent(query)}`)
+                        .then(res => res.json())
+                        .then(patients => renderPatients(patients))
+                        .catch(() => {
+                            searchResults.innerHTML = '<div class="nav-search-item" style="color:#dc3545; cursor:default;">Search unavailable</div>';
+                            searchResults.classList.add('show');
+                        });
+                }, 200);
+            });
+
+            document.addEventListener('click', function(e) {
+                const container = document.getElementById('navSearchContainer');
+                if (container && !container.contains(e.target)) {
+                    searchResults.classList.remove('show');
+                }
+            });
+
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    searchResults.classList.remove('show');
+                }
+            });
+        })();
     </script>
 </body>
 

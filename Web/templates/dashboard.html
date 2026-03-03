@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block nav_links %}{% endblock %}
+
 {% block content %}
 <style>
     :root {
@@ -91,61 +93,6 @@
         opacity: 0.8;
     }
 
-    .clinical-header {
-        background: white;
-        border-bottom: 3px solid var(--medical-blue);
-        padding: 1.5rem 0;
-        margin-bottom: 2rem;
-    }
-
-    .search-container {
-        position: relative;
-        max-width: 450px;
-    }
-
-    .search-results {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border: 1px solid #ddd;
-        border-top: none;
-        max-height: 350px;
-        overflow-y: auto;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 1050;
-        display: none;
-    }
-
-    .search-results.show {
-        display: block;
-    }
-
-    .search-result-item {
-        padding: 14px 18px;
-        cursor: pointer;
-        border-bottom: 1px solid #f0f0f0;
-        transition: background-color 0.15s;
-    }
-
-    .search-result-item:hover {
-        background-color: #f8f9fa;
-    }
-
-    .patient-mrn {
-        font-weight: 600;
-        color: var(--medical-blue);
-        font-size: 0.95rem;
-        font-family: 'Courier New', monospace;
-    }
-
-    .patient-demographics {
-        color: #495057;
-        font-size: 0.875rem;
-        margin-top: 2px;
-    }
-
     .clinical-table {
         font-size: 0.9rem;
     }
@@ -228,46 +175,6 @@
         </div>
     </a>
 
-    <!-- Clinical Header -->
-    <div class="clinical-header">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h4 class="mb-1" style="color: var(--medical-blue); font-weight: 600;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                            class="bi bi-heart-pulse-fill me-2" viewBox="0 0 16 16">
-                            <path
-                                d="M1.475 9C2.702 10.84 4.779 12.871 8 15c3.221-2.129 5.298-4.16 6.525-6H12a.5.5 0 0 1-.464-.314l-1.457-3.642-1.598 5.593a.5.5 0 0 1-.945.049L5.889 6.568l-1.473 2.21A.5.5 0 0 1 4 9H1.475Z" />
-                            <path
-                                d="M.88 8C-2.427 1.68 4.41-2 7.823 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C11.59-2 18.426 1.68 15.12 8h-2.783l-1.874-4.686a.5.5 0 0 0-.945.049L7.921 8.956 6.464 5.314a.5.5 0 0 0-.88-.091L3.732 8H.88Z" />
-                        </svg>
-                        Cardiac Monitoring Dashboard
-                    </h4>
-                    <p class="mb-0 text-muted small">Real-time ECG Analysis & Patient Records</p>
-                </div>
-
-                <div class="col-md-6">
-                    <!-- Medical Record Number Search -->
-                    <div class="search-container ms-auto">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    viewBox="0 0 16 16">
-                                    <path
-                                        d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                                </svg>
-                            </span>
-                            <input type="text" class="form-control border-start-0" id="patientSearch"
-                                placeholder="Search by MRN or Patient Name..." autocomplete="off"
-                                style="border-left: none;">
-                        </div>
-                        <div id="searchResults" class="search-results"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="container-fluid">
         <!-- ECG Records Table -->
         <div class="card shadow-sm border-0 mb-4">
@@ -294,7 +201,6 @@
                 </div>
             </div>
             <div class="card-body p-0">
-                {% if records %}
                 <div class="table-responsive">
                     <table class="table clinical-table mb-0">
                         <thead>
@@ -311,12 +217,13 @@
                             </tr>
                         </thead>
                         <tbody id="ecgTableBody">
+                            {% if records %}
                             {% include "partials/rows.html" %}
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
-                {% else %}
-                <div class="text-center py-5">
+                <div id="emptyState" class="text-center py-5" {% if records %}style="display:none"{% endif %}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#adb5bd" class="mb-3"
                         viewBox="0 0 16 16">
                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
@@ -325,7 +232,6 @@
                     </svg>
                     <p class="text-muted">No ECG studies available. Awaiting data from monitoring devices...</p>
                 </div>
-                {% endif %}
             </div>
         </div>
 
@@ -384,6 +290,8 @@
                     tbody.innerHTML = html;
                     tbody.style.backgroundColor = '#e8f4f8';
                     setTimeout(() => { tbody.style.backgroundColor = 'transparent'; }, 1000);
+                    const empty = document.getElementById('emptyState');
+                    if (empty) empty.style.display = html.trim() ? 'none' : '';
                     verifyEcgRows();
                 }
             });
@@ -412,69 +320,6 @@
     refreshTableRows();
     pollAll();
     setInterval(pollAll, 3000);
-
-    // Patient Search (MRN/Name)
-    const searchInput = document.getElementById('patientSearch');
-    const searchResults = document.getElementById('searchResults');
-    let searchTimeout;
-
-    searchInput.addEventListener('input', function (e) {
-        const query = e.target.value.trim();
-        clearTimeout(searchTimeout);
-
-        if (query.length < 2) {
-            searchResults.classList.remove('show');
-            searchResults.innerHTML = '';
-            return;
-        }
-
-        searchTimeout = setTimeout(() => {
-            fetch(`/api/patients/search?q=${encodeURIComponent(query)}`)
-                .then(res => res.json())
-                .then(patients => {
-                    searchResults.innerHTML = '';
-
-                    if (patients.length > 0) {
-                        patients.forEach(patient => {
-                            const item = document.createElement('div');
-                            item.className = 'search-result-item';
-                            item.innerHTML = `
-                            <div class="patient-mrn">MRN: ${patient.external_id}</div>
-                            <div class="patient-demographics">${patient.name}</div>
-                        `;
-                            item.onclick = () => {
-                                window.location.href = `/patient/${patient.id}`;
-                            };
-                            searchResults.appendChild(item);
-                        });
-                        searchResults.classList.add('show');
-                    } else {
-                        searchResults.innerHTML = '<div class="search-result-item text-muted">No matching patients found</div>';
-                        searchResults.classList.add('show');
-                    }
-                })
-                .catch(err => {
-                    console.error('Search error:', err);
-                    searchResults.innerHTML = '<div class="search-result-item text-danger">Search service unavailable</div>';
-                    searchResults.classList.add('show');
-                });
-        }, 300);
-    });
-
-    // Close search results when clicking outside
-    document.addEventListener('click', function (e) {
-        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-            searchResults.classList.remove('show');
-        }
-    });
-
-    // Clear search on escape
-    searchInput.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-            searchInput.value = '';
-            searchResults.classList.remove('show');
-        }
-    });
 
     // --- ECG Record Integrity Verification ---
     function renderIntegrityCell(cell, result) {
@@ -527,21 +372,28 @@
         fetch('/api/audit/verify')
             .then(r => r.json())
             .then(data => {
+                const chain = data.chain || {};
                 const isValid = data.integrity_status === 'Valid';
-                const details = data.details || {};
 
                 banner.className = 'integrity-banner ' + (isValid ? 'state-valid' : 'state-invalid');
                 icon.innerHTML = isValid ? SVG_SHIELD_VALID : SVG_SHIELD_INVALID;
 
                 if (isValid) {
                     text.textContent = 'System Integrity: INTACT';
-                    meta.textContent = (details.total_blocks || 0) + ' blocks verified (HMAC-SHA256)';
+                    meta.textContent = (chain.total_blocks || 0) + ' blocks verified (HMAC-SHA256)';
                 } else {
                     text.textContent = 'System Integrity: COMPROMISED';
-                    const reason = details.failed_id
-                        ? 'Block #' + details.failed_id + ' — ' + details.reason
-                        : 'Chain verification failed';
-                    meta.textContent = reason;
+                    const parts = [];
+                    if (!chain.chain_intact && chain.failed_id) {
+                        parts.push('Block #' + chain.failed_id + ' — ' + chain.reason);
+                    }
+                    if (chain.tampered_count > 0) {
+                        parts.push(chain.tampered_count + ' record' + (chain.tampered_count > 1 ? 's' : '') + ' tampered');
+                    }
+                    if (parts.length === 0 && chain.reason) {
+                        parts.push(chain.reason);
+                    }
+                    meta.textContent = parts.join(' · ') || 'Verification failed';
                 }
             })
             .catch(() => {

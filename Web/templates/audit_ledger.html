@@ -6,6 +6,7 @@
         --chain-valid: #00a651;
         --chain-invalid: #d32f2f;
         --block-bg: #f8f9fa;
+        --navy: #1e3c72;
     }
 
     .ledger-header {
@@ -25,255 +26,297 @@
         align-items: center;
         gap: 0.5rem;
     }
-
     .integrity-valid {
         background: var(--chain-valid);
         color: white;
         box-shadow: 0 0 20px rgba(0, 166, 81, 0.3);
     }
-
     .integrity-invalid {
         background: var(--chain-invalid);
         color: white;
         box-shadow: 0 0 20px rgba(211, 47, 47, 0.3);
         animation: pulse-red 2s infinite;
     }
-
     @keyframes pulse-red {
-
-        0%,
-        100% {
-            box-shadow: 0 0 20px rgba(211, 47, 47, 0.3);
-        }
-
-        50% {
-            box-shadow: 0 0 30px rgba(211, 47, 47, 0.6);
-        }
-    }
-
-    .chain-visualization {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        position: relative;
-    }
-
-    .chain-visualization::before {
-        content: '';
-        position: absolute;
-        left: 30px;
-        top: 0;
-        bottom: 0;
-        width: 3px;
-        background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
-    }
-
-    .block {
-        position: relative;
-        padding-left: 80px;
-        margin-bottom: 0.5rem;
-    }
-
-    .block-marker {
-        position: absolute;
-        left: 18px;
-        width: 24px;
-        height: 24px;
-        background: #1e3c72;
-        border: 4px solid white;
-        border-radius: 50%;
-        box-shadow: 0 0 0 3px #1e3c72;
-        z-index: 1;
-    }
-
-    .block-card {
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-left: 4px solid #1e3c72;
-        border-radius: 0.375rem;
-        padding: 1.25rem;
-        transition: all 0.2s;
-    }
-
-    .block-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transform: translateX(4px);
-    }
-
-    .block-id {
-        font-family: 'Courier New', monospace;
-        font-weight: 700;
-        color: #1e3c72;
-        font-size: 1.1rem;
-    }
-
-    .hash-display {
-        font-family: 'Courier New', monospace;
-        font-size: 0.75rem;
-        background: #f8f9fa;
-        padding: 0.5rem;
-        border-radius: 0.25rem;
-        word-break: break-all;
-        color: #495057;
-        border-left: 3px solid #6c757d;
-    }
-
-    .action-badge {
-        padding: 0.35rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-
-    .action-login {
-        background: #e3f2fd;
-        color: #1976d2;
-    }
-
-    .action-ingest {
-        background: #e8f5e9;
-        color: #388e3c;
-    }
-
-    .action-view {
-        background: #fff3e0;
-        color: #f57c00;
-    }
-
-    .action-entity {
-        background: #f3e5f5;
-        color: #7b1fa2;
+        0%, 100% { box-shadow: 0 0 20px rgba(211, 47, 47, 0.3); }
+        50% { box-shadow: 0 0 30px rgba(211, 47, 47, 0.6); }
     }
 
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 1rem;
         margin-bottom: 2rem;
     }
-
     .stat-card {
         background: white;
-        padding: 1.5rem;
+        padding: 1.25rem;
         border-radius: 0.375rem;
         border: 1px solid #e0e0e0;
         text-align: center;
     }
-
     .stat-value {
-        font-size: 2rem;
+        font-size: 1.8rem;
         font-weight: 700;
-        color: #1e3c72;
+        color: var(--navy);
     }
-
     .stat-label {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: #6c757d;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-top: 0.5rem;
+        margin-top: 0.25rem;
     }
 
-    .block-integrity {
+    /* ── Defrag Pixel Grid ── */
+    .grid-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 0.375rem;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    .grid-toolbar {
         display: flex;
-        flex-direction: column;
+        justify-content: space-between;
         align-items: center;
-        justify-content: center;
-        gap: 0.4rem;
+        padding: 12px 16px;
+        border-bottom: 1px solid #e0e0e0;
+        flex-wrap: wrap;
+        gap: 8px;
     }
-
-    .block-integrity-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
+    .grid-toolbar h5 {
+        margin: 0;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1rem;
+    }
+    .grid-legend {
         display: flex;
+        gap: 14px;
         align-items: center;
-        justify-content: center;
-    }
-
-    .block-integrity-icon.pending {
-        background: #e9ecef;
-        color: #6c757d;
-    }
-
-    .block-integrity-icon.valid {
-        background: #d4edda;
-        color: var(--chain-valid);
-    }
-
-    .block-integrity-icon.invalid {
-        background: #f8d7da;
-        color: var(--chain-invalid);
-        animation: pulse-red 2s infinite;
-    }
-
-    .block-card.block-invalid {
-        border-left-color: var(--chain-invalid);
-        background: #fff5f5;
-    }
-
-    .block-card.block-valid {
-        border-left-color: var(--chain-valid);
-    }
-
-    .block.hidden-by-filter {
-        display: none;
-    }
-
-    .filter-bar {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
         flex-wrap: wrap;
     }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.72rem;
+        color: #555;
+    }
+    .legend-swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
 
-    .filter-btn {
-        padding: 0.4rem 1rem;
-        border-radius: 2rem;
-        font-size: 0.8rem;
-        font-weight: 600;
-        border: 2px solid;
+    .pixel-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px;
+        padding: 16px;
+        background: #1a1a2e;
+        min-height: 80px;
+        max-height: 420px;
+        overflow-y: auto;
+        align-content: flex-start;
+    }
+    .pixel {
+        width: 10px;
+        height: 10px;
+        border-radius: 1px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: transform 0.1s, box-shadow 0.1s;
+        position: relative;
+    }
+    .pixel:hover {
+        transform: scale(1.8);
+        z-index: 2;
+        box-shadow: 0 0 6px rgba(255,255,255,0.5);
+    }
+    .pixel.selected {
+        transform: scale(2.2);
+        z-index: 3;
+        box-shadow: 0 0 0 2px white, 0 0 10px rgba(255,255,255,0.7);
     }
 
-    .filter-btn-invalid {
-        border-color: var(--chain-invalid);
+    .px-valid-ingest   { background: #2ecc71; }
+    .px-valid-view     { background: #3498db; }
+    .px-valid-login    { background: #9b59b6; }
+    .px-valid-entity   { background: #1abc9c; }
+    .px-valid-other    { background: #7f8c8d; }
+    .px-invalid        { background: #e74c3c; animation: blink-red 1.2s infinite; }
+    .px-tampered       { background: #ff6b35; animation: blink-red 1.2s infinite; }
+    .px-loading        { background: #34495e; }
+
+    @keyframes blink-red {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* ── Detail Panel ── */
+    .detail-panel {
         background: white;
-        color: var(--chain-invalid);
+        border: 1px solid #e0e0e0;
+        border-radius: 0.375rem;
+        margin-bottom: 2rem;
+        display: none;
     }
+    .detail-panel.open { display: block; }
 
-    .filter-btn-invalid:hover,
-    .filter-btn-invalid.active {
-        background: var(--chain-invalid);
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 18px;
+        border-bottom: 1px solid #e0e0e0;
+        background: #f8f9fa;
+    }
+    .detail-header h5 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--navy);
+    }
+    .detail-close {
+        background: none;
+        border: none;
+        font-size: 1.4rem;
+        cursor: pointer;
+        color: #888;
+        line-height: 1;
+    }
+    .detail-close:hover { color: #333; }
+
+    .detail-body {
+        padding: 18px;
+    }
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+    @media (max-width: 700px) {
+        .detail-grid { grid-template-columns: 1fr; }
+    }
+    .detail-field label {
+        display: block;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #888;
+        margin-bottom: 3px;
+        font-weight: 600;
+    }
+    .detail-field .val {
+        font-size: 0.88rem;
+        color: #333;
+        word-break: break-all;
+    }
+    .detail-field .val.mono {
+        font-family: 'Courier New', monospace;
+        font-size: 0.78rem;
+        background: #f4f4f8;
+        padding: 6px 8px;
+        border-radius: 4px;
+        border-left: 3px solid var(--navy);
+    }
+    .detail-field .val.full-width {
+        grid-column: 1 / -1;
+    }
+    .detail-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.82rem;
+    }
+    .detail-status.ok { background: #d4edda; color: var(--chain-valid); }
+    .detail-status.bad { background: #f8d7da; color: var(--chain-invalid); }
+    .tampered-badge {
+        display: inline-block;
+        background: #dc3545;
         color: white;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 0.72rem;
+        font-family: monospace;
+        margin: 1px 2px;
     }
-
-    .filter-btn-all {
-        border-color: #1e3c72;
-        background: white;
-        color: #1e3c72;
-    }
-
-    .filter-btn-all:hover,
-    .filter-btn-all.active {
-        background: #1e3c72;
-        color: white;
-    }
-
-    .filter-count {
-        font-size: 0.75rem;
-        padding: 0.15rem 0.5rem;
+    .action-pill {
+        padding: 3px 10px;
         border-radius: 1rem;
-        background: rgba(0,0,0,0.1);
-        margin-left: 0.25rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+    }
+    .action-pill.ingest  { background: #e8f5e9; color: #388e3c; }
+    .action-pill.view    { background: #fff3e0; color: #f57c00; }
+    .action-pill.login   { background: #e3f2fd; color: #1976d2; }
+    .action-pill.entity  { background: #f3e5f5; color: #7b1fa2; }
+    .action-pill.other   { background: #eceff1; color: #546e7a; }
+
+    .ecg-link {
+        display: inline-block;
+        margin-top: 6px;
+        font-size: 0.82rem;
+        color: var(--navy);
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .ecg-link:hover { text-decoration: underline; }
+
+    /* ── Tamper Alert Section ── */
+    .tamper-alert {
+        background: #fff5f5;
+        border: 1px solid #f5c2c2;
+        border-left: 4px solid var(--chain-invalid);
+        border-radius: 0.375rem;
+        padding: 16px 18px;
+        margin-bottom: 2rem;
+        display: none;
+    }
+    .tamper-alert.show { display: block; }
+    .tamper-alert h6 {
+        margin: 0 0 10px 0;
+        color: var(--chain-invalid);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    .tamper-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .tamper-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: white;
+        border: 1px solid #f5c2c2;
+        border-radius: 4px;
+        padding: 4px 10px;
+        font-size: 0.78rem;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .tamper-chip:hover {
+        background: #f8d7da;
+    }
+    .tamper-chip .chip-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--chain-invalid);
     }
 </style>
 
 <div class="container mt-4 mb-5">
     <!-- Ledger Header -->
     <div class="ledger-header shadow">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center flex-wrap" style="gap: 12px;">
             <div>
                 <h2 class="mb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
@@ -283,7 +326,7 @@
                     </svg>
                     Cryptographic Audit Ledger
                 </h2>
-                <p class="mb-0 opacity-75">Immutable cryptographic audit trail for all system activities</p>
+                <p class="mb-0 opacity-75">Immutable hash-chained audit trail — each block is one system event</p>
             </div>
             <div id="integrity-container">
                 <span id="integrity-badge" class="integrity-badge" style="background: #6c757d; color: white;">
@@ -301,164 +344,61 @@
     <!-- Statistics -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-value">{{ total_count }}</div>
+            <div class="stat-value" id="stat-total">{{ total_count }}</div>
             <div class="stat-label">Total Blocks</div>
         </div>
         <div class="stat-card">
-            <div class="stat-value">{{ entries|selectattr('action', 'equalto', 'INGEST_ECG')|list|length }}</div>
-            <div class="stat-label">Data Ingestions (this page)</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ entries|selectattr('action', 'equalto', 'LOGIN_SUCCESS')|list|length }}</div>
-            <div class="stat-label">Login Events (this page)</div>
+            <div class="stat-value" id="stat-ingest" style="color: #388e3c;">-</div>
+            <div class="stat-label">Data Ingestions</div>
         </div>
         <div class="stat-card">
             <div id="integrity-score" class="stat-value" style="color: #6c757d;">...</div>
-            <div class="stat-label">Integrity Score</div>
+            <div class="stat-label">Chain Integrity</div>
+        </div>
+        <div class="stat-card">
+            <div id="ecg-integrity-score" class="stat-value" style="color: #6c757d;">...</div>
+            <div class="stat-label">Data Integrity</div>
         </div>
     </div>
 
-    <!-- Chain Visualization -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white border-bottom">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <div>
-                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;">Audit Chain Visualization</h5>
-                    <small class="text-muted">Showing {{ entries|length }} of {{ total_count }} blocks (newest first)</small>
-                </div>
-                <div class="filter-bar" id="filter-bar" style="display: none;">
-                    <button class="filter-btn filter-btn-all active" id="btn-show-all" onclick="filterBlocks('all')">
-                        Show All <span class="filter-count" id="count-all">...</span>
-                    </button>
-                    <button class="filter-btn filter-btn-invalid" id="btn-show-invalid" onclick="filterBlocks('invalid')">
-                        Show Invalid Only <span class="filter-count" id="count-invalid">...</span>
-                    </button>
-                </div>
+    <!-- Tamper Alert -->
+    <div class="tamper-alert" id="tamper-alert">
+        <h6>&#9888; Database Tampering Detected</h6>
+        <div class="tamper-list" id="tamper-list"></div>
+    </div>
+
+    <!-- Pixel Grid -->
+    <div class="grid-card">
+        <div class="grid-toolbar">
+            <h5>Block Map</h5>
+            <div class="grid-legend">
+                <div class="legend-item"><div class="legend-swatch" style="background:#2ecc71;"></div>Ingest</div>
+                <div class="legend-item"><div class="legend-swatch" style="background:#3498db;"></div>View</div>
+                <div class="legend-item"><div class="legend-swatch" style="background:#9b59b6;"></div>Login</div>
+                <div class="legend-item"><div class="legend-swatch" style="background:#1abc9c;"></div>Entity</div>
+                <div class="legend-item"><div class="legend-swatch" style="background:#7f8c8d;"></div>Other</div>
+                <div class="legend-item"><div class="legend-swatch" style="background:#e74c3c;"></div>Corrupt</div>
+                <div class="legend-item"><div class="legend-swatch" style="background:#ff6b35;"></div>Tampered</div>
             </div>
         </div>
-        <div class="card-body">
-            {% if entries %}
-            <div class="chain-visualization">
-                {% for entry in entries %}
-                <div class="block" data-block-id="{{ entry.id }}">
-                    <div class="block-marker" id="marker-{{ entry.id }}"></div>
-                    <div class="block-card" id="card-{{ entry.id }}">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="d-flex align-items-center mb-2">
-                                    <span class="block-id me-3">Block #{{ entry.id }}</span>
-                                    <span
-                                        class="action-badge {% if entry.action == 'LOGIN_SUCCESS' %}action-login{% elif entry.action == 'INGEST_ECG' %}action-ingest{% elif entry.action in ['PATIENT_CREATE', 'USER_CREATE'] %}action-entity{% else %}action-view{% endif %}">
-                                        {{ entry.action }}
-                                    </span>
-                                    <span class="ms-2" id="block-badge-{{ entry.id }}" style="font-size: 0.8rem;"></span>
-                                </div>
-
-                                <div class="mb-2">
-                                    <small class="text-muted">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                            fill="currentColor" class="bi bi-clock me-1" viewBox="0 0 16 16">
-                                            <path
-                                                d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
-                                            <path
-                                                d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
-                                        </svg>
-                                        {{ entry.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
-                                    </small>
-                                    <small class="text-muted ms-3">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                            fill="currentColor" class="bi bi-person me-1" viewBox="0 0 16 16">
-                                            <path
-                                                d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z" />
-                                        </svg>
-                                        {{ entry.actor_id }}
-                                    </small>
-                                </div>
-
-                                <div class="mb-2">
-                                    <strong class="small">Details:</strong>
-                                    <span class="small text-muted">{{ entry.details }}</span>
-                                </div>
-
-                                <div id="block-reason-{{ entry.id }}" style="display: none; margin-bottom: 0.5rem;">
-                                </div>
-
-                                <div class="row mt-3">
-                                    <div class="col-md-6">
-                                        <div class="small mb-1"><strong>Current Hash:</strong></div>
-                                        <div class="hash-display">{{ entry.record_hash[:32] }}...</div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="small mb-1"><strong>Previous Hash:</strong></div>
-                                        <div class="hash-display">{{ entry.prev_hash[:32] if entry.prev_hash else
-                                            'GENESIS' }}...</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4 d-flex align-items-center justify-content-center">
-                                <div class="block-integrity" id="block-icon-{{ entry.id }}">
-                                    <div class="block-integrity-icon pending">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                                            <path d="M2.5 15a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11zm2-13v1c0 .537.12 1.045.337 1.5h6.326c.216-.455.337-.963.337-1.5V2h-7zm3 6.35c0 .701-.478 1.236-1.011 1.492A3.5 3.5 0 0 0 4.5 13s.866-1.299 3-1.48V8.35zm1 0v3.17c2.134.181 3 1.48 3 1.48a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351z"/>
-                                        </svg>
-                                    </div>
-                                    <div class="small text-muted">Verifying...</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="text-center py-5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#adb5bd" class="mb-3"
-                    viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                </svg>
-                <p class="text-muted">No audit entries in the ledger yet.</p>
-            </div>
-            {% endif %}
-        </div>
+        <div class="pixel-grid" id="pixel-grid">
+            <div style="color: #666; font-size: 0.85rem; padding: 20px;">Loading blocks...</div>
         </div>
     </div>
 
-    <!-- Pagination Controls -->
-    {% if total_pages > 1 %}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="text-muted small">
-            Showing {{ (current_page - 1) * limit + 1 }} to {{ [(current_page * limit), total_count]|min }} of {{ total_count }} entries
+    <!-- Detail Panel -->
+    <div class="detail-panel" id="detail-panel">
+        <div class="detail-header">
+            <h5 id="detail-title">Block #—</h5>
+            <button class="detail-close" onclick="closeDetail()">&times;</button>
         </div>
-        <nav aria-label="Page navigation">
-            <ul class="pagination mb-0">
-                <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
-                    <a class="page-link" href="?page={{ current_page - 1 }}&limit={{ limit }}">Previous</a>
-                </li>
-                
-                {% for p in range(1, total_pages + 1) %}
-                    {% if p == current_page or p == 1 or p == total_pages or (p >= current_page - 2 and p <= current_page + 2) %}
-                        <li class="page-item {% if p == current_page %}active{% endif %}">
-                            <a class="page-link" href="?page={{ p }}&limit={{ limit }}">{{ p }}</a>
-                        </li>
-                    {% elif p == current_page - 3 or p == current_page + 3 %}
-                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                    {% endif %}
-                {% endfor %}
-                
-                <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
-                    <a class="page-link" href="?page={{ current_page + 1 }}&limit={{ limit }}">Next</a>
-                </li>
-            </ul>
-        </nav>
+        <div class="detail-body" id="detail-body"></div>
     </div>
-    {% endif %}
 
     <!-- Technical Info -->
     <div class="card shadow-sm border-0">
         <div class="card-body">
-            <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.75rem; letter-spacing: 0.5px;">Technical
-                Information</h6>
+            <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.75rem; letter-spacing: 0.5px;">Technical Information</h6>
             <div class="row">
                 <div class="col-md-6">
                     <p class="small mb-2"><strong>Hash Algorithm:</strong> HMAC-SHA256 (keyed)</p>
@@ -466,15 +406,14 @@
                     <p class="small mb-0"><strong>Storage:</strong> SQLite Database (WAL mode)</p>
                 </div>
                 <div class="col-md-6">
-                    <p class="small mb-2"><strong>Immutability:</strong> Keyed HMAC &mdash; cannot be forged without server secret</p>
-                    <p class="small mb-2"><strong>Verification:</strong> Real-time Chain &amp; ECG Data Integrity Check</p>
+                    <p class="small mb-2"><strong>Immutability:</strong> Keyed HMAC — cannot be forged without server secret</p>
+                    <p class="small mb-2"><strong>Verification:</strong> Real-time Chain &amp; Full Database Cross-Check</p>
                     <p class="small mb-0"><strong>Compliance:</strong> HIPAA Audit Trail Requirements</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Back Button -->
     <div class="text-center mt-4">
         <a href="/dashboard" class="btn btn-outline-secondary">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -488,116 +427,221 @@
 </div>
 
 <script>
-const SVG_VALID_SM = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>`;
-const SVG_INVALID_SM = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>`;
-const SVG_VALID_LG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>`;
-const SVG_INVALID_LG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>`;
+const SVG_OK = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>';
+const SVG_BAD = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>';
 
-let blockResults = {};
-let currentFilter = 'all';
+let allBlocks = {};
+let selectedBlockId = null;
 
-function filterBlocks(mode) {
-    currentFilter = mode;
-    const allBlocks = document.querySelectorAll('.block[data-block-id]');
-    const btnAll = document.getElementById('btn-show-all');
-    const btnInvalid = document.getElementById('btn-show-invalid');
-
-    btnAll.classList.toggle('active', mode === 'all');
-    btnInvalid.classList.toggle('active', mode === 'invalid');
-
-    allBlocks.forEach(el => {
-        const bid = el.getAttribute('data-block-id');
-        const result = blockResults[bid];
-        if (mode === 'invalid') {
-            const isInvalid = result && !result.valid;
-            el.classList.toggle('hidden-by-filter', !isInvalid);
-        } else {
-            el.classList.remove('hidden-by-filter');
-        }
-    });
+function actionClass(action) {
+    if (action === 'INGEST_ECG') return 'ingest';
+    if (action === 'VIEW_ECG') return 'view';
+    if (action === 'LOGIN_SUCCESS') return 'login';
+    if (action === 'PATIENT_CREATE' || action === 'USER_CREATE') return 'entity';
+    return 'other';
 }
 
-function annotateBlock(bid, result) {
-    const card = document.getElementById('card-' + bid);
-    const marker = document.getElementById('marker-' + bid);
-    const iconArea = document.getElementById('block-icon-' + bid);
-    const badgeSpan = document.getElementById('block-badge-' + bid);
-    const reasonDiv = document.getElementById('block-reason-' + bid);
-
-    if (!card) return;
-
-    if (result.valid) {
-        card.classList.add('block-valid');
-        marker.style.background = 'var(--chain-valid)';
-        marker.style.boxShadow = '0 0 0 3px var(--chain-valid)';
-        iconArea.innerHTML = `
-            <div class="block-integrity-icon valid">${SVG_VALID_SM}</div>
-            <div class="small" style="color: var(--chain-valid); font-weight: 600;">VERIFIED</div>`;
-        badgeSpan.innerHTML = `<span style="color: var(--chain-valid); font-weight: 600;">&#10003;</span>`;
-    } else {
-        card.classList.add('block-invalid');
-        marker.style.background = 'var(--chain-invalid)';
-        marker.style.boxShadow = '0 0 0 3px var(--chain-invalid)';
-        iconArea.innerHTML = `
-            <div class="block-integrity-icon invalid">${SVG_INVALID_SM}</div>
-            <div class="small" style="color: var(--chain-invalid); font-weight: 600;">CORRUPTED</div>`;
-        badgeSpan.innerHTML = `<span style="color: var(--chain-invalid); font-weight: 600;">&#10007; INVALID</span>`;
-        reasonDiv.style.display = 'block';
-        reasonDiv.innerHTML = `<span class="small" style="color: var(--chain-invalid); font-weight: 600; background: #f8d7da; padding: 3px 8px; border-radius: 4px;">Reason: ${result.reason}</span>`;
+function pixelClass(block) {
+    if (!block.valid) {
+        return block.reason === 'data_tampered' ? 'px-tampered' : 'px-invalid';
     }
+    return 'px-valid-' + actionClass(block.action);
 }
 
-(function () {
+function actionPillHtml(action) {
+    const cls = actionClass(action);
+    return `<span class="action-pill ${cls}">${action}</span>`;
+}
+
+function selectPixel(bid) {
+    document.querySelectorAll('.pixel.selected').forEach(el => el.classList.remove('selected'));
+    const px = document.getElementById('px-' + bid);
+    if (px) px.classList.add('selected');
+    selectedBlockId = bid;
+
+    const panel = document.getElementById('detail-panel');
+    const title = document.getElementById('detail-title');
+    const body = document.getElementById('detail-body');
+    const block = allBlocks[bid];
+
+    title.textContent = 'Block #' + bid;
+    body.innerHTML = '<div style="color:#888; font-size:0.85rem;">Loading details...</div>';
+    panel.classList.add('open');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    fetch('/api/audit/block/' + bid)
+        .then(r => r.json())
+        .then(data => {
+            const isOk = block && block.valid;
+            let statusHtml;
+            if (isOk) {
+                statusHtml = '<span class="detail-status ok">&#10003; VERIFIED</span>';
+            } else {
+                const reason = block ? block.reason : 'unknown';
+                statusHtml = '<span class="detail-status bad">&#10007; ' +
+                    (reason === 'data_tampered' ? 'DATA TAMPERED' : 'CORRUPTED') +
+                    '</span>';
+            }
+
+            let tamperedHtml = '';
+            if (block && block.tampered_fields && block.tampered_fields.length > 0) {
+                tamperedHtml = '<div class="detail-field" style="grid-column: 1 / -1;"><label>Tampered Fields</label><div>' +
+                    block.tampered_fields.map(f => '<span class="tampered-badge">' + f + '</span>').join('') +
+                    '</div></div>';
+            }
+
+            let linkHtml = '';
+            if (block && block.ecg_record_id) {
+                linkHtml = `<a class="ecg-link" href="/ecg/${block.ecg_record_id}">View ECG-${String(block.ecg_record_id).padStart(5, '0')} &rarr;</a>`;
+            }
+
+            let detailsFormatted = data.details || '{}';
+            try {
+                detailsFormatted = JSON.stringify(JSON.parse(detailsFormatted), null, 2);
+            } catch(e) {}
+
+            body.innerHTML = `
+                <div style="margin-bottom: 14px;">${statusHtml} ${actionPillHtml(data.action)} ${linkHtml}</div>
+                <div class="detail-grid">
+                    <div class="detail-field">
+                        <label>Timestamp</label>
+                        <div class="val">${data.timestamp}</div>
+                    </div>
+                    <div class="detail-field">
+                        <label>Actor</label>
+                        <div class="val">${data.actor_id}</div>
+                    </div>
+                    <div class="detail-field" style="grid-column: 1 / -1;">
+                        <label>Record Hash</label>
+                        <div class="val mono">${data.record_hash}</div>
+                    </div>
+                    <div class="detail-field" style="grid-column: 1 / -1;">
+                        <label>Previous Hash</label>
+                        <div class="val mono">${data.prev_hash}</div>
+                    </div>
+                    ${tamperedHtml}
+                    <div class="detail-field" style="grid-column: 1 / -1;">
+                        <label>Details</label>
+                        <div class="val mono" style="white-space: pre-wrap; font-size: 0.74rem;">${detailsFormatted}</div>
+                    </div>
+                </div>`;
+        })
+        .catch(() => {
+            body.innerHTML = '<div style="color: var(--chain-invalid);">Failed to load block details.</div>';
+        });
+}
+
+function closeDetail() {
+    document.getElementById('detail-panel').classList.remove('open');
+    document.querySelectorAll('.pixel.selected').forEach(el => el.classList.remove('selected'));
+    selectedBlockId = null;
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDetail();
+    if (!selectedBlockId) return;
+    const ids = Object.keys(allBlocks).map(Number).sort((a,b) => a - b);
+    const idx = ids.indexOf(Number(selectedBlockId));
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (idx < ids.length - 1) selectPixel(ids[idx + 1]);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (idx > 0) selectPixel(ids[idx - 1]);
+    }
+});
+
+(function() {
     const badge = document.getElementById('integrity-badge');
     const detail = document.getElementById('integrity-detail');
     const score = document.getElementById('integrity-score');
-    const filterBar = document.getElementById('filter-bar');
+    const ecgScore = document.getElementById('ecg-integrity-score');
+    const grid = document.getElementById('pixel-grid');
 
     fetch('/api/audit/verify-all')
         .then(r => r.json())
         .then(data => {
-            blockResults = data.blocks || {};
+            allBlocks = data.blocks || {};
             const totalBlocks = data.total_blocks || 0;
             const invalidCount = data.invalid_count || 0;
-            const isValid = invalidCount === 0;
+            const systemOk = invalidCount === 0;
 
-            // Global badge
-            badge.className = 'integrity-badge ' + (isValid ? 'integrity-valid' : 'integrity-invalid');
-            badge.innerHTML = (isValid ? SVG_VALID_LG : SVG_INVALID_LG) +
-                ' Chain Integrity: ' + (isValid ? 'VALID' : 'COMPROMISED');
+            let chainCorruptCount = 0;
+            let dataTamperedCount = 0;
+            let ingestCount = 0;
+            const tamperedEntries = [];
 
-            // Integrity score
-            const pct = totalBlocks > 0 ? Math.round(((totalBlocks - invalidCount) / totalBlocks) * 100) : 100;
-            score.textContent = pct + '%';
-            score.style.color = isValid ? 'var(--chain-valid)' : 'var(--chain-invalid)';
-
-            // Detail line
-            detail.style.display = 'block';
-            if (isValid) {
-                detail.textContent = 'All ' + totalBlocks + ' blocks verified (HMAC-SHA256)';
-            } else {
-                detail.textContent = invalidCount + ' of ' + totalBlocks + ' blocks failed verification';
+            for (const [bid, r] of Object.entries(allBlocks)) {
+                if (r.action === 'INGEST_ECG') ingestCount++;
+                if (!r.valid) {
+                    if (r.reason === 'data_tampered') {
+                        dataTamperedCount++;
+                        tamperedEntries.push({...r, bid});
+                    } else {
+                        chainCorruptCount++;
+                    }
+                }
             }
 
-            // Filter bar counts
-            document.getElementById('count-all').textContent = totalBlocks;
-            document.getElementById('count-invalid').textContent = invalidCount;
-            filterBar.style.display = 'flex';
+            document.getElementById('stat-ingest').textContent = ingestCount;
+            document.getElementById('stat-total').textContent = totalBlocks;
 
-            // Annotate each block on the current page
-            document.querySelectorAll('.block[data-block-id]').forEach(el => {
-                const bid = el.getAttribute('data-block-id');
-                const result = blockResults[bid];
-                if (result) {
-                    annotateBlock(bid, result);
-                }
+            badge.className = 'integrity-badge ' + (systemOk ? 'integrity-valid' : 'integrity-invalid');
+            badge.innerHTML = (systemOk ? SVG_OK : SVG_BAD) +
+                ' System Integrity: ' + (systemOk ? 'INTACT' : 'COMPROMISED');
+
+            detail.style.display = 'block';
+            const parts = [];
+            if (chainCorruptCount === 0 && dataTamperedCount === 0) {
+                parts.push('All ' + totalBlocks + ' blocks verified');
+            }
+            if (chainCorruptCount > 0) parts.push(chainCorruptCount + ' block' + (chainCorruptCount > 1 ? 's' : '') + ' corrupted');
+            if (dataTamperedCount > 0) parts.push(dataTamperedCount + ' record' + (dataTamperedCount > 1 ? 's' : '') + ' tampered');
+            detail.textContent = parts.join(' · ');
+
+            const chainPct = totalBlocks > 0 ? Math.round(((totalBlocks - invalidCount) / totalBlocks) * 100) : 100;
+            score.textContent = chainPct + '%';
+            score.style.color = systemOk ? 'var(--chain-valid)' : 'var(--chain-invalid)';
+
+            ecgScore.textContent = dataTamperedCount === 0 ? '100%' : dataTamperedCount + ' tampered';
+            ecgScore.style.color = dataTamperedCount === 0 ? 'var(--chain-valid)' : 'var(--chain-invalid)';
+
+            // Tamper alert chips
+            if (tamperedEntries.length > 0) {
+                const alertDiv = document.getElementById('tamper-alert');
+                const listDiv = document.getElementById('tamper-list');
+                alertDiv.classList.add('show');
+                listDiv.innerHTML = tamperedEntries.map(t => {
+                    const label = t.ecg_record_id
+                        ? 'ECG-' + String(t.ecg_record_id).padStart(5, '0')
+                        : (t.entity_label || 'Block #' + t.bid);
+                    const fields = (t.tampered_fields || []).join(', ');
+                    return `<div class="tamper-chip" onclick="selectPixel(${t.bid})" title="${fields}">
+                        <span class="chip-dot"></span>${label}</div>`;
+                }).join('');
+            }
+
+            // Render pixel grid
+            const ids = Object.keys(allBlocks).map(Number).sort((a,b) => a - b);
+            grid.innerHTML = '';
+            ids.forEach(bid => {
+                const block = allBlocks[bid];
+                const px = document.createElement('div');
+                px.className = 'pixel ' + pixelClass(block);
+                px.id = 'px-' + bid;
+                px.title = '#' + bid + ' · ' + block.action + (block.valid ? '' : ' · ' + block.reason);
+                px.onclick = () => selectPixel(bid);
+                grid.appendChild(px);
             });
         })
         .catch(() => {
             badge.className = 'integrity-badge integrity-invalid';
-            badge.innerHTML = SVG_INVALID_LG + ' Verification Error';
+            badge.innerHTML = SVG_BAD + ' Verification Error';
             score.textContent = '?';
             score.style.color = 'var(--chain-invalid)';
+            ecgScore.textContent = '?';
+            ecgScore.style.color = 'var(--chain-invalid)';
+            grid.innerHTML = '<div style="color:#e74c3c; padding: 20px;">Failed to load blocks.</div>';
         });
 })();
 </script>

@@ -81,45 +81,176 @@ def add_audit_entry(db: Session, actor_id: str, action: str, details: dict, auto
     return new_entry
 
 
+def _build_lookups(db: Session) -> dict:
+    """
+    Pre-load all verifiable tables into fast lookup dicts.
+    Only fetches lightweight columns — never loads ecg_data or processing_results.
+    """
+    from sqlalchemy.orm import load_only
+
+    ecg_records = db.query(models.ECGRecord).options(
+        load_only(
+            models.ECGRecord.id,
+            models.ECGRecord.classification,
+            models.ECGRecord.data_hash,
+            models.ECGRecord.model_hash,
+            models.ECGRecord.model_version,
+            models.ECGRecord.patient_id,
+        )
+    ).all()
+
+    patients = db.query(models.Patient).all()
+    users = db.query(models.User).all()
+
+    return {
+        "ecg": {r.id: r for r in ecg_records},
+        "patient_by_id": {p.id: p for p in patients},
+        "patient_by_ext": {p.patient_id_external: p for p in patients},
+        "user_by_name": {u.username: u for u in users},
+    }
+
+
+def _cross_check_block(action: str, snapshot: dict, lookups: dict) -> list:
+    """
+    Compare a ledger block's snapshot against the live database row.
+    Returns a list of tampered field names (empty = intact).
+    Handles INGEST_ECG, PATIENT_CREATE, and USER_CREATE actions.
+    """
+    if action == "INGEST_ECG":
+        rid = snapshot.get("record_id")
+        if rid is None:
+            return []
+        record = lookups["ecg"].get(rid)
+        if record is None:
+            return ["record_deleted"]
+
+        tampered = []
+        if "class" in snapshot and snapshot["class"] != record.classification:
+            tampered.append("classification")
+        if "data_hash" in snapshot and snapshot["data_hash"] != record.data_hash:
+            tampered.append("data_hash")
+        if "model_hash" in snapshot and snapshot["model_hash"] != record.model_hash:
+            tampered.append("model_hash")
+        if "model_version" in snapshot and snapshot["model_version"] != record.model_version:
+            tampered.append("model_version")
+        if "patient" in snapshot and record.patient_id:
+            patient = lookups["patient_by_id"].get(record.patient_id)
+            if patient and snapshot["patient"] != patient.patient_id_external:
+                tampered.append("patient")
+        return tampered
+
+    if action == "PATIENT_CREATE":
+        ext_id = snapshot.get("patient_external_id")
+        if not ext_id:
+            return []
+        patient = lookups["patient_by_ext"].get(ext_id)
+        if patient is None:
+            return ["patient_deleted"]
+
+        tampered = []
+        if "name" in snapshot and snapshot["name"] != patient.name:
+            tampered.append("name")
+        if "patient_db_id" in snapshot and snapshot["patient_db_id"] != patient.id:
+            tampered.append("id")
+        return tampered
+
+    if action == "USER_CREATE":
+        username = snapshot.get("username")
+        if not username:
+            return []
+        user = lookups["user_by_name"].get(username)
+        if user is None:
+            return ["user_deleted"]
+
+        tampered = []
+        if "role" in snapshot and snapshot["role"] != user.role:
+            tampered.append("role")
+        return tampered
+
+    return []
+
+
+_CROSSCHECK_ACTIONS = {"INGEST_ECG", "PATIENT_CREATE", "USER_CREATE"}
+
+
 def verify_chain_integrity(db: Session) -> dict:
     """
-    Verify the entire cryptographic audit ledger for tampering.
-    Returns a dict with detailed results instead of a simple bool so the
-    caller can report exactly which block failed.
+    Verify the entire cryptographic ledger:
+      1. HMAC hash chain (detects audit_log tampering)
+      2. Cross-check every state-creating block against live DB rows
+         (detects ecg_records / patients / users tampering)
+    Fast: field-level comparisons only, no SHA-256 recomputation.
     """
     entries = db.query(models.AuditLog).order_by(models.AuditLog.id.asc()).all()
-    
+    lookups = _build_lookups(db)
+
     expected_prev_hash = "0" * 64
-    
+    tampered_records = []
+
     for entry in entries:
         if entry.prev_hash != expected_prev_hash:
-            print(f"Broken Link at ID {entry.id}! PrevHash mismatch.")
-            return {"valid": False, "failed_id": entry.id, "reason": "prev_hash link broken"}
-            
+            return {
+                "valid": False, "failed_id": entry.id,
+                "reason": "prev_hash link broken",
+                "total_blocks": len(entries),
+                "tampered_records": tampered_records,
+                "tampered_count": len(tampered_records),
+                "chain_intact": False,
+                "data_intact": len(tampered_records) == 0,
+            }
+
         calculated = calculate_hash(
-            entry.prev_hash,
-            str(entry.timestamp),
-            entry.actor_id,
-            entry.action,
-            entry.details
+            entry.prev_hash, str(entry.timestamp),
+            entry.actor_id, entry.action, entry.details
         )
-        
+
         if calculated != entry.record_hash:
-            print(f"Data Tampering at ID {entry.id}! Hash mismatch.")
-            return {"valid": False, "failed_id": entry.id, "reason": "record_hash mismatch"}
-            
+            return {
+                "valid": False, "failed_id": entry.id,
+                "reason": "record_hash mismatch",
+                "total_blocks": len(entries),
+                "tampered_records": tampered_records,
+                "tampered_count": len(tampered_records),
+                "chain_intact": False,
+                "data_intact": len(tampered_records) == 0,
+            }
+
+        if entry.action in _CROSSCHECK_ACTIONS:
+            try:
+                snapshot = json.loads(entry.details)
+            except (json.JSONDecodeError, TypeError):
+                snapshot = {}
+            fields = _cross_check_block(entry.action, snapshot, lookups)
+            if fields:
+                tampered_records.append({
+                    "record_id": snapshot.get("record_id") or snapshot.get("patient_db_id") or snapshot.get("username"),
+                    "block_id": entry.id,
+                    "action": entry.action,
+                    "tampered_fields": fields,
+                })
+
         expected_prev_hash = entry.record_hash
-        
-    return {"valid": True, "total_blocks": len(entries)}
+
+    data_ok = len(tampered_records) == 0
+
+    return {
+        "valid": data_ok,
+        "total_blocks": len(entries),
+        "tampered_records": tampered_records,
+        "tampered_count": len(tampered_records),
+        "chain_intact": True,
+        "data_intact": data_ok,
+    }
 
 
-def verify_all_blocks(db: Session) -> list:
+def verify_all_blocks(db: Session) -> dict:
     """
-    Verify every block individually and return a list of per-block results.
-    Unlike verify_chain_integrity (which stops at the first failure), this
-    walks the entire chain so the UI can mark each block as valid/invalid.
+    Verify every block individually and return per-block results.
+    For state-creating blocks (INGEST_ECG, PATIENT_CREATE, USER_CREATE),
+    also cross-checks against the live database.
     """
     entries = db.query(models.AuditLog).order_by(models.AuditLog.id.asc()).all()
+    lookups = _build_lookups(db)
     results = {}
     expected_prev_hash = "0" * 64
 
@@ -127,26 +258,49 @@ def verify_all_blocks(db: Session) -> list:
         link_ok = (entry.prev_hash == expected_prev_hash)
 
         calculated = calculate_hash(
-            entry.prev_hash,
-            str(entry.timestamp),
-            entry.actor_id,
-            entry.action,
-            entry.details
+            entry.prev_hash, str(entry.timestamp),
+            entry.actor_id, entry.action, entry.details
         )
         hash_ok = (calculated == entry.record_hash)
 
-        valid = link_ok and hash_ok
+        data_tampered = []
+        if entry.action in _CROSSCHECK_ACTIONS:
+            try:
+                snapshot = json.loads(entry.details)
+            except (json.JSONDecodeError, TypeError):
+                snapshot = {}
+            data_tampered = _cross_check_block(entry.action, snapshot, lookups)
+
+        valid = link_ok and hash_ok and len(data_tampered) == 0
         reason = "valid"
         if not link_ok:
             reason = "prev_hash link broken"
         elif not hash_ok:
             reason = "record_hash mismatch"
+        elif data_tampered:
+            reason = "data_tampered"
 
-        results[entry.id] = {
+        result = {
             "valid": valid,
             "reason": reason,
+            "action": entry.action,
+            "timestamp": str(entry.timestamp),
+            "actor_id": entry.actor_id,
         }
+        if data_tampered:
+            result["tampered_fields"] = data_tampered
+            try:
+                det = json.loads(entry.details)
+                result["ecg_record_id"] = det.get("record_id")
+                result["entity_label"] = (
+                    det.get("record_id")
+                    or det.get("patient_external_id")
+                    or det.get("username")
+                )
+            except Exception:
+                pass
 
+        results[entry.id] = result
         expected_prev_hash = entry.record_hash
 
     return results
@@ -230,3 +384,5 @@ def verify_ecg_data_integrity(db: Session, record_id: int) -> dict:
         "reason": reason,
         "tampered_fields": tampered_fields,
     }
+
+

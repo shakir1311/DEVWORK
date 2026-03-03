@@ -59,12 +59,9 @@ class AuditLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
-    actor_id = Column(String) # User ID or Device ID who performed the action
-    action = Column(String) # e.g. "LOGIN", "VIEW_ECG", "INGEST_DATA"
-    details = Column(String) # JSON string of details
+    actor_id = Column(String)
+    action = Column(String)
+    details = Column(String)
     
-    # Cryptographic Linkage
-    prev_hash = Column(String) # Hash of the previous record
-    record_hash = Column(String) # Hash of (prev_hash + timestamp + actor + action + details)
-
-    # To verify integrity, we re-calculate hash and match with record_hash
+    prev_hash = Column(String)
+    record_hash = Column(String)

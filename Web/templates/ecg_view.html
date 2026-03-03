@@ -33,8 +33,11 @@
                 <div style="margin-top: 8px; font-size: 0.75em; color: #666;">
                     <strong>Key Regions:</strong>
                     {% for region in results.results.ml_inference.explanation.peak_regions[:3] %}
-                    <span
-                        style="background: rgba(0,123,255,0.1); padding: 2px 5px; border-radius: 3px; margin-right: 3px;">
+                    <span class="xai-region-badge"
+                        data-start="{{ '%.3f'|format(region[0] / 300) }}"
+                        data-end="{{ '%.3f'|format(region[1] / 300) }}"
+                        onclick="zoomToRegion(this)"
+                        title="Click to zoom into this region">
                         {{ "%.1f"|format(region[0] / 300) }}s - {{ "%.1f"|format(region[1] / 300) }}s
                     </span>
                     {% endfor %}
@@ -88,12 +91,41 @@
                 <span>View: <b>Dygraphs Clinical</b></span> |
                 <span>Interactivity: <b>Use range selector at bottom to zoom/pan</b></span>
             </div>
-            <button onclick="resetZoom()" class="btn btn-outline btn-sm">Reset View (2s)</button>
+            <div>
+                <button onclick="resetZoom()" class="btn btn-outline btn-sm">Reset View (2s)</button>
+                <button onclick="openFullscreen()" class="btn btn-outline btn-sm" style="margin-left: 6px;" title="Open full-page ECG view">⛶ Full Page</button>
+            </div>
         </div>
 
         <!-- Chart Container -->
         <div id="ecgDiv" style="width: 100%; height: 350px; background: #fff5f5;"></div>
     </div>
+
+<!-- Fullscreen ECG Modal -->
+<div id="ecgFullscreenModal" class="ecg-fullscreen-modal">
+    <div class="ecg-fullscreen-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-weight: bold; font-size: 1.1em; color: #333;">ECG Signal — Full View</span>
+            <span style="font-size: 0.8em; color: #666;">{{ record.patient.name }} ({{ record.patient.patient_id_external }})</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button onclick="resetFullscreenZoom()" class="btn btn-outline btn-sm">Reset View (2s)</button>
+            {% if results.results and results.results.ml_inference and results.results.ml_inference.explanation and results.results.ml_inference.explanation.peak_regions %}
+            {% for region in results.results.ml_inference.explanation.peak_regions[:3] %}
+            <span class="xai-region-badge"
+                data-start="{{ '%.3f'|format(region[0] / 300) }}"
+                data-end="{{ '%.3f'|format(region[1] / 300) }}"
+                onclick="zoomFullscreenToRegion(this)"
+                title="Click to zoom into this XAI region">
+                {{ "%.1f"|format(region[0] / 300) }}s - {{ "%.1f"|format(region[1] / 300) }}s
+            </span>
+            {% endfor %}
+            {% endif %}
+            <button onclick="closeFullscreen()" class="btn btn-outline btn-sm" style="margin-left: 8px; font-size: 1.1em; padding: 2px 10px;">✕</button>
+        </div>
+    </div>
+    <div id="ecgDivFullscreen" style="width: 100%; flex: 1; background: #fff5f5;"></div>
+</div>
 
     <!-- Metadata -->
     <div style="margin-top: 20px; font-size: 0.9em; color: #666;">
@@ -119,26 +151,23 @@
 </div>
 
 <!-- Provenance Modal -->
-<div id="provenanceModal"
-    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-    <div
-        style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 800px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        <div
-            style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 15px;">
-            <h3 style="margin: 0; color: #333;">Cryptographic Provenance Verification</h3>
-            <button onclick="closeProvenanceModal()"
-                style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #666;">&times;</button>
+<div id="provenanceModal" class="provenance-overlay" onclick="if(event.target===this)closeProvenanceModal()">
+    <div class="provenance-modal">
+        <div class="provenance-header">
+            <h3 style="margin: 0; color: #333; font-size: 1.15em;">Cryptographic Provenance Verification</h3>
+            <button onclick="closeProvenanceModal()" class="provenance-close-btn" title="Close">&times;</button>
         </div>
 
-        <div id="provenanceLoading" style="text-align: center; padding: 20px;">
-            Validating immutable ledger blocks... ⏳
+        <div class="provenance-body">
+            <div id="provenanceLoading" style="text-align: center; padding: 20px;">
+                Validating immutable ledger blocks... ⏳
+            </div>
+
+            <div id="provenanceContent" style="display: none; font-family: monospace; font-size: 0.85em; line-height: 1.5;">
+            </div>
         </div>
 
-        <div id="provenanceContent" style="display: none; font-family: monospace; font-size: 0.9em; line-height: 1.5;">
-            <!-- Content populated by JS -->
-        </div>
-
-        <div style="margin-top: 20px; text-align: right;">
+        <div class="provenance-footer">
             <button onclick="closeProvenanceModal()" class="btn btn-secondary"
                 style="background-color: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Close</button>
         </div>
@@ -151,7 +180,9 @@
 
 <script>
     function openProvenanceModal() {
-        document.getElementById('provenanceModal').style.display = 'flex';
+        const modal = document.getElementById('provenanceModal');
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
         document.getElementById('provenanceLoading').style.display = 'block';
         document.getElementById('provenanceContent').style.display = 'none';
 
@@ -266,7 +297,8 @@
     }
 
     function closeProvenanceModal() {
-        document.getElementById('provenanceModal').style.display = 'none';
+        document.getElementById('provenanceModal').classList.remove('open');
+        document.body.style.overflow = '';
     }
 
     const ecgData = {{ record.ecg_data| tojson }};
@@ -373,14 +405,158 @@
         g.setAnnotations(annotations);
     });
 
-    function resetZoom() {
-        g.updateOptions({ dateWindow: [0, 2.0] });
+    // XAI region highlight state
+    let highlightedRegion = null;
+
+    function zoomToRegion(el) {
+        const start = parseFloat(el.dataset.start);
+        const end = parseFloat(el.dataset.end);
+        const padding = (end - start) * 0.15;
+
+        // Update active badge styling
+        document.querySelectorAll('.xai-region-badge').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+
+        highlightedRegion = { start: start, end: end };
+        g.updateOptions({
+            dateWindow: [start - padding, end + padding],
+            underlayCallback: function(canvas, area, dygraph) {
+                if (!highlightedRegion) return;
+                const xStart = dygraph.toDomXCoord(highlightedRegion.start);
+                const xEnd = dygraph.toDomXCoord(highlightedRegion.end);
+                canvas.fillStyle = 'rgba(255, 165, 0, 0.15)';
+                canvas.fillRect(xStart, area.y, xEnd - xStart, area.h);
+                // Draw border lines at region edges
+                canvas.strokeStyle = 'rgba(255, 120, 0, 0.6)';
+                canvas.lineWidth = 1.5;
+                canvas.setLineDash([4, 3]);
+                canvas.beginPath();
+                canvas.moveTo(xStart, area.y);
+                canvas.lineTo(xStart, area.y + area.h);
+                canvas.moveTo(xEnd, area.y);
+                canvas.lineTo(xEnd, area.y + area.h);
+                canvas.stroke();
+                canvas.setLineDash([]);
+            }
+        });
     }
+
+    function resetZoom() {
+        highlightedRegion = null;
+        document.querySelectorAll('.xai-region-badge').forEach(b => b.classList.remove('active'));
+        g.updateOptions({
+            dateWindow: [0, 2.0],
+            underlayCallback: null
+        });
+    }
+
+    // Fullscreen ECG view
+    let gFull = null;
+    let fullscreenHighlight = null;
+
+    function openFullscreen() {
+        const modal = document.getElementById('ecgFullscreenModal');
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        // Small delay to let the modal render at full size before creating the graph
+        setTimeout(() => {
+            const container = document.getElementById('ecgDivFullscreen');
+            if (gFull) {
+                gFull.destroy();
+                container.innerHTML = '';
+            }
+
+            gFull = new Dygraph(container, plotData, {
+                labels: ["Time", "Voltage"],
+                color: '#000044',
+                strokeWidth: 1.2,
+                title: '',
+                xlabel: 'Time (seconds)',
+                ylabel: 'Voltage (mV)',
+                animatedZooms: true,
+                showRangeSelector: true,
+                rangeSelectorHeight: 40,
+                interactionModel: Dygraph.defaultInteractionModel,
+                gridLineColor: 'rgba(255, 0, 0, 0.3)',
+                gridLineWidth: 1,
+                drawGrid: true,
+                axes: {
+                    x: {
+                        valueFormatter: (v) => v.toFixed(3) + 's',
+                        axisLabelFormatter: (v) => v.toFixed(1) + 's'
+                    },
+                    y: {
+                        valueFormatter: (v) => v.toFixed(3) + 'mV',
+                        valueRange: [-1.5, 1.5]
+                    }
+                },
+                dateWindow: [0, 2.0]
+            });
+
+            gFull.ready(function() {
+                gFull.setAnnotations(annotations);
+            });
+        }, 50);
+    }
+
+    function closeFullscreen() {
+        const modal = document.getElementById('ecgFullscreenModal');
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        fullscreenHighlight = null;
+    }
+
+    function resetFullscreenZoom() {
+        if (!gFull) return;
+        fullscreenHighlight = null;
+        document.querySelectorAll('#ecgFullscreenModal .xai-region-badge').forEach(b => b.classList.remove('active'));
+        gFull.updateOptions({ dateWindow: [0, 2.0], underlayCallback: null });
+    }
+
+    function zoomFullscreenToRegion(el) {
+        if (!gFull) return;
+        const start = parseFloat(el.dataset.start);
+        const end = parseFloat(el.dataset.end);
+        const padding = (end - start) * 0.15;
+
+        document.querySelectorAll('#ecgFullscreenModal .xai-region-badge').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+
+        fullscreenHighlight = { start, end };
+        gFull.updateOptions({
+            dateWindow: [start - padding, end + padding],
+            underlayCallback: function(canvas, area, dygraph) {
+                if (!fullscreenHighlight) return;
+                const xStart = dygraph.toDomXCoord(fullscreenHighlight.start);
+                const xEnd = dygraph.toDomXCoord(fullscreenHighlight.end);
+                canvas.fillStyle = 'rgba(255, 165, 0, 0.15)';
+                canvas.fillRect(xStart, area.y, xEnd - xStart, area.h);
+                canvas.strokeStyle = 'rgba(255, 120, 0, 0.6)';
+                canvas.lineWidth = 1.5;
+                canvas.setLineDash([4, 3]);
+                canvas.beginPath();
+                canvas.moveTo(xStart, area.y);
+                canvas.lineTo(xStart, area.y + area.h);
+                canvas.moveTo(xEnd, area.y);
+                canvas.lineTo(xEnd, area.y + area.h);
+                canvas.stroke();
+                canvas.setLineDash([]);
+            }
+        });
+    }
+
+    // Close fullscreen on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeFullscreen();
+            closeProvenanceModal();
+        }
+    });
 
 </script>
 
 <style>
-    /* Styling for the Peak Counter Badges */
     .peak-annotation {
         background-color: rgba(0, 128, 0, 0.8) !important;
         color: white !important;
@@ -391,6 +567,111 @@
         padding-top: 2px;
         box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         font-size: 10px;
+    }
+
+    .xai-region-badge {
+        background: rgba(0,123,255,0.1);
+        padding: 2px 8px;
+        border-radius: 3px;
+        margin-right: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+        display: inline-block;
+    }
+    .xai-region-badge:hover {
+        background: rgba(255,165,0,0.25);
+        border-color: rgba(255,120,0,0.5);
+        transform: translateY(-1px);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    .xai-region-badge.active {
+        background: rgba(255,165,0,0.3);
+        border-color: rgba(255,120,0,0.7);
+        font-weight: bold;
+        box-shadow: 0 1px 4px rgba(255,120,0,0.3);
+    }
+
+    .provenance-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+        padding: 24px;
+    }
+    .provenance-overlay.open {
+        display: flex;
+    }
+    .provenance-modal {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        width: 90%;
+        max-width: 850px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+    }
+    .provenance-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid #dee2e6;
+        flex-shrink: 0;
+    }
+    .provenance-close-btn {
+        background: none;
+        border: none;
+        font-size: 1.6em;
+        cursor: pointer;
+        color: #666;
+        line-height: 1;
+        padding: 0 4px;
+        transition: color 0.15s;
+    }
+    .provenance-close-btn:hover {
+        color: #d32f2f;
+    }
+    .provenance-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .provenance-footer {
+        padding: 12px 20px;
+        border-top: 1px solid #dee2e6;
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    .ecg-fullscreen-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #ffffff;
+        z-index: 2000;
+        flex-direction: column;
+    }
+    .ecg-fullscreen-modal.open {
+        display: flex;
+    }
+    .ecg-fullscreen-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        flex-shrink: 0;
     }
 </style>
 {% endblock %}

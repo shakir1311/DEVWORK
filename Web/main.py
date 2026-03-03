@@ -427,11 +427,12 @@ async def get_ecg_provenance(record_id: int, db: Session = Depends(get_db)):
 
 @app.get("/api/audit/verify")
 async def verify_audit_trail(db: Session = Depends(get_db)):
-    """Check if the cryptographic audit ledger integrity is intact (HMAC-SHA256)."""
+    """Single-chain integrity: HMAC hash chain + ECG data cross-check.
+    Fast enough for 3-second polling (field comparisons only, no SHA-256 recomputation)."""
     result = ledger.verify_chain_integrity(db)
     return {
         "integrity_status": "Valid" if result["valid"] else "CORRUPTED",
-        "details": result
+        "chain": result,
     }
 
 @app.get("/api/audit/verify-all")
@@ -443,6 +444,22 @@ async def verify_all_blocks(db: Session = Depends(get_db)):
         "total_blocks": len(results),
         "invalid_count": len(invalid_ids),
         "blocks": results,
+    }
+
+@app.get("/api/audit/block/{block_id}")
+async def get_audit_block(block_id: int, db: Session = Depends(get_db)):
+    """Return full details of a single audit block."""
+    entry = db.query(models.AuditLog).filter(models.AuditLog.id == block_id).first()
+    if not entry:
+        raise HTTPException(status_code=404, detail="Block not found")
+    return {
+        "id": entry.id,
+        "timestamp": str(entry.timestamp),
+        "actor_id": entry.actor_id,
+        "action": entry.action,
+        "details": entry.details,
+        "prev_hash": entry.prev_hash,
+        "record_hash": entry.record_hash,
     }
 
 @app.get("/api/ecg/{record_id}/verify-data")
@@ -466,40 +483,67 @@ async def verify_ecg_batch(payload: dict, db: Session = Depends(get_db)):
     return {"results": results}
 
 @app.get("/audit-ledger", response_class=HTMLResponse)
-async def audit_ledger_view(request: Request, page: int = 1, limit: int = 50, db: Session = Depends(get_db)):
-    """View Cryptographic Audit Ledger with Pagination"""
-    skip = (page - 1) * limit
-    
+async def audit_ledger_view(request: Request, db: Session = Depends(get_db)):
+    """View Cryptographic Audit Ledger — defrag-style block map."""
     total_count = db.query(models.AuditLog).count()
-    total_pages = (total_count + limit - 1) // limit
-    
-    entries = db.query(models.AuditLog).order_by(models.AuditLog.id.desc()).offset(skip).limit(limit).all()
-    
-    # Deferred to the Verify button — avoids blocking page loads.
-    is_valid = True 
-    
     return templates.TemplateResponse("audit_ledger.html", {
         "request": request,
-        "entries": entries,
-        "chain_valid": is_valid,
         "title": "Cryptographic Audit Ledger",
-        "current_page": page,
-        "total_pages": total_pages,
-        "limit": limit,
-        "total_count": total_count
+        "total_count": total_count,
     })
 
 # --- Patient Features ---
 
 @app.get("/api/patients/search")
-async def search_patients(q: str, db: Session = Depends(get_db)):
-    """Search patients by ID or Name"""
-    patients = db.query(models.Patient).filter(
-        (models.Patient.patient_id_external.contains(q)) | 
-        (models.Patient.name.contains(q))
-    ).limit(10).all()
-    
-    return [{"id": p.id, "external_id": p.patient_id_external, "name": p.name} for p in patients]
+async def search_patients(q: str = "", db: Session = Depends(get_db)):
+    """Search patients by ID or Name. Returns all patients (up to 100) when q is empty."""
+    from sqlalchemy import func
+    query = db.query(models.Patient)
+    if q.strip():
+        query = query.filter(
+            (models.Patient.patient_id_external.contains(q)) |
+            (models.Patient.name.contains(q))
+        )
+    patients = query.order_by(models.Patient.patient_id_external).limit(100).all()
+    patient_ids = [p.id for p in patients]
+
+    class_counts = {}
+    integrity_flags = {}
+    if patient_ids:
+        rows = db.query(
+            models.ECGRecord.patient_id,
+            models.ECGRecord.classification,
+            func.count(models.ECGRecord.id)
+        ).filter(
+            models.ECGRecord.patient_id.in_(patient_ids)
+        ).group_by(
+            models.ECGRecord.patient_id, models.ECGRecord.classification
+        ).all()
+        for pid, cls, cnt in rows:
+            class_counts.setdefault(pid, {})[cls or "U"] = cnt
+
+        missing_hash = db.query(models.ECGRecord.patient_id).filter(
+            models.ECGRecord.patient_id.in_(patient_ids),
+            (models.ECGRecord.data_hash == None) | (models.ECGRecord.data_hash == "")
+        ).distinct().all()
+        for (pid,) in missing_hash:
+            integrity_flags[pid] = "unknown"
+
+    results = []
+    for p in patients:
+        counts = class_counts.get(p.id, {})
+        total = sum(counts.values())
+        dominant = max(counts, key=counts.get) if counts else None
+        results.append({
+            "id": p.id,
+            "external_id": p.patient_id_external,
+            "name": p.name,
+            "record_count": total,
+            "classifications": counts,
+            "dominant_class": dominant,
+            "integrity": integrity_flags.get(p.id, "ok"),
+        })
+    return results
 
 @app.get("/patient/{patient_id}", response_class=HTMLResponse)
 async def patient_timeline(patient_id: int, request: Request, db: Session = Depends(get_db)):
