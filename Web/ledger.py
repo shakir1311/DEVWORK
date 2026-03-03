@@ -41,56 +41,79 @@ def add_audit_entry(db: Session, actor_id: str, action: str, details: dict, auto
     """
     Add a new entry to the immutable audit ledger.
     
-    Uses a dedicated IMMEDIATE-mode connection for the read-last-hash + insert
-    so that SQLite acquires a write lock *before* reading the chain tail.
-    This prevents two concurrent processes from reading the same prev_hash and
-    forking the hash chain.
+    When auto_commit=True (default / Web app path), uses a dedicated
+    BEGIN IMMEDIATE connection so the read-last-hash + insert is atomic
+    and concurrent processes cannot fork the hash chain.
+    
+    When auto_commit=False (bulk experiment batch mode), the caller
+    already holds a write transaction, so we use the caller's ORM
+    session directly to keep everything in the same transaction.
     
     Args:
-        db: Database session (used for the caller's broader transaction)
+        db: Database session
         actor_id: Actor performing the action
         action: Action type
         details: Action details dict
-        auto_commit: If True (default), commits immediately. Set False for batch operations.
+        auto_commit: If True, uses a dedicated serialised connection.
+                     If False, appends to the caller's existing transaction.
     """
     from sqlalchemy import text
 
     timestamp = datetime.datetime.utcnow()
     details_str = json.dumps(details, sort_keys=True)
 
-    # Use the engine's raw connection with BEGIN IMMEDIATE to serialise
-    # the read-prev-hash + insert as an atomic unit, preventing chain forks.
-    engine = db.get_bind()
-    with engine.connect() as conn:
-        conn.execute(text("BEGIN IMMEDIATE"))
-        
-        row = conn.execute(
-            text("SELECT record_hash FROM audit_log ORDER BY id DESC LIMIT 1")
-        ).fetchone()
-        prev_hash = row[0] if row else "0" * 64
+    if auto_commit:
+        # Dedicated connection with BEGIN IMMEDIATE to serialise the
+        # read-prev-hash + insert as one atomic unit.
+        engine = db.get_bind()
+        with engine.connect() as conn:
+            conn.execute(text("BEGIN IMMEDIATE"))
 
-        record_hash = calculate_hash(
-            prev_hash, str(timestamp), actor_id, action, details_str
-        )
+            row = conn.execute(
+                text("SELECT record_hash FROM audit_log ORDER BY id DESC LIMIT 1")
+            ).fetchone()
+            prev_hash = row[0] if row else "0" * 64
 
-        conn.execute(
-            text(
-                "INSERT INTO audit_log (timestamp, actor_id, action, details, prev_hash, record_hash) "
-                "VALUES (:ts, :actor, :action, :details, :prev, :hash)"
-            ),
-            {
-                "ts": str(timestamp),
-                "actor": actor_id,
-                "action": action,
-                "details": details_str,
-                "prev": prev_hash,
-                "hash": record_hash,
-            },
-        )
-        conn.execute(text("COMMIT"))
+            record_hash = calculate_hash(
+                prev_hash, str(timestamp), actor_id, action, details_str
+            )
 
-    # Return an ORM object so callers can still inspect the new entry.
-    new_entry = db.query(models.AuditLog).order_by(models.AuditLog.id.desc()).first()
+            conn.execute(
+                text(
+                    "INSERT INTO audit_log (timestamp, actor_id, action, details, prev_hash, record_hash) "
+                    "VALUES (:ts, :actor, :action, :details, :prev, :hash)"
+                ),
+                {
+                    "ts": str(timestamp),
+                    "actor": actor_id,
+                    "action": action,
+                    "details": details_str,
+                    "prev": prev_hash,
+                    "hash": record_hash,
+                },
+            )
+            conn.execute(text("COMMIT"))
+
+        new_entry = db.query(models.AuditLog).order_by(models.AuditLog.id.desc()).first()
+        return new_entry
+
+    # Batch mode: caller owns the transaction, use ORM session directly.
+    last_entry = db.query(models.AuditLog).order_by(models.AuditLog.id.desc()).first()
+    prev_hash = last_entry.record_hash if last_entry else "0" * 64
+
+    record_hash = calculate_hash(
+        prev_hash, str(timestamp), actor_id, action, details_str
+    )
+
+    new_entry = models.AuditLog(
+        timestamp=timestamp,
+        actor_id=actor_id,
+        action=action,
+        details=details_str,
+        prev_hash=prev_hash,
+        record_hash=record_hash,
+    )
+    db.add(new_entry)
     return new_entry
 
 
