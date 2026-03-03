@@ -12,13 +12,27 @@ import sqlite3
 import hashlib
 import hmac
 import os
+from pathlib import Path
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "portal.db")
 
-LEDGER_HMAC_KEY = os.getenv(
-    "LEDGER_HMAC_KEY",
-    "CHANGE_ME_IN_PRODUCTION_phd_ledger_hmac_secret"
-).encode("utf-8")
+# Load .env from the same directory
+_env_path = Path(__file__).resolve().parent / ".env"
+if _env_path.exists():
+    for line in _env_path.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip())
+
+_raw_key = os.getenv("LEDGER_HMAC_KEY")
+if not _raw_key:
+    raise RuntimeError(
+        "LEDGER_HMAC_KEY is not set. "
+        "Create Web/.env with: LEDGER_HMAC_KEY=<64-char hex secret>"
+    )
+
+LEDGER_HMAC_KEY = _raw_key.encode("utf-8")
 
 
 def hmac_hash(prev_hash, timestamp, actor_id, action, details):

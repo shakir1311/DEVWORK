@@ -3,16 +3,28 @@ import hmac
 import json
 import datetime
 import os
+from pathlib import Path
 from sqlalchemy.orm import Session
 import models
 
-# HMAC secret key — stored outside the database so an attacker with DB-only
-# access cannot recompute valid hashes after tampering with field values.
-# Falls back to a dev-only default; production MUST set the env var.
-LEDGER_HMAC_KEY = os.getenv(
-    "LEDGER_HMAC_KEY",
-    "CHANGE_ME_IN_PRODUCTION_phd_ledger_hmac_secret"
-).encode("utf-8")
+# Load .env file from the Web/ directory so the key never needs to be
+# hardcoded in source.  The .env file is excluded from git via .gitignore.
+_env_path = Path(__file__).resolve().parent / ".env"
+if _env_path.exists():
+    for line in _env_path.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip())
+
+_raw_key = os.getenv("LEDGER_HMAC_KEY")
+if not _raw_key:
+    raise RuntimeError(
+        "LEDGER_HMAC_KEY is not set. "
+        "Create Web/.env with: LEDGER_HMAC_KEY=<64-char hex secret>"
+    )
+
+LEDGER_HMAC_KEY = _raw_key.encode("utf-8")
 
 
 def calculate_hash(prev_hash: str, timestamp: str, actor_id: str, action: str, details: str) -> str:
