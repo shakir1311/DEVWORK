@@ -20,6 +20,8 @@ from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from concurrent.futures import ThreadPoolExecutor, Future
 
+import threading
+
 import numpy as np
 import scipy.io
 from PyQt6.QtCore import QThread, pyqtSignal
@@ -74,6 +76,8 @@ class BulkExperimentWorker(QThread):
         
         self.reference_file = self.dataset_dir / "REFERENCE.csv"
         self.stop_requested = False
+        self._pause_event = threading.Event()
+        self._pause_event.set()  # Start in un-paused (running) state
         self.results: List[ExperimentResult] = []
         self.inference_results: List[Dict] = []
         
@@ -90,8 +94,19 @@ class BulkExperimentWorker(QThread):
         self.xai_enabled = xai_enabled
         
     def stop(self):
-        """Request stop."""
+        """Request stop. Also unblocks pause so the loop can exit."""
         self.stop_requested = True
+        self._pause_event.set()
+    
+    def pause(self):
+        """Pause the experiment loop after the current record finishes."""
+        self._pause_event.clear()
+        self.sig_status.emit("Experiment paused")
+    
+    def resume(self):
+        """Resume a paused experiment."""
+        self._pause_event.set()
+        self.sig_status.emit("Experiment resumed")
         
     def run(self):
         """
@@ -170,6 +185,9 @@ class BulkExperimentWorker(QThread):
             
             # ========== PROCESS EACH RECORD ==========
             for idx, (patient_id, ground_truth) in enumerate(patients):
+                # Block here while paused; unblocks instantly when not paused
+                self._pause_event.wait()
+                
                 if self.stop_requested:
                     self.sig_status.emit("Experiment stopped by user")
                     break

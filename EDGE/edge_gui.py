@@ -274,6 +274,13 @@ class EDGEGUI(QMainWindow):
         self.bulk_start_btn.clicked.connect(self._on_bulk_experiment_start)
         experiment_btns.addWidget(self.bulk_start_btn)
         
+        self.bulk_pause_btn = QPushButton("⏸")
+        self.bulk_pause_btn.setFixedWidth(40)
+        self.bulk_pause_btn.setEnabled(False)
+        self.bulk_pause_btn.setToolTip("Pause / Resume experiment")
+        self.bulk_pause_btn.clicked.connect(self._on_bulk_experiment_pause_toggle)
+        experiment_btns.addWidget(self.bulk_pause_btn)
+        
         self.bulk_stop_btn = QPushButton("⏹")
         self.bulk_stop_btn.setFixedWidth(40)
         self.bulk_stop_btn.setEnabled(False)
@@ -782,6 +789,8 @@ class EDGEGUI(QMainWindow):
         
         # Update UI
         self.bulk_start_btn.setEnabled(False)
+        self.bulk_pause_btn.setEnabled(True)
+        self.bulk_pause_btn.setText("⏸")
         self.bulk_stop_btn.setEnabled(True)
         self.ledger_checkbox.setEnabled(False)
         self.xai_checkbox.setEnabled(False)
@@ -789,6 +798,22 @@ class EDGEGUI(QMainWindow):
         
         # Start
         self.bulk_worker.start()
+    
+    def _on_bulk_experiment_pause_toggle(self):
+        """Toggle between pause and resume."""
+        if not self.bulk_worker:
+            return
+        
+        if self.bulk_worker._pause_event.is_set():
+            self.bulk_worker.pause()
+            self.bulk_pause_btn.setText("▶")
+            self.bulk_pause_btn.setToolTip("Resume experiment")
+            self.log_message("Experiment paused", "warning")
+        else:
+            self.bulk_worker.resume()
+            self.bulk_pause_btn.setText("⏸")
+            self.bulk_pause_btn.setToolTip("Pause experiment")
+            self.log_message("Experiment resumed", "info")
     
     def _on_bulk_experiment_stop(self):
         """Stop bulk experiment."""
@@ -830,6 +855,8 @@ class EDGEGUI(QMainWindow):
     def _reset_bulk_ui(self):
         """Reset bulk experiment UI after completion."""
         self.bulk_start_btn.setEnabled(True)
+        self.bulk_pause_btn.setEnabled(False)
+        self.bulk_pause_btn.setText("⏸")
         self.bulk_stop_btn.setEnabled(False)
         self.ledger_checkbox.setEnabled(True)
         self.xai_checkbox.setEnabled(True)
