@@ -309,16 +309,16 @@
             .catch(err => console.error("Polling error:", err));
     }
 
-    // Unified 3-second poll: new records + ECG integrity + system integrity
+    // Unified 3-second poll: new records + ECG integrity
     function pollAll() {
         checkForUpdates();
         verifyEcgRows();
-        checkIntegrity();
     }
 
     // Refresh on first load to defeat bfcache / stale server-rendered HTML
     refreshTableRows();
     pollAll();
+    checkIntegrity(); // Run only once on page refresh
     setInterval(pollAll, 3000);
 
     // --- ECG Record Integrity Verification ---

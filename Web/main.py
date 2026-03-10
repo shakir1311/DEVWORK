@@ -3,7 +3,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, defer
 from pydantic import BaseModel
 import json
 import datetime
@@ -65,8 +65,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     # In a real app, we'd check cookies/auth token here. 
     # For prototype, we assume if they can reach here they are authorized via the Login form JS.
     
-    # Fetch recent ECG records
-    records = db.query(models.ECGRecord).order_by(models.ECGRecord.timestamp.desc()).limit(20).all()
+    # Fetch recent ECG records (deferring the heavy ecg_data blob)
+    records = db.query(models.ECGRecord).options(defer(models.ECGRecord.ecg_data)).order_by(models.ECGRecord.timestamp.desc()).limit(20).all()
     
 
     return templates.TemplateResponse("dashboard.html", {
@@ -78,7 +78,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
 @app.get("/dashboard/rows", response_class=HTMLResponse)
 async def dashboard_rows(request: Request, db: Session = Depends(get_db)):
     """Returns just the table rows HTML for AJAX refresh"""
-    records = db.query(models.ECGRecord).order_by(models.ECGRecord.timestamp.desc()).limit(20).all()
+    records = db.query(models.ECGRecord).options(defer(models.ECGRecord.ecg_data)).order_by(models.ECGRecord.timestamp.desc()).limit(20).all()
     return templates.TemplateResponse("partials/rows.html", {"request": request, "records": records})
 
 @app.get("/history", response_class=HTMLResponse)
@@ -90,8 +90,8 @@ async def history_view(request: Request, page: int = 1, limit: int = 50, db: Ses
     total_count = db.query(models.ECGRecord).count()
     total_pages = (total_count + limit - 1) // limit
     
-    # Get paginated records
-    records = db.query(models.ECGRecord).order_by(models.ECGRecord.timestamp.desc()).offset(skip).limit(limit).all()
+    # Get paginated records (deferring the heavy ecg_data blob)
+    records = db.query(models.ECGRecord).options(defer(models.ECGRecord.ecg_data)).order_by(models.ECGRecord.timestamp.desc()).offset(skip).limit(limit).all()
     
     return templates.TemplateResponse("history.html", {
         "request": request,
